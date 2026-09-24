@@ -15,7 +15,7 @@ Built as a submission for the Technical Product Manager role at Lyzr AI (Archite
 This repo documents the full zero-to-one process, not just the code.
 
 1. **[Assignment brief](docs/00-assignment-brief.md):** how I read the ask and the judging criteria
-2. **[Competitive teardown](docs/01-competitive-teardown.md):** 7 tools tested hands-on with the same test app
+2. **[Competitive teardown](docs/01-competitive-teardown.md):** 5 tools tested hands-on with one identical prompt, 2 blocked at signup
 3. **[Voice of customer](docs/02-voice-of-customer.md):** what users praise and why they churn
 4. **[Architect today](docs/03-architect-today.md):** current flows, gaps, and my own friction as a user
 5. **[Personas and JTBD](docs/04-personas-and-jtbd.md)**

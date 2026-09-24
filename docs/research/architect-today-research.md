@@ -35,7 +35,7 @@ The brief says 2.0 must have everything the current Architect has. From the docs
 | 4 | "Build agents in any framework" is not supported. Agents are Lyzr agents or GitAgent | Agents docs | Framework picker: Lyzr, GitAgent, LangGraph, CrewAI, OpenAI Agents SDK, with the same run and trace UI |
 | 5 | Cost is visible only after the build | v2.2.0 usage breakdown | Estimate before running, per phase, with a spend cap. Matches the top voice-of-customer complaint |
 | 6 | No developer surfaces: no code editor, diff review, terminal, logs, or CLI in the builder | Docs describe no such views | A code view with file tree, diffs per change, logs, and a CLI or API path |
-| 7 | Deploy has no visible environments, version history, or rollback | Deployment docs | Preview vs production, version list, one-click rollback, "what is live" always visible |
+| 7 | No environments, and deploy status not tied to versions; per-commit revert already exists | Deployment docs; hands-on teardown | Preview vs production, and bind the version list to what is deployed so "what is live" is always visible |
 | 8 | Testing is a toggle with a time cost, and its results are not first-class | v2.2.0 changelog | Show test runs as checks the user can read, like CI |
 | 9 | Generated auth is email and password only | Database and Auth page | Offer OAuth providers and SSO for enterprise apps |
 

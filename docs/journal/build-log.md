@@ -21,8 +21,12 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 | 18:11 | Architecture stack section, decision log D7 to D10, README honesty pass. Ran the route guard check on a free port | 16 min | Claude Code, curl | `e9299e6`. Signed out, `/app` returns 307 to `/login?next=%2Fapp` at any depth. Auth reported as implemented but unverified against a live project |
 | 18:18 | Built the portfolio capture system: this build log, the metrics table, and the assets checklist. Added the CLAUDE.md rule that keeps them current | 7 min | Claude Code, git | Backfilled the day from git. Caught the stub count grep matching the metrics row that documented it, and anchored the pattern |
 | 18:24 | Removed the commit hashes that these two files used to quote for themselves | 6 min | Claude Code, git | An amend had already invalidated one. Entries now reference work, not hashes |
+| 19:02 | Wrote up the hands-on teardown. Matched 161 raw screenshots to the session log by Unix timestamp, reviewed the candidates, published 15, and rewrote [01](../01-competitive-teardown.md) from the log | 38 min | Claude Code, Chrome (teardown session run earlier by Abhishek), Python and Pillow for crop checks | Teardown numbers moved from pending to confirmed in [metrics](../portfolio/metrics.md). D11 logged: stop at 5 tools. 12 screenshots withheld for privacy, including both of Architect's best features |
 
-**Day total:** 6 h 5 min wall clock across 7 commits, 12:19 to 18:24.
+**Day total:** 6 h 43 min wall clock across 8 commits, 12:19 to 19:02.
+
+**Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
+38 minutes above covers only the write-up, not the hour of testing.
 
 **Ended the day blocked on:** competitive teardown notes for [01](../01-competitive-teardown.md), GroundTruth
 first-hand notes for [03](../03-architect-today.md), and Supabase credentials to verify a real sign-in.

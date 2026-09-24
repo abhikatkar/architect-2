@@ -36,7 +36,7 @@ Evidence for each is in the [research doc](research/architect-today-research.md#
 | 4 | "Build agents in any framework" is not actually supported | A framework picker (Lyzr, GitAgent, LangGraph, CrewAI, OpenAI Agents SDK) behind one run and trace UI |
 | 5 | Cost is visible only after the build | Estimate before running, per phase, with a spend cap |
 | 6 | No developer surfaces at all: no code editor, diffs, terminal, logs, or CLI | A code view with file tree, per-change diffs, logs, and an API path |
-| 7 | Deploy has no environments, version history, or rollback | Preview versus production, a version list, one-click rollback, and "what is live" always visible |
+| 7 | No environments, and deploy status is not tied to versions. Per-commit revert already exists, confirmed hands-on in [01](01-competitive-teardown.md) | Preview versus production, and bind the version list to what is deployed so "what is live" is always visible |
 | 8 | Testing is a toggle with a time cost, and results are not first-class | Show test runs as readable checks, the way CI does |
 | 9 | Generated auth is email and password only | Offer OAuth providers, and SSO for enterprise apps |
 

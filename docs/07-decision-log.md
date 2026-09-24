@@ -75,3 +75,14 @@ Format: date, decision, evidence, alternatives rejected.
   The block also re-creates itself after any manual removal.
 - **Rejected:** Committing the generated block. It would put a rule violation in the file that states the rule.
   Also rejected: deleting it after each run, since `next dev` simply writes it again.
+
+### D11. 2026-09-24: Stop the teardown at 5 tools, skip Bolt and Rocket
+- **Evidence:** Five tools were tested end to end and produced a clear, consistent picture: the cost, progress
+  and reliability findings repeat across Architect, Lovable, Replit, Emergent and v0, and the two positioning
+  answers the brief asks for are already supported. Bolt and Rocket both require creating new accounts, which
+  is out of scope, so finishing them would cost real time to sharpen a conclusion that is not in doubt.
+- **Rejected:** Creating two accounts to complete the set. Symmetry is not worth the time against a rubric that
+  ranks design first, and the pre-signup observations are still recorded in
+  [01-competitive-teardown.md](01-competitive-teardown.md).
+- **Honesty requirement:** Both tools are shown as untested everywhere they appear. Neither is given a timing,
+  a cost, or a place in the comparison table.
