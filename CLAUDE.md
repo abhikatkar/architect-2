@@ -20,6 +20,9 @@ Dummy flows are acceptable for everything else, but they must look and feel real
 - Never claim a simulated feature is functional. Update the "functional vs simulated" table in README.md.
 - Commit small and often with clear messages, prefixed: research:, spec:, design:, feat:, fix:, docs:.
 - Research docs contain synthesized insights in our own words. Never paste raw third-party text.
+- At the end of every task, append an entry to docs/journal/build-log.md (date, work done, time spent,
+  tools used, outcome). If any number in docs/portfolio/metrics.md changed, update it in the same commit.
+  Metrics are measured facts with a source. Never estimate a number to fill a row, leave it pending.
 
 ## Stack
 Next.js (App Router, TypeScript), Tailwind, Supabase (auth + Postgres), deployed on Vercel.

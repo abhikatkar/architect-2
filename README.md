@@ -25,6 +25,8 @@ This repo documents the full zero-to-one process, not just the code.
 9. **[Architecture](docs/08-architecture.md):** my stack and how it maps to Lyzr's backend
 10. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md)**
 11. **[Design](docs/design/):** the [design system](docs/design/design-system.md), the [screen inventory](docs/design/screen-inventory.md), and the [seed content](docs/design/content-and-seed-data.md) behind the build
+12. **[Build log](docs/journal/build-log.md):** what was done each day, and how long it took
+13. **[Metrics](docs/portfolio/metrics.md):** the hard numbers, each with the command that produced it
 
 ## What is functional vs simulated
 
