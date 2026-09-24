@@ -23,7 +23,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 | 18:24 | Removed the commit hashes that these two files used to quote for themselves | 6 min | Claude Code, git | An amend had already invalidated one. Entries now reference work, not hashes |
 | 19:02 | Wrote up the hands-on teardown. Matched 161 raw screenshots to the session log by Unix timestamp, reviewed the candidates, published 15, and rewrote [01](../01-competitive-teardown.md) from the log | 38 min | Claude Code, Chrome (teardown session run earlier by Abhishek), Python and Pillow for crop checks | Teardown numbers moved from pending to confirmed in [metrics](../portfolio/metrics.md). D11 logged: stop at 5 tools. 12 screenshots withheld for privacy, including both of Architect's best features |
 
-**Day total:** 6 h 43 min wall clock across 8 commits, 12:19 to 19:02.
+| 19:41 | Recovered the two moat screenshots by redaction instead of exclusion, and corrected the tool count everywhere | 39 min | Claude Code, Python and Pillow | Import and per-commit revert now have published evidence. D12 logged: crop or blur only, never retouch the UI. "7 tools" is now "5 tested, 2 blocked at signup" |
+
+**Day total:** 7 h 22 min wall clock across 9 commits, 12:19 to 19:41.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

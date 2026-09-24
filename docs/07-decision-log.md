@@ -16,7 +16,7 @@ Format: date, decision, evidence, alternatives rejected.
 
 ### D3. 2026-09-24: Research before design, split across three parallel streams
 - **Evidence:** "Think from first principles" is stated twice in the brief. First principles requires knowing what users actually struggle with.
-- **Streams:** hands-on teardown of 7 tools (Claude Cowork), voice of customer (Perplexity), Architect architecture and docs (Claude).
+- **Streams:** hands-on teardown, planned for 7 tools and completed for 5 (Claude Cowork), voice of customer (Perplexity), Architect architecture and docs (Claude). The cut to 5 is [D11](#d11-2026-09-24-stop-the-teardown-at-5-tools-skip-bolt-and-rocket).
 
 ### D4. 2026-09-24: Design artifacts live in docs/design/, not in renumbered top-level docs
 - **Evidence:** Design, UI/UX and flows is the top judging criterion, yet no doc owned the visual language,
@@ -86,3 +86,19 @@ Format: date, decision, evidence, alternatives rejected.
   [01-competitive-teardown.md](01-competitive-teardown.md).
 - **Honesty requirement:** Both tools are shown as untested everywhere they appear. Neither is given a timing,
   a cost, or a place in the comparison table.
+
+### D12. 2026-09-24: Redact screenshots by cropping and blurring, never by editing the UI
+- **Evidence:** The two capabilities that make the strongest case for Architect, private repo import and
+  per-commit revert, could not be shown at all under the original rule of skipping any frame containing a
+  credit balance or account details. Architect renders the balance in a persistent top bar, so every capture
+  of both features was disqualified, and the portfolio lost its best evidence to a blanket rule.
+- **Policy:** A published screenshot may be redacted only by cropping a region away or by blurring it beyond
+  recovery (pixelate, then blur). Nothing in the product interface may be moved, retouched, recoloured or
+  recomposed. Every redacted image is named `*-redacted` and captioned
+  "Account details redacted; UI otherwise unedited." so a reviewer knows exactly what was done.
+- **Applied to:** the GitHub handle, the organization name, private repository names, and the account balance
+  badge. Feature-bearing detail stays legible: the PRIVATE badges survive in the import frame, because the
+  claim being evidenced is that Architect lists private repos at all.
+- **Rejected:** Publishing the raw frames, which would expose a real person's private repository names.
+  Also rejected: retouching the balance to a plausible fake number, which is fabricating evidence, and
+  leaving the two features unevidenced, which was the status quo and the weakest option of the three.

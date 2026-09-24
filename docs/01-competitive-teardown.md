@@ -1,9 +1,12 @@
 # 01. Competitive teardown
 
-Seven tools, one identical prompt, one hour. Written from the timestamped session log in
+5 tested, 2 blocked at signup. One identical prompt, one hour. Written from the timestamped session log in
 [research/teardown-log.md](research/teardown-log.md). Screenshots in [research/screenshots/](research/screenshots/).
 
 ## Method
+
+The brief went to 7 tools. 5 were tested end to end. 2, Bolt and Rocket, were blocked at signup and are
+reported as untested throughout, with no timings and no place in the comparison table.
 
 The same brief went to every tool: a customer support agent with an FAQ knowledge base that escalates
 when unsure, plus a dashboard listing conversations by status with transcripts and a resolve action.
@@ -149,10 +152,21 @@ offers branch selection plus a monorepo subfolder, in five clicks and about 45 s
 support import at all, Emergent's modal is a dead end, and Replit's was blocked. Only v0 is comparable, and it
 lacks the subfolder control. This is the clearest moat in the product.
 
+![Architect import codebase modal, listing repositories with PRIVATE badges and a paste-a-URL field](research/screenshots/architect-repo-import-redacted.jpg)
+
+_Account details redacted; UI otherwise unedited._ The repository names are obscured and the PRIVATE badges
+left legible, because the point is that Architect lists private repos at all.
+
 **Per-commit revert.** Each build step is committed and pushed, and the sidebar offers "Revert to this
 version" against a specific commit, alongside a per-build test action. No other tool in the test exposed
 version history this way. This matters because it is the escape hatch that
 [02-voice-of-customer.md](02-voice-of-customer.md) identifies as the foundation of trust.
+
+![Architect sidebar showing commit 9d68560, Revert to this version, and a Test this build action, beside the Error Detected in Preview dialog](research/screenshots/architect-per-commit-revert-redacted.jpg)
+
+_Account details redacted; UI otherwise unedited._ The same frame captures both the moat and the failure:
+a revertable commit on the left, and on the right the error that appeared after the build was declared
+complete and verified.
 
 ## What this means for 2.0
 

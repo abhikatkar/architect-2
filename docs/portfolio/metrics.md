@@ -15,14 +15,14 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 8 | `git rev-list --count HEAD` |
+| Commits | 9 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-24 19:02 | `git log -1` |
-| Wall clock, first to last commit | 6 h 43 min | Difference of the two rows above. Wall clock, not effort |
+| Latest commit | 2026-09-24 19:41 | `git log -1` |
+| Wall clock, first to last commit | 7 h 22 min | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 1 | Same |
-| Decision log entries | 11 | `grep -c '^### D' docs/07-decision-log.md` |
-| Tracked files | 63 | `git ls-files \| wc -l` |
-| Tracked files under docs/ | 34 | `git ls-files 'docs/*' \| wc -l` |
+| Decision log entries | 12 | `grep -c '^### D' docs/07-decision-log.md` |
+| Tracked files | 65 | `git ls-files \| wc -l` |
+| Tracked files under docs/ | 36 | `git ls-files 'docs/*' \| wc -l` |
 | Docs still stubs | 7 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
 
 ## Product
@@ -43,7 +43,7 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 
 | Metric | Value |
 |---|---|
-| Tools tested end to end | 5 of 7. Bolt and Rocket blocked at signup, see [D11](../07-decision-log.md) |
+| Tools | 5 tested, 2 blocked at signup. Bolt and Rocket, see [D11](../07-decision-log.md) |
 | Architect: prompt to working preview | 42 min |
 | Architect: build cost | $2.90, plus $0.43 auto-fix, $3.33 total |
 | Architect: share of balance consumed by one build | about 45% of $7.33 |
@@ -58,7 +58,7 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Tools that deployed a working agent | 1 of 5, Lovable only |
 | Tools supporting repo import | 2 of 5 fully, Architect and v0 |
 | Distinct errors or dead ends logged | Architect 9, Lovable 7, Replit 6, Emergent 6, v0 5 |
-| Screenshots captured | 161 raw, 15 published to [research/screenshots/](../research/screenshots/) |
+| Screenshots captured | 161 raw, 17 published to [research/screenshots/](../research/screenshots/), of which 2 are redacted per [D12](../07-decision-log.md) |
 
 ## Verified behaviour
 
