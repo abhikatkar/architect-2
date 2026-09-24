@@ -43,6 +43,44 @@ Evidence for each is in the [research doc](research/architect-today-research.md#
 Gap 5 is the same complaint that tops [02-voice-of-customer.md](02-voice-of-customer.md), reached from a
 completely different direction. That convergence is worth weighting heavily.
 
+## Three findings from the before capture
+
+Desk research gave the shape of these gaps. A capture session on the live product on 2026-09-24 gave the
+specifics, and each one is worse than the docs suggest. Screenshots in
+[portfolio/assets/before/](portfolio/assets/before/), redacted per [D12](07-decision-log.md).
+
+**1. "Edit in Studio" loses the agent, not just the tab.** The button exists only on the Agents tab and is
+covered by the sticky Credits popover. Clicking it opens a new browser tab, blanks on "Loading" for about
+40 seconds, and lands on a Studio folder listing named after the app, showing a single card. It is not
+deep-linked to the agent editor, and it carries no workflow canvas, knowledge base or response schema, so
+the user has to click again to reach what they wanted. Studio also reports the same balance in a different
+unit from Architect, and its visual design does not match.
+[05-edit-in-studio-redacted.jpg](portfolio/assets/before/05-edit-in-studio-redacted.jpg)
+
+This sharpens gap 1. The problem is not only that editing lives in another product, it is that the handoff
+drops the user's context on the way.
+
+**2. A Python repo was accepted for import with no warning, on the wrong branch.** Importing
+`pallets/flask`, a Flask project, produced no compatibility error at any pre-send step, even though import
+officially supports Next.js only. The modal showed the same "ports the parts it needs" copy as a valid repo
+and preselected the branch `automatic-options` rather than the repository's actual default. Nothing showed
+a cost before Send.
+[12-import-nonnext-modal-redacted.jpg](portfolio/assets/before/12-import-nonnext-modal-redacted.jpg),
+[13-import-nonnext-attached-redacted.jpg](portfolio/assets/before/13-import-nonnext-attached-redacted.jpg)
+
+This makes gap 3 concrete and worse. An unsupported repo does not fail early, it fails after the user has
+spent credits on a build.
+
+**3. A GitHub repo was created and set to auto-sync without the user ever clicking Push.** Earlier the same
+modal read "No repository yet. Push your code to create one". After the build and auto-fix, it showed a
+connected repository with "Account connected, code syncs automatically", a branch selector and Pull and Push
+controls. Push was never clicked. The modal does not show whether the created repo is public or private.
+[08-github-modal-redacted.jpg](portfolio/assets/before/08-github-modal-redacted.jpg)
+
+This is more serious than the one-way-push limitation in gap 6. Writing to a user's GitHub account without
+an explicit action is a consent problem, and it is the sharpest argument for the "Own it" principle in
+[05-product-strategy.md](05-product-strategy.md).
+
 ## The design problem this sets up
 
 The guided path is an asset, not a liability, and 2.0 should not trade it away to win developers. The problem

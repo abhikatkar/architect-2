@@ -6,7 +6,7 @@ came from, so any of them can be re-derived.
 **Rule for this file:** measured facts only. No estimates, no projections, no rounded guesses. A number
 that cannot be sourced belongs in [Pending](#pending) until it can be.
 
-_As of 2026-09-24, end of day._
+_As of 2026-09-25._
 
 Counts are read after the commit that last touched this file. A row must never name the commit that
 carries it, because amending or rebasing changes that hash and silently makes the row a lie.
@@ -15,15 +15,15 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 9 | `git rev-list --count HEAD` |
+| Commits | 10 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-24 19:41 | `git log -1` |
-| Wall clock, first to last commit | 7 h 22 min | Difference of the two rows above. Wall clock, not effort |
-| Calendar days elapsed | 1 | Same |
-| Decision log entries | 12 | `grep -c '^### D' docs/07-decision-log.md` |
-| Tracked files | 65 | `git ls-files \| wc -l` |
-| Tracked files under docs/ | 36 | `git ls-files 'docs/*' \| wc -l` |
-| Docs still stubs | 7 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
+| Latest commit | 2026-09-25 10:14 | `git log -1` |
+| Wall clock, first to last commit | 7 h 22 min on day 1, plus 52 min on day 2 | Difference of the two rows above. Wall clock, not effort |
+| Calendar days elapsed | 2 | Same |
+| Decision log entries | 15 | `grep -c '^### D' docs/07-decision-log.md` |
+| Tracked files | 77 | `git ls-files \| wc -l` |
+| Tracked files under docs/ | 48 | `git ls-files 'docs/*' \| wc -l` |
+| Docs still stubs | 5 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
 
 ## Product
 
@@ -58,7 +58,7 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Tools that deployed a working agent | 1 of 5, Lovable only |
 | Tools supporting repo import | 2 of 5 fully, Architect and v0 |
 | Distinct errors or dead ends logged | Architect 9, Lovable 7, Replit 6, Emergent 6, v0 5 |
-| Screenshots captured | 161 raw, 17 published to [research/screenshots/](../research/screenshots/), of which 2 are redacted per [D12](../07-decision-log.md) |
+| Screenshots captured | 161 teardown raw, 17 published to [research/screenshots/](../research/screenshots/). 14 "before" captures, 11 published to [assets/before/](assets/before/). 12 of the 28 published are redacted per [D12](../07-decision-log.md) |
 
 ## Verified behaviour
 

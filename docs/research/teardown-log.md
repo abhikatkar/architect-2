@@ -1,7 +1,10 @@
 > Raw session log from the hands-on teardown, kept for provenance. Synthesized findings live in
 > [01-competitive-teardown.md](../01-competitive-teardown.md). Times are UTC. IST is UTC plus 5:30,
 > so the 06:37 to 07:34 window here is 12:07 to 13:04 IST.
-> One em dash in the 07:06:00 entry was replaced with a comma, per the repo's no-dash rule. Nothing else changed.
+> Two changes from the session file, both marked here and nowhere else. One em dash in the 07:06:00 entry
+> was replaced with a comma, per the repo's no-dash rule. Account usernames were replaced with `<handle>`
+> and `<replit-user>`, to match the blurring applied to the screenshots under [D12](../07-decision-log.md).
+> No timing, cost, observation or finding was altered.
 
 # Vibe-coding platform audit log (2026-09-24, IST)
 Standard prompt (identical on all 7):
@@ -31,7 +34,7 @@ Columns per tool: signup steps / signup time / prompt->first preview / agent+bac
 ## Replit
 - 06:42:26 landing: prompt box + Website/Mobile/Design/Slides/Animation types. Clicked 'Create account'
 - 06:42:39 Replit signup modal: Google / Email / 'View more options'; reCAPTCHA Enterprise notice. Google chooser popup opened, waiting on human
-- 06:42:50 Replit: EXISTING account (user katkarabhishek, 2021 repls). Landed /~ Home. Interrupt: 'Do it all with Free mode' tour modal + 'Projects and Assets are now in your Library' tooltip. Prompt box defaults to 'Free' mode; sidebar upsell 'Use smarter models GPT-6 Astra & Claude Fable'. Signup/login ~30s incl human click.
+- 06:42:50 Replit: EXISTING account (user <replit-user>, 2021 repls). Landed /~ Home. Interrupt: 'Do it all with Free mode' tour modal + 'Projects and Assets are now in your Library' tooltip. Prompt box defaults to 'Free' mode; sidebar upsell 'Use smarter models GPT-6 Astra & Claude Fable'. Signup/login ~30s incl human click.
 - 06:42:40 Architect: build log visible (timestamps): 'Designing persistent schema', '2 actions', ERROR row 'Could not read the database re...' 12:12:44, then 'Database provisioning is complete. Delegating FAQ KB, hosted agent, workflow... to agent_creator'. Top bar now: Plan/Agents/App/Database tabs, refresh, GitHub icon, Preview, Deploy.
 - 06:43:10 Replit 2nd tour 'Just start chatting' (3 steps) + mode picker: Free (no credits, limits refresh) / Power (locked) / Max (locked); 'We've renamed our Agent modes' notice. Free model 'Auto' locked too.
 - 06:43:26 PROMPT SENT (Replit, Free mode)
@@ -45,7 +48,7 @@ Columns per tool: signup steps / signup time / prompt->first preview / agent+bac
 - 06:45:15 PROMPT SENT (Emergent)
 - 06:45:05 Emergent: Enter key did NOT submit (needs click on arrow). Sent 06:45:29 -> /chat 'Agent is running', 'Upgrade Plan' button top-right, Code/Preview/Publish(disabled) buttons, Auto model + Build mode.
 ## v0
-- 06:45:40 v0: navigating to v0.app directly was blocked by my browser permissions; v0.dev redirected to v0.app/abhikatkars-projects ALREADY LOGGED IN (existing Vercel acct, a prior draft 'RumisYourRoomie'). Model picker defaults 'v0 Max'; 'Project' scope toggle.
+- 06:45:40 v0: navigating to v0.app directly was blocked by my browser permissions; v0.dev redirected to v0.app/<handle>s-projects ALREADY LOGGED IN (existing Vercel acct, a prior draft 'RumisYourRoomie'). Model picker defaults 'v0 Max'; 'Project' scope toggle.
 - 06:46:25 PROMPT SENT (v0)
 - 06:46:00 v0: Enter on first prompt opened 'Welcome to the new team experience' modal (personal acct converted to team) and PROMPT WAS LOST. Model silently flipped v0 Max -> v0 Mini after modal. Balance $5.
 - 06:46:45 PROMPT SENT again (v0, v0 Mini). Split view chat + Preview 'Your v0 generation will show here'; thinking visible ('need ai-sdk skills... persistence... database'). Publish + Invite top-right.
@@ -72,7 +75,7 @@ Columns per tool: signup steps / signup time / prompt->first preview / agent+bac
 - Emergent: 'Thinking...' post-answers; right pane still tour carousel (1M Context Window).
 - 06:52:00 v0 GitHub: NOT in top bar or '...' menu (which has Download ZIP / Transfer). Found via '+' tab menu (Code, Database, Diff, Logs, Terminal, Settings) -> Settings -> GitHub: 'No GitHub repository connected' + Connect. 4 clicks deep. Settings also shows auto-created Vercel project 'customer-support-agent-dashboard', Visibility PUBLIC by default ('Anyone with the URL can view your app').
 - Replit GitHub popup was closed by user (not authorized).
-- 06:52:10 v0 GitHub Connect -> 'Create Repository' modal instantly (GitHub already linked to the Vercel account from before: scope abhikatkar). Creates NEW PRIVATE repo 'customer-support-agent-dashboard'; v0 pushes to a branch on every message. No option to pick an existing repo here. Cancelled (didn't create repo in user's GitHub). Connect = 2 clicks after discovery.
+- 06:52:10 v0 GitHub Connect -> 'Create Repository' modal instantly (GitHub already linked to the Vercel account from before: scope <handle>). Creates NEW PRIVATE repo 'customer-support-agent-dashboard'; v0 pushes to a branch on every message. No option to pick an existing repo here. Cancelled (didn't create repo in user's GitHub). Connect = 2 clicks after discovery.
 - 06:52:30 v0 Publish flow: step1 Visibility (Public only on free; Team/Team-or-password/Password need Advanced Deployment Protection or v0 Enterprise) -> Continue -> step2 Domains (default customer-support-agent-dashboard-thre...vercel.app, Add Custom Domain) -> Publish. Clicked Publish 06:52:49
 - 06:53:10 v0 deploy: Production Deployment panel: Uploading -> Building; ERROR toast 'Failed to assign domain' (red) while building. Panel also shows Customize Domain, Visibility Public, Inspect on Vercel, Analytics 0 visitors, Create GitHub Repository.
 - 06:53:10 Architect still 'Building your app' ~15 min since prompt (est 'usually 4-6 min' since build start 06:41 = 12 min). UIGenerator inspecting auth internals.
@@ -98,10 +101,10 @@ Columns per tool: signup steps / signup time / prompt->first preview / agent+bac
 - 07:02:10 Emergent credits 10.00 -> 8.12 (1.88 used so far, build unfinished). Home '+' menu: Upload file / Import from Github / Auto (model) / Advanced controls. GitHub import lives on the HOME prompt, not inside a project.
 - 07:04:00 Emergent Import from GitHub modal: tabs Private (needs 'Connect to Github') / Public (URL + branch). Public URL resolved nextjs/saas-starter + branches (main, update, update-15-stable, update-me) within ~3s BUT modal has NO import/continue button (DOM check: only Close, 2 tabs, 1 unlabeled icon). Dead end after ~1.5 min. BUG/CONFUSION.
 - 07:04:30 Emergent: ~16 min 'Thinking...' no output. Architect: ~23 min building; several red-error action rows ('Applying the two remaining UI inserts separately to avoid overlapping replacements'); still 'usually 4-6 min' label.
-- 07:05:00 Architect GitHub: top-bar GitHub icon (1 click) -> modal 'GitHub Connected @abhikatkar' (connected from earlier use), 'No repository yet. Push your code to create one', optional repo name, push destination, 'Push code to GitHub' = one-way push/create new repo; Disconnect. Did not push. Credits still 6.97 (build cost so far $0.36).
-- 07:06:00 Architect import: Home '+' menu -> Add files / Add studio agents / Select theme / Import codebase. Modal 'Connected as @abhikatkar', lists user's repos INCLUDING PRIVATE (existing connection has private access), search + 'paste owner/repo or GitHub URL'. Copy: 'Architect keeps its own project and ports the parts it needs, it doesn't run your repo as-is.'
+- 07:05:00 Architect GitHub: top-bar GitHub icon (1 click) -> modal 'GitHub Connected @<handle>' (connected from earlier use), 'No repository yet. Push your code to create one', optional repo name, push destination, 'Push code to GitHub' = one-way push/create new repo; Disconnect. Did not push. Credits still 6.97 (build cost so far $0.36).
+- 07:06:00 Architect import: Home '+' menu -> Add files / Add studio agents / Select theme / Import codebase. Modal 'Connected as @<handle>', lists user's repos INCLUDING PRIVATE (existing connection has private access), search + 'paste owner/repo or GitHub URL'. Copy: 'Architect keeps its own project and ports the parts it needs, it doesn't run your repo as-is.'
 - 07:06:40 Architect import cont.: pasted URL -> Use -> repo/branch(main)/optional subfolder (monorepo) -> 'Use this repo' -> attaches chip 'nextjs/saas-starter main · will import' to prompt. ~45s, 5 clicks. Stopped before sending (would start a credit-consuming build). Best import UX of those tested.
-- 07:07:40 v0 import: New Chat dropdown -> Blank Chat / Import from GitHub / Start from Template. Modal: Import from a URL + repo list (scope abhikatkar, shows his repos w/ dates, search, Refresh, per-row Import). Clicked Import URL nextjs/saas-starter 07:06:03
+- 07:07:40 v0 import: New Chat dropdown -> Blank Chat / Import from GitHub / Start from Template. Modal: Import from a URL + repo list (scope <handle>, shows his repos w/ dates, search, Refresh, per-row Import). Clicked Import URL nextjs/saas-starter 07:06:03
 - 07:08:00 v0 import cont.: 'Create a New Project' form (Team, Project Name saas-starter, Base Branch main (locked), Root Directory ./) -> Create Project. ~10s after Import. Stopped before creating a second Vercel project. Import = 4 clicks + paste; supports public URL w/o extra auth.
 - 07:10:30 Architect: 'Running the final clean diagnosis and probes', 'Working sandbox' (~29 min). Emergent: still 'Thinking...' (~22 min after answers). Bolt/Rocket: no user action yet.
 - 07:16:30 Emergent: after page reload, chat history LOST the welcome msg + my 5 Q&A answers; only original prompt + 'Thinking...' + 'Agent is running'. ~28 min no visible output. Treating as hung/stalled. BUG.

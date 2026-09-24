@@ -102,3 +102,47 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** Publishing the raw frames, which would expose a real person's private repository names.
   Also rejected: retouching the balance to a plausible fake number, which is fabricating evidence, and
   leaving the two features unevidenced, which was the status quo and the weakest option of the three.
+
+### D13. 2026-09-25: The thesis is "See it. Steer it. Own it. Ship it safely."
+- **Decision:** Architect 2.0 is the agentic app builder where every layer is visible, steerable, and yours.
+  Four principles carry it: See it (know what is happening and what it costs), Steer it (open and control any
+  layer at your depth), Own it (your code and agents are yours), Ship it safely (going live never surprises you).
+- **Evidence:** Each principle is anchored to a measured failure, not a slogan. See it: a 42 minute build
+  behind a "4 to 6 min" label, and $3.33 spent with no estimate ([01](01-competitive-teardown.md)). Steer it:
+  diagnosing one misbehaving agent took about 8 technical steps, and agent editing lives in a different product
+  ([03](03-architect-today.md)). Own it: a GitHub repo was created and set to auto-sync with no user action, and
+  import accepted an unsupported Flask repo silently ([03](03-architect-today.md)). Ship it safely: Marketplace
+  publishing defaults to on and spends the owner's credits, and admin access requires a server env var.
+- **Rejected:** "Fastest prompt to app", which is the category's existing promise and the one the teardown
+  shows every tool failing to keep. Also rejected: positioning purely at developers, which abandons the
+  audience Architect already has.
+- **Full strategy:** [05-product-strategy.md](05-product-strategy.md).
+
+### D14. 2026-09-25: One product, depth on demand, with no technical mode switch
+- **Decision:** Every screen opens on the guided layer (plain language, progress, cost, one next action), and
+  every guided element carries an "Open details" affordance that reveals the layer underneath: plan becomes PRD,
+  agent card becomes config files, preview becomes code and diff, deploy becomes logs and versions. Onboarding
+  asks how the user likes to build, and that only sets a default depth. Nothing the developer layer adds may
+  clutter the guided layer.
+- **Evidence:** Both personas leave at the same moment, when the product becomes a black box: the business
+  builder cannot see why, the developer cannot see how ([04](04-personas-and-jtbd.md)). A single surface with
+  progressive depth serves both without building the product twice.
+- **Rejected:** A mode toggle splitting the product into "simple" and "advanced". It forces a self-assessment
+  at the moment of least information, strands each audience in a half-product, and doubles the design and build
+  surface. Also rejected: separate products per audience, which is the Architect and Studio split that
+  [finding 1 in 03](03-architect-today.md) shows already breaking context today.
+
+### D15. 2026-09-25: The signature feature is the "Why did it do that?" guided reliability loop
+- **Decision:** When an agent answers badly, the builder clicks "Why did it do that?" and gets the run trace in
+  plain language (retrieved sources, each agent's step, where confidence dropped) plus a suggested fix they can
+  preview before applying. Developers see the same trace with raw parameters and diffs.
+- **Evidence:** GroundTruth Part 5. Diagnosing one misbehaving agent took about 8 technical steps: reading the
+  verification reasoning, isolating retrieval, finding the model parameter panel, and lowering temperature from
+  0.4 to 0.2. A non-technical builder cannot do any of that, and it is the exact moment Persona A abandons the
+  product ([04](04-personas-and-jtbd.md)). It also matches Lyzr's own stated direction toward an agent workbench
+  ([research/architect-today-research.md](research/architect-today-research.md)).
+- **Rejected:** Exposing raw traces to everyone, which is what today's product effectively does and which only
+  serves the developer. Also rejected: an automatic silent fix, which removes the learning and repeats the
+  teardown's worst pattern, billing the user for the platform's own retries.
+- **Why this one:** it is the single screen where "Steer it" becomes visible, and it is the clearest thing
+  neither the prompt-to-app builders nor the codebase-native agents currently offer.
