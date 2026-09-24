@@ -30,8 +30,8 @@ This repo documents the full zero-to-one process, not just the code.
 
 | Area | Status |
 |---|---|
-| Authentication | Planned (Supabase) |
-| Database | Planned (Supabase) |
+| Authentication | Google sign-in implemented via Supabase. The signed-out route guard is verified locally. A real sign-in has not been tested yet, because it needs a live Supabase project |
+| Database | Planned (Supabase). Nothing built yet |
 | Everything else | Simulated |
 
 ## Stack

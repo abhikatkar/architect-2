@@ -43,3 +43,35 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** Reading the brief's "2.0" as a literal version target. Stating the distinction explicitly in
   [03-architect-today.md](03-architect-today.md) also shows reviewers that the real product was studied,
   which a version-number reading would not.
+
+### D7. 2026-09-24: Use @supabase/ssr with cookie based sessions
+- **Evidence:** Sessions must be readable by React Server Components, because the protected page checks the
+  user on the server. A token in localStorage is invisible to the server, which forces every guard into the
+  client where it can be bypassed. `@supabase/ssr` stores the session in cookies and refreshes it on the
+  server, which keeps the check where it belongs.
+- **Rejected:** `@supabase/auth-helpers-nextjs`, which Supabase has deprecated in favour of `@supabase/ssr`.
+  Also rejected: the plain `supabase-js` browser client on its own, for the localStorage reason above.
+
+### D8. 2026-09-24: Guard routes in proxy.ts, not per page, and adopt the new file name
+- **Evidence:** One guard covering `/app` and everything below it cannot be forgotten when a route is added,
+  whereas a per-page check is opt-in and silently absent on any page that omits it. The proxy also has to run
+  regardless, because that is where the session token gets refreshed. Next 16 renamed the `middleware` file
+  convention to `proxy` and warns on the old name at build time, so the repo uses `proxy.ts`.
+- **Rejected:** Per page guards alone. The protected page does still re-check the user, but as a second layer,
+  not as the only one.
+- **Note:** With no Supabase credentials present, the guard denies protected routes instead of passing the
+  request through. A configuration mistake should fail closed.
+
+### D9. 2026-09-24: Namespace authenticated product routes under /app
+- **Evidence:** A single prefix makes the guard a one-line rule and keeps marketing pages, auth routes, and
+  the product itself visibly separate in both the URL and the file tree. It also leaves the root path free
+  for the homepage the brief asks for.
+- **Rejected:** Authenticated routes at the root, for example `/builder` and `/agents` as siblings of `/`.
+  That spreads the guard across a list of paths that has to be maintained by hand.
+
+### D10. 2026-09-24: Set agentRules: false in next.config.ts
+- **Evidence:** `next dev` appends a generated instructions block to `CLAUDE.md` on every run. That file holds
+  this project's own instructions, and the generated text contains em dashes, which those instructions forbid.
+  The block also re-creates itself after any manual removal.
+- **Rejected:** Committing the generated block. It would put a rule violation in the file that states the rule.
+  Also rejected: deleting it after each run, since `next dev` simply writes it again.
