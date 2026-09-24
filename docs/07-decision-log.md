@@ -146,3 +146,32 @@ Format: date, decision, evidence, alternatives rejected.
   teardown's worst pattern, billing the user for the platform's own retries.
 - **Why this one:** it is the single screen where "Steer it" becomes visible, and it is the clearest thing
   neither the prompt-to-app builders nor the codebase-native agents currently offer.
+
+### D16. 2026-09-25: Per-user projects in Supabase are the database deliverable
+- **Decision:** the real Postgres work is projects stored per user, created and listed from the home screen
+  ([screen 4](design/screen-inventory.md)), plus the onboarding depth preference on the profile
+  ([screen 3](design/screen-inventory.md)). Row level security scopes every row to its owner. Everything
+  downstream of a project, the plan, agents, build, code and deploy, stays simulated.
+- **Evidence:** the rubric names "database or Google sign-in" as the bonus, so one honest, working slice beats
+  a broad but shallow schema. Projects are also the only entity a reviewer will actually exercise: sign in,
+  create something, sign out, sign back in, and find it still there. That round trip is what proves the
+  database is real, and it is cheap to build.
+- **Rejected:** persisting simulated build artifacts, agent configs and deploy history. It multiplies schema
+  and seeding work, competes with design time, and earns nothing against a rubric that ranks working
+  functionality last. Also rejected: no database at all, which forfeits the stated bonus.
+- **Honesty requirement:** [README.md](../README.md) names exactly which rows are real. A simulated flow that
+  happens to read a real project row is still a simulated flow.
+
+### D17. 2026-09-25: Scope the build in P0, P1, P2 tiers
+- **Decision:** every screen in [design/screen-inventory.md](design/screen-inventory.md) carries a tier. P0
+  must ship for submission, P1 should ship, P2 is shown only if time allows. The eight features the brief
+  names are all P0, and so are the screens that carry the thesis: the single plan gate, the build stage
+  checklist, the "Why did it do that?" trace, the code and diff view, the import compatibility report, and
+  deploy with environments and rollback.
+- **Evidence:** the rubric ranks design and flows first and feature coverage second, so the failure mode is a
+  wide set of shallow screens rather than a narrow set of finished ones. Tiering decides in advance what gets
+  cut when time runs short, instead of leaving that to the last night.
+- **Rejected:** building in route order, which would spend the best hours on settings and templates. Also
+  rejected: leaving priority implicit, which in practice means whatever is half-built at the deadline ships.
+- **Consequence:** if a P0 screen is at risk, a P1 or P2 screen is cut first. P2 items may appear as static
+  screens with no interaction, and the README must not imply otherwise.
