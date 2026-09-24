@@ -198,3 +198,50 @@ Format: date, decision, evidence, alternatives rejected.
   same bug with extra steps.
 - **Generalises to:** any control on the critical path. A first click that silently does nothing is the most
   expensive possible failure on a sign-in screen, because the user concludes the product is broken.
+
+### D20. 2026-09-25: The design language is blueprint, and mono means raw
+- **Decision:** the product reads as a blueprint. A precise drawing anyone can take in at a glance, with detail
+  available when you lean in. Eight colour tokens, each with exactly one meaning, and dark mode is blueprint
+  navy rather than black. Instrument Sans carries the whole interface. JetBrains Mono appears only where the
+  text is literally what the machine sees: code, config, logs, diffs, terminal.
+- **Why mono carries meaning:** the dual-mode rule in [D14](#d14-2026-09-25-one-product-depth-on-demand-with-no-technical-mode-switch)
+  needs the user to know which depth they are in without reading a label. Making the typeface the signal means
+  the guided and details layers are distinguishable at a glance, with no chrome and no mode indicator.
+- **Also decided:** `cost` is used for money and nothing else, `live` means "this is what users see" and never
+  "success" in general, and status is never colour alone, so it always carries an icon and a word. That last
+  rule is the accessibility floor and the reason the token set stays this small.
+- **Rejected:** the category default of a near-black canvas with a neon accent, gradient washes, uniform
+  rounded cards with one soft shadow, and monospace as decoration. All five tested tools and generic generated
+  UI converge on that look, and the brief asks for first-principles design, so converging on it would be a
+  failure regardless of how it looked.
+- **Implementation note:** the design system says the tokens are exposed in `tailwind.config`. This repo is on
+  Tailwind v4, which has no JS config file, so the equivalent is the `@theme` block in
+  [app/globals.css](../app/globals.css). Same tokens, same utility names, different file.
+
+### D21. 2026-09-25: Responsive from 360 px to 1920 px, verified by script
+- **Decision:** every screen works from a 360 px phone to a 1920 px monitor, designed mobile-aware from the
+  start rather than shrunk at the end. A P0 screen is not done until it has been checked at 375, 768, 1280 and
+  1920 px in both themes.
+- **Made enforceable:** [scripts/responsive-check.mjs](../scripts/responsive-check.mjs) drives the installed
+  Chrome over CDP, reports `documentElement.scrollWidth` against `innerWidth` at each width, and captures a
+  screenshot. Overflow must be 0.
+- **Evidence for scripting it:** the first screenshots of the token page appeared badly broken at 375 px, with
+  text clipped at the right edge. Measurement showed overflow was 0 and the layout was correct. Passing
+  `--window-side` to headless Chrome without Emulation device metrics lays the page out wide and then crops
+  the image, which looks exactly like a responsive bug. Eyeballing screenshots would have sent me to fix
+  working code.
+- **Rejected:** checking by eye at whatever width the window happened to be, and adding Playwright, which
+  wanted a browser download when the machine already has Chrome.
+
+### D22. 2026-09-25: The Code tab is read-only on phones
+- **Decision:** the Code tab offers the full editor, diff and terminal from 640 px up. Below that it is
+  deliberately read-only: browse files, read diffs, accept or revert changes.
+- **Evidence:** editing code on a phone keyboard is a poor experience in every tool that offers it. Shipping a
+  cramped editor would spend design effort on a path nobody completes, and would break the promise in
+  [D14](#d14-2026-09-25-one-product-depth-on-demand-with-no-technical-mode-switch) that depth is always usable
+  once revealed.
+- **Rejected:** hiding the Code tab entirely on phones, which would leave a developer unable to review what
+  changed while away from a desk, and that review is the main reason to open the product on a phone at all.
+- **Honesty requirement:** the phone view says it is read-only. It does not present a disabled editor and
+  leave the user guessing why typing does nothing, which is the same class of failure as
+  [D19](#d19-2026-09-25-auth-controls-must-work-before-hydration).

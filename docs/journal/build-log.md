@@ -37,7 +37,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 11:36 | Added the GroundTruth friction note and the screen inventory. Fixed the first-click auth bug, flipped auth to functional, logged D16 to D19 | 1 h 22 min | Claude Code, curl, Next dev server | Sign in is now a server-handled form post, verified working with no JavaScript executed. Doc 03's last pending section is closed. 23 screens tiered P0 to P2 |
 
-**Day total so far:** 2 h 14 min across 5 commits.
+| 13:08 | Added the design system doc. Built the token foundation: 8 colours in both themes, Instrument Sans and JetBrains Mono, the type scale, radius and spacing, plus a `/dev/tokens` review page | 1 h 32 min | Claude Code, Chrome over CDP | Verified at 375, 768, 1280 and 1920 px with overflow 0 at every width. Nearly "fixed" a responsive bug that did not exist: headless screenshots without device metrics crop a wide layout and look broken. Wrote [scripts/responsive-check.mjs](../../scripts/responsive-check.mjs) so the check is measured, not eyeballed |
+
+**Day total so far:** 3 h 46 min across 6 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

@@ -15,25 +15,26 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 14 | `git rev-list --count HEAD` |
+| Commits | 15 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-25 11:36 | `git log -1` |
-| Wall clock, first to last commit | 7 h 22 min on day 1, plus 2 h 14 min on day 2 | Difference of the two rows above. Wall clock, not effort |
+| Latest commit | 2026-09-25 13:08 | `git log -1` |
+| Wall clock, first to last commit | 7 h 22 min on day 1, plus 3 h 46 min on day 2 | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 2 | Same |
-| Decision log entries | 19 | `grep -c '^### D' docs/07-decision-log.md` |
-| Tracked files | 79 | `git ls-files \| wc -l` |
+| Decision log entries | 22 | `grep -c '^### D' docs/07-decision-log.md` |
+| Tracked files | 81 | `git ls-files \| wc -l` |
 | Tracked files under docs/ | 49 | `git ls-files 'docs/*' \| wc -l` |
-| Docs still stubs | 4 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
+| Docs still stubs | 3 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
 
 ## Product
 
 | Metric | Value | Source |
 |---|---|---|
-| Pages built | 3 | `/`, `/login`, `/app`. `git ls-files 'app/*' \| grep page.tsx` |
+| Pages built | 4 | `/`, `/login`, `/app`, `/dev/tokens`. `git ls-files 'app/*' \| grep page.tsx` |
 | Route handlers built | 3 | `/auth/signin`, `/auth/callback`, `/auth/signout`. Same command, `route.ts` |
 | Production dependencies | 5 | `package.json`. next, react, react-dom, @supabase/ssr, @supabase/supabase-js |
 | Next.js version | 16.3.6 | `package.json` |
 | Build status | Passing | `npm run build`, plus `tsc --noEmit` and ESLint clean |
+| Design tokens | 8 colours, 7 type sizes, 3 radii | [design/design-system.md](../design/design-system.md), implemented in `app/globals.css` |
 | Screens specified | 23 | [design/screen-inventory.md](../design/screen-inventory.md). 13 at P0, 5 at P1, 3 at P2, 2 utility |
 | Auth | Functional | Google sign-in verified end to end on production. See [D18](../07-decision-log.md) |
 
@@ -86,6 +87,19 @@ Sign-in, verified with no JavaScript executed, against the server-rendered HTML:
 | `next=/app/settings` | Preserved |
 
 The signed-in branch of the guard is verified on production rather than locally, per [D18](../07-decision-log.md).
+
+Responsive check on `/dev/tokens`, measured with Chrome device metrics via
+[scripts/responsive-check.mjs](../../scripts/responsive-check.mjs):
+
+| Viewport | innerWidth | scrollWidth | Horizontal overflow |
+|---|---|---|---|
+| 375 | 375 | 375 | 0 |
+| 768 | 768 | 768 | 0 |
+| 1280 | 1280 | 1280 | 0 |
+| 1920 | 1920 | 1920 | 0 |
+
+The token table extends to 536 px at the 375 px viewport, inside its own scroll container. That is the
+designed behaviour: tables scroll sideways, the page never does.
 
 ## Pending
 
