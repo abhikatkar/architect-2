@@ -34,3 +34,12 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** Keeping them behind the "(unverified)" label. The label does not travel. Once a figure is in the
   doc it gets quoted into strategy and product copy, and the caveat is lost.
 - **Reversible:** Any figure may be restored once checked against its original source.
+
+### D6. 2026-09-24: "Architect 2.0" means the next product generation, not a version number
+- **Evidence:** The docs changelog shows Lyzr already shipped a release called v2.0.0 on 2026-06-18
+  (UI revamp, planning mode, custom themes), and the live product is v2.2.0 as of 2026-08-07.
+  A submission presenting itself as "version 2.0" would be naming a release that shipped three months ago.
+  Details in [research/architect-today-research.md](research/architect-today-research.md).
+- **Rejected:** Reading the brief's "2.0" as a literal version target. Stating the distinction explicitly in
+  [03-architect-today.md](03-architect-today.md) also shows reviewers that the real product was studied,
+  which a version-number reading would not.
