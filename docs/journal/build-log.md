@@ -39,7 +39,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 13:08 | Added the design system doc. Built the token foundation: 8 colours in both themes, Instrument Sans and JetBrains Mono, the type scale, radius and spacing, plus a `/dev/tokens` review page | 1 h 32 min | Claude Code, Chrome over CDP | Verified at 375, 768, 1280 and 1920 px with overflow 0 at every width. Nearly "fixed" a responsive bug that did not exist: headless screenshots without device metrics crop a wide layout and look broken. Wrote [scripts/responsive-check.mjs](../../scripts/responsive-check.mjs) so the check is measured, not eyeballed |
 
-**Day total so far:** 3 h 46 min across 6 commits.
+| 14:02 | Added the user flows doc and the seed content doc. Planned the P0 build as 6 vertical slices | 54 min | Claude Code | The last two specification stubs are closed. Slice order set to 1, 3, 4, 2, 5, 6: thesis screens before the front door, since the guest demo already gives reviewers a way in. Corrected the P0 count in metrics from 13 to 15 |
+
+**Day total so far:** 4 h 40 min across 7 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.
