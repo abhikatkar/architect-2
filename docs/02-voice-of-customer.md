@@ -2,7 +2,8 @@
 
 Source: a synthesis of public 2025 to 2026 discussion (Reddit, G2, Product Hunt, Hacker News), gathered with Perplexity
 and rewritten here as insights. Individual posts are anecdotes, not prevalence estimates.
-Figures marked (unverified) must be checked against the original source before being cited in the product or interview.
+Specific figures (bill amounts, plan prices, survey percentages) have been removed pending verification against
+their original sources, per [D5](07-decision-log.md). The qualitative findings below stand on their own.
 
 ## The core finding
 Feedback splits by audience, and the split predicts satisfaction better than model quality does.
@@ -16,9 +17,9 @@ Feedback splits by audience, and the split predicts satisfaction better than mod
 
 | Theme | What breaks trust | Implication for Architect 2.0 |
 |---|---|---|
-| Pricing and credits | Users pay for the agent's own failed retries. Reported: a $350 Replit bill in one day; Emergent plans jumping from 100 credits at $20 to 750 at $200 (unverified) | Show estimated cost before execution, plus a hard stop limit |
+| Pricing and credits | Users pay for the agent's own failed retries, so a bad debugging session bills them for the tool's mistakes. Credit tiers escalate steeply between plans, and bills land far above what the user expected | Show estimated cost before execution, plus a hard stop limit |
 | Debugging loops | Fixes that break other things, repeating until credits run out | Detect repeated failure signatures and stop, then explain in plain language |
-| Code quality | 66% of developers call AI code "almost right" and 45.2% say debugging it is their top frustration (Stack Overflow survey via Snyk, unverified) | Developers need readable diffs and tests, not just a preview |
+| Code quality | Most developers describe AI generated code as "almost right", and debugging that near-miss code ranks among their top frustrations | Developers need readable diffs and tests, not just a preview |
 | GitHub and import | GitHub is the universal trust mechanism (rollback, escape hatch). Importing a real, messy repo is much harder than greenfield | Import must be a first-class flow, not an afterthought |
 | Deployment | Stale versions served after publish; users fall back to their own hosting | Show exactly which version is live, with one-click rollback |
 | Agent building | Unclear state, unreliable tool calls, no way to inspect a decision path | Agent traces and inspectable runs are the differentiator |
