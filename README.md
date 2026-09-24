@@ -33,7 +33,7 @@ This repo documents the full zero-to-one process, not just the code.
 | Area | Status |
 |---|---|
 | Authentication | **Functional.** Google sign-in via Supabase, verified end to end on the production deployment: sign in, `/app` shows the signed-in email, sign out, and `/app` then redirects to `/login?next=/app` |
-| Database | Planned (Supabase). Per-user project storage is the deliverable, see [D16](docs/07-decision-log.md). Nothing built yet |
+| Database | **Implemented, not yet verified end to end.** A `projects` table in Supabase with row level security, four policies scoping every row to its owner. Home creates and lists real rows. The signed-in round trip has not been exercised yet, so this is not called functional |
 | Everything else | Simulated |
 
 ## Stack

@@ -245,3 +245,40 @@ Format: date, decision, evidence, alternatives rejected.
 - **Honesty requirement:** the phone view says it is read-only. It does not present a disabled editor and
   leave the user guessing why typing does nothing, which is the same class of failure as
   [D19](#d19-2026-09-25-auth-controls-must-work-before-hydration).
+
+### D23. 2026-09-25: Demo content lives in code, not in seeded database rows
+- **Decision:** the Northwind Helpline demo is typed fixtures in `lib/seed/`. The database holds only real
+  user data, which today means projects.
+- **Evidence:** the demo is content, not user data. Every visitor sees the same story, nobody edits it, and it
+  has to render for signed-out visitors at `/demo` where there is no user to scope rows to. Putting it in
+  Postgres would mean seed scripts, a null owner, and RLS exceptions for rows that are not owned by anyone.
+- **Rejected:** seeding the demo as rows belonging to a service account, which invites exactly the confusion
+  the status table exists to prevent: a reviewer seeing database-backed content and concluding the simulated
+  layers are real.
+- **Consequence:** `lib/seed/` is the single source for every simulated screen, so the story stays consistent
+  across slices rather than drifting per screen.
+
+### D24. 2026-09-25: Row level security is the only thing deciding row visibility
+- **Decision:** `listProjects()` applies no `user_id` filter in application code. It selects from `projects`
+  and lets the policy scope the result to `auth.uid()`. Four policies, one per verb, rather than one
+  permissive rule.
+- **Evidence:** a filter in application code and a policy in the database are two places to get the same rule
+  right, and the application one fails open. With no filter in the query, a missing policy shows up
+  immediately as another user's data appearing, rather than hiding behind a `where` clause that happens to be
+  correct today. One policy per verb means a mistake in update cannot silently widen select.
+- **Rejected:** filtering in the query as well, which reads safer and is not. It makes the policy untested,
+  because the query would pass whether or not RLS worked.
+- **Verification requirement:** the policies are proven by querying as two real users and confirming each
+  sees only their own row. A passing policy list is not evidence.
+
+### D25. 2026-09-25: Workspace tabs and panes are URL state
+- **Decision:** the layer tabs and the phone pane switch are plain links that change query parameters, not
+  client state. The whole workspace shell stays a server component.
+- **Evidence:** this is [D19](#d19-2026-09-25-auth-controls-must-work-before-hydration) applied to
+  navigation. A tab that needs hydration before it responds has the same first-click failure the production
+  sign-in button had. It also makes every view linkable and restorable, which matters for a submission where
+  a reviewer may be sent straight to one screen.
+- **Rejected:** client state with `useState`, which would force the shell and everything inside it into the
+  client bundle for no gain.
+- **Cost accepted:** each tab change is a server round trip. For a workspace whose panels are server-rendered
+  anyway, that is the cheaper trade.
