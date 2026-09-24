@@ -87,12 +87,37 @@ The guided path is an asset, not a liability, and 2.0 should not trade it away t
 is letting a developer open any layer (plan, agents, code, data, deploy) and take control, without leaving the
 product and without making the non-technical user look at any of it.
 
-## Pending: first-hand friction from building GroundTruth
+## First-hand friction: building GroundTruth
 
-Desk research cannot answer how the product actually feels. Still to capture from building GroundTruth on
-Architect:
+GroundTruth is a 6-agent support-resolution app I built entirely in Architect and Lyzr Studio in August 2026,
+documented in a 5-part teardown. Full notes in
+[research/groundtruth-friction.md](research/groundtruth-friction.md).
 
-- Real time from first prompt to live preview
-- What editing an agent actually does: whether Studio opens in a new tab, and whether state survives
-- Whether any cost estimate exists before a build, and what the credit breakdown looks like after one
-- The import flow on a non-Next.js repo, including the exact error message
+**What held up.** Guided Plan mode decomposed the problem well and proposed a hybrid pattern on its own: a
+Manager with sub-agents for resolution, plus an Independent agent for finalization after human approval.
+Multi-agent orchestration, knowledge-base retrieval, and per-agent model choice are real differentiators that
+no prompt-to-UI tool in the [teardown](01-competitive-teardown.md) came close to. A verification agent I
+designed caught a false high-confidence retrieval match, about 90%, on a SAML SSO ticket that a confidence
+score alone would have shipped.
+
+**What broke.** An agent over-escalated because the drafting agent embellished its source, writing "start of
+the next billing cycle" where the source said "the next billing cycle". Tracing that took about eight
+technical inferences: reading the verification reasoning, isolating retrieval, spotting the embellishment,
+connecting it to temperature, finding the parameter panel, changing 0.4 to 0.2, then re-testing. The fix
+itself had to be made in Lyzr Studio, not Architect.
+
+Five things follow from that, and each one points at a principle in
+[05-product-strategy.md](05-product-strategy.md):
+
+| Friction | Why it matters |
+|---|---|
+| Diagnosis needs engineering skill | Persona A cannot do any of those eight steps. This is where they leave |
+| The fix lives in another product | Sharpens finding 1 above: the diagnosis and the cure are in different tools |
+| Reliability tooling is Enterprise-gated | Improvement Engine, Agent Eval, Simulation Engine and Hallucination Manager exist, but not for the self-serve builder Architect targets |
+| Improvement suggestions cover instructions, not parameters | The fix that actually worked was a parameter change, which an instruction-only loop never surfaces |
+| Residual variance is architectural | Even after the fix, repeated runs of the same ticket can differ. A builder needs to see run-to-run variance, not a single answer |
+| Credits constrain testing | Every diagnostic re-run costs money, which discourages exactly the testing that reliability needs |
+
+This build is the direct source of the signature feature in
+[05-product-strategy.md](05-product-strategy.md): the "Why did it do that?" loop productizes the diagnosis I
+did by hand. See [D15](07-decision-log.md).
