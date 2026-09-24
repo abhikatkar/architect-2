@@ -83,6 +83,9 @@
 
   /* 4px base gives 4, 8, 12, 16, 24, 32, 48 from the standard scale. */
   --spacing: 4px;
+
+  /* The design system's desktop tier starts at 1440, not Tailwind's 1280. */
+  --breakpoint-desktop: 1440px;
 }
 
 body {

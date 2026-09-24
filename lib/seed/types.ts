@@ -101,6 +101,8 @@ export type DemoProject = {
   owner: { name: string; role: string };
   collaborator: { name: string; role: string };
   agents: Agent[];
+  /** Total in the knowledge base. helpArticles below is a named sample of it. */
+  helpArticleCount: number;
   helpArticles: HelpArticle[];
   missingTopics: string[];
   conversations: Conversation[];

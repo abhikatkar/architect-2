@@ -47,6 +47,7 @@ export const DEMO_PROJECT: DemoProject = {
     },
   ],
 
+  helpArticleCount: 24,
   helpArticles: [
     { title: "Refunds for annual plans" },
     {

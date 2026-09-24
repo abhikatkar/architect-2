@@ -1,0 +1,55 @@
+import type { Ledger } from "@/lib/seed/types";
+
+function money(n: number) {
+  return `$${n.toFixed(2)}`;
+}
+
+/**
+ * Always on screen. This is the "See it" principle as a permanent surface:
+ * which version is live, what state the build is in, and spend against the cap.
+ */
+export function LedgerBar({ ledger }: { ledger: Ledger }) {
+  const pct = Math.min(100, Math.round((ledger.spend / ledger.cap) * 100));
+
+  return (
+    <footer className="border-t border-rule bg-paper px-4 py-2 sm:px-6">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-caption">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="text-graphite">Preview</span>
+          <span className="rounded-input border border-rule px-1.5 py-0.5 font-mono">
+            {ledger.previewVersion}
+          </span>
+        </span>
+
+        <span className="inline-flex items-center gap-1.5">
+          <span className="text-graphite">Production</span>
+          {ledger.productionVersion ? (
+            <>
+              <span className="rounded-input border border-live px-1.5 py-0.5 font-mono text-live">
+                {ledger.productionVersion}
+              </span>
+              <span className="text-live">live</span>
+            </>
+          ) : (
+            <span className="text-graphite">not deployed</span>
+          )}
+        </span>
+
+        <span className="text-graphite">Built {ledger.builtAgo}</span>
+
+        {/* Spend is cost-coloured because it is money. Nothing else may be. */}
+        <span className="ml-auto inline-flex items-center gap-2">
+          <span
+            className="hidden h-1.5 w-24 overflow-hidden rounded-input bg-rule sm:block"
+            aria-hidden="true"
+          >
+            <span className="block h-full bg-cost" style={{ width: `${pct}%` }} />
+          </span>
+          <span className="font-mono text-cost">
+            {money(ledger.spend)} of {money(ledger.cap)} cap
+          </span>
+        </span>
+      </div>
+    </footer>
+  );
+}
