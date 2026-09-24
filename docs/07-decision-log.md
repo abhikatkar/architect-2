@@ -175,3 +175,26 @@ Format: date, decision, evidence, alternatives rejected.
   rejected: leaving priority implicit, which in practice means whatever is half-built at the deadline ships.
 - **Consequence:** if a P0 screen is at risk, a P1 or P2 screen is cut first. P2 items may appear as static
   screens with no interaction, and the README must not imply otherwise.
+
+### D18. 2026-09-25: Authentication is now reported as functional
+- **Evidence:** Google sign-in was exercised end to end on the production deployment against a live Supabase
+  project: sign in with Google, `/app` renders the signed-in email, sign out, and `/app` then redirects to
+  `/login?next=/app`. That is the full round trip, not a code review, so the
+  [README](../README.md) row moves from implemented-but-unverified to functional.
+- **Why it was not claimed earlier:** every prior entry said the path existed but had never run against a real
+  project. Under the repo's own rule, a feature is not functional until it has been seen working.
+- **Caveat that remains:** the database row stays "planned". Auth working does not make per-user project
+  storage exist, and the two must not be conflated in the status table.
+
+### D19. 2026-09-25: Auth controls must work before hydration
+- **Evidence:** on production, the first click on Sign in did nothing and the second worked. Sign in was a
+  client component whose `onClick` called `signInWithOAuth` in the browser, so any click arriving before
+  hydration was discarded.
+- **Decision:** authentication controls are plain HTML forms posting to server routes. Sign in posts to
+  `/auth/signin`, which builds the provider URL server side with `skipBrowserRedirect` and returns a 303.
+  Sign out was already a form post. No auth action may depend on client JavaScript.
+- **Rejected:** disabling the button until hydration completes, which replaces a dropped click with a dead
+  control and still fails with JavaScript blocked. Also rejected: a `useEffect` readiness flag, which is the
+  same bug with extra steps.
+- **Generalises to:** any control on the critical path. A first click that silently does nothing is the most
+  expensive possible failure on a sign-in screen, because the user concludes the product is broken.

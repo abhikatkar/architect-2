@@ -35,7 +35,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 |---|---|---|---|---|
 | 10:14 | Added personas ([04](../04-personas-and-jtbd.md)) and strategy ([05](../05-product-strategy.md)) unchanged. Redacted and published 11 of 14 "before" captures, added three findings to [03](../03-architect-today.md), logged D13 to D15 | 52 min | Claude Code, Python and Pillow | Strategy is committed: "See it. Steer it. Own it. Ship it safely." Found and fixed a live privacy leak: the raw teardown log had been carrying two account usernames in plain text since it was pushed |
 
-**Day total so far:** 52 min across 1 commit.
+| 11:36 | Added the GroundTruth friction note and the screen inventory. Fixed the first-click auth bug, flipped auth to functional, logged D16 to D19 | 1 h 22 min | Claude Code, curl, Next dev server | Sign in is now a server-handled form post, verified working with no JavaScript executed. Doc 03's last pending section is closed. 23 screens tiered P0 to P2 |
+
+**Day total so far:** 2 h 14 min across 5 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

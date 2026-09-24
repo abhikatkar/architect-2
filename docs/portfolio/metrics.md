@@ -15,25 +15,27 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 10 | `git rev-list --count HEAD` |
+| Commits | 14 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-25 10:14 | `git log -1` |
-| Wall clock, first to last commit | 7 h 22 min on day 1, plus 52 min on day 2 | Difference of the two rows above. Wall clock, not effort |
+| Latest commit | 2026-09-25 11:36 | `git log -1` |
+| Wall clock, first to last commit | 7 h 22 min on day 1, plus 2 h 14 min on day 2 | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 2 | Same |
-| Decision log entries | 15 | `grep -c '^### D' docs/07-decision-log.md` |
-| Tracked files | 77 | `git ls-files \| wc -l` |
-| Tracked files under docs/ | 48 | `git ls-files 'docs/*' \| wc -l` |
-| Docs still stubs | 5 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
+| Decision log entries | 19 | `grep -c '^### D' docs/07-decision-log.md` |
+| Tracked files | 79 | `git ls-files \| wc -l` |
+| Tracked files under docs/ | 49 | `git ls-files 'docs/*' \| wc -l` |
+| Docs still stubs | 4 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
 
 ## Product
 
 | Metric | Value | Source |
 |---|---|---|
 | Pages built | 3 | `/`, `/login`, `/app`. `git ls-files 'app/*' \| grep page.tsx` |
-| Route handlers built | 2 | `/auth/callback`, `/auth/signout`. Same command, `route.ts` |
+| Route handlers built | 3 | `/auth/signin`, `/auth/callback`, `/auth/signout`. Same command, `route.ts` |
 | Production dependencies | 5 | `package.json`. next, react, react-dom, @supabase/ssr, @supabase/supabase-js |
 | Next.js version | 16.3.6 | `package.json` |
 | Build status | Passing | `npm run build`, plus `tsc --noEmit` and ESLint clean |
+| Screens specified | 23 | [design/screen-inventory.md](../design/screen-inventory.md). 13 at P0, 5 at P1, 3 at P2, 2 utility |
+| Auth | Functional | Google sign-in verified end to end on production. See [D18](../07-decision-log.md) |
 
 ## Teardown
 
@@ -74,8 +76,16 @@ free port, 2026-09-24.
 | `GET /app/deep/nested` | 307 | `/login?next=%2Fapp%2Fdeep%2Fnested` |
 | `POST /auth/signout` | 303 | `/` |
 
-This exercises the fail-closed branch only. The authenticated branch is untested, because it needs a live
-Supabase project.
+Sign-in, verified with no JavaScript executed, against the server-rendered HTML:
+
+| Check | Result |
+|---|---|
+| `/login` markup | `<form action="/auth/signin" method="post">` with `next` as a hidden input, no `onClick` |
+| `POST /auth/signin` | 303 to the Google authorize URL, `code_challenge_method=s256` present |
+| `next=https://evil.example` | Rewritten to `/app`, so the open redirect guard holds on the real path |
+| `next=/app/settings` | Preserved |
+
+The signed-in branch of the guard is verified on production rather than locally, per [D18](../07-decision-log.md).
 
 ## Pending
 
