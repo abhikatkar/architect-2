@@ -4,3 +4,17 @@ node_modules/
 !.env.example
 .DS_Store
 .vercel
+
+# next build output and generated types
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# misc
+/coverage
+*.pem
+npm-debug.log*
+
+# local agent settings
+.claude/settings.local.json
