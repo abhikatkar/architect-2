@@ -19,9 +19,10 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 | 13:33 | Desk research on docs.architect.new, written up as the four layer pipeline (Plan, Agents, App, Deploy), the baseline 2.0 must keep, and nine gaps | 30 min | Claude Code, docs.architect.new | `f09e0d2`. D6 logged: "Architect 2.0" is the next product generation, not a version number. GroundTruth first-hand notes still pending |
 | 17:55 | Next.js and Supabase auth scaffold. Next 16.3.6, App Router, Tailwind v4, React 19. Supabase browser and server clients, Google sign-in, callback, signout, and the route guard | 4 h 22 min | Claude Code, create-next-app, npm, git | `4a10327`. Build passes, `tsc --noEmit` clean, ESLint clean. Caught `next dev` appending an em dash block to `CLAUDE.md` and disabled it |
 | 18:11 | Architecture stack section, decision log D7 to D10, README honesty pass. Ran the route guard check on a free port | 16 min | Claude Code, curl | `e9299e6`. Signed out, `/app` returns 307 to `/login?next=%2Fapp` at any depth. Auth reported as implemented but unverified against a live project |
-| 18:18 | Built the portfolio capture system: this build log, the metrics table, and the assets checklist. Added the CLAUDE.md rule that keeps them current | 7 min | Claude Code, git | `c34ce41`. Backfilled the day from git. Caught the stub count grep matching the metrics file that documented it, and anchored the pattern |
+| 18:18 | Built the portfolio capture system: this build log, the metrics table, and the assets checklist. Added the CLAUDE.md rule that keeps them current | 7 min | Claude Code, git | Backfilled the day from git. Caught the stub count grep matching the metrics row that documented it, and anchored the pattern |
+| 18:24 | Removed the commit hashes that these two files used to quote for themselves | 6 min | Claude Code, git | An amend had already invalidated one. Entries now reference work, not hashes |
 
-**Day total:** 5 h 59 min wall clock across 6 commits, 12:19 to 18:18.
+**Day total:** 6 h 5 min wall clock across 7 commits, 12:19 to 18:24.
 
 **Ended the day blocked on:** competitive teardown notes for [01](../01-competitive-teardown.md), GroundTruth
 first-hand notes for [03](../03-architect-today.md), and Supabase credentials to verify a real sign-in.

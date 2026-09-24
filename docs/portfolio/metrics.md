@@ -6,16 +6,19 @@ came from, so any of them can be re-derived.
 **Rule for this file:** measured facts only. No estimates, no projections, no rounded guesses. A number
 that cannot be sourced belongs in [Pending](#pending) until it can be.
 
-_As of 2026-09-24 18:18, commit `c34ce41`._
+_As of 2026-09-24, end of day._
+
+Counts are read after the commit that last touched this file. A row must never name the commit that
+carries it, because amending or rebasing changes that hash and silently makes the row a lie.
 
 ## Process
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 6 | `git rev-list --count HEAD` |
+| Commits | 7 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-24 18:18:22 | `git log -1` |
-| Wall clock, first to last commit | 5 h 59 min | Difference of the two rows above. Wall clock, not effort |
+| Latest commit | 2026-09-24 18:24 | `git log -1` |
+| Wall clock, first to last commit | 6 h 5 min | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 1 | Same |
 | Decision log entries | 10 | `grep -c '^### D' docs/07-decision-log.md` |
 | Tracked files | 47 | `git ls-files \| wc -l` |
