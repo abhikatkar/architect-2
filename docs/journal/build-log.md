@@ -22,7 +22,6 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 | 18:18 | Built the portfolio capture system: this build log, the metrics table, and the assets checklist. Added the CLAUDE.md rule that keeps them current | 7 min | Claude Code, git | Backfilled the day from git. Caught the stub count grep matching the metrics row that documented it, and anchored the pattern |
 | 18:24 | Removed the commit hashes that these two files used to quote for themselves | 6 min | Claude Code, git | An amend had already invalidated one. Entries now reference work, not hashes |
 | 19:02 | Wrote up the hands-on teardown. Matched 161 raw screenshots to the session log by Unix timestamp, reviewed the candidates, published 15, and rewrote [01](../01-competitive-teardown.md) from the log | 38 min | Claude Code, Chrome (teardown session run earlier by Abhishek), Python and Pillow for crop checks | Teardown numbers moved from pending to confirmed in [metrics](../portfolio/metrics.md). D11 logged: stop at 5 tools. 12 screenshots withheld for privacy, including both of Architect's best features |
-
 | 19:41 | Recovered the two moat screenshots by redaction instead of exclusion, and corrected the tool count everywhere | 39 min | Claude Code, Python and Pillow | Import and per-commit revert now have published evidence. D12 logged: crop or blur only, never retouch the UI. "7 tools" is now "5 tested, 2 blocked at signup" |
 
 **Day total:** 7 h 22 min wall clock across 9 commits, 12:19 to 19:41.
@@ -34,11 +33,8 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 | Time | Work done | Elapsed | Tools | Outcome |
 |---|---|---|---|---|
 | 10:14 | Added personas ([04](../04-personas-and-jtbd.md)) and strategy ([05](../05-product-strategy.md)) unchanged. Redacted and published 11 of 14 "before" captures, added three findings to [03](../03-architect-today.md), logged D13 to D15 | 52 min | Claude Code, Python and Pillow | Strategy is committed: "See it. Steer it. Own it. Ship it safely." Found and fixed a live privacy leak: the raw teardown log had been carrying two account usernames in plain text since it was pushed |
-
 | 11:36 | Added the GroundTruth friction note and the screen inventory. Fixed the first-click auth bug, flipped auth to functional, logged D16 to D19 | 1 h 22 min | Claude Code, curl, Next dev server | Sign in is now a server-handled form post, verified working with no JavaScript executed. Doc 03's last pending section is closed. 23 screens tiered P0 to P2 |
-
 | 13:08 | Added the design system doc. Built the token foundation: 8 colours in both themes, Instrument Sans and JetBrains Mono, the type scale, radius and spacing, plus a `/dev/tokens` review page | 1 h 32 min | Claude Code, Chrome over CDP | Verified at 375, 768, 1280 and 1920 px with overflow 0 at every width. Nearly "fixed" a responsive bug that did not exist: headless screenshots without device metrics crop a wide layout and look broken. Wrote [scripts/responsive-check.mjs](../../scripts/responsive-check.mjs) so the check is measured, not eyeballed |
-
 | 14:02 | Added the user flows doc and the seed content doc. Planned the P0 build as 6 vertical slices | 54 min | Claude Code | The last two specification stubs are closed. Slice order set to 1, 3, 4, 2, 5, 6: thesis screens before the front door, since the guest demo already gives reviewers a way in. Corrected the P0 count in metrics from 13 to 15 |
 
 **Day total so far:** 4 h 40 min across 7 commits.
