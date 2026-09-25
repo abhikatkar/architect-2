@@ -73,7 +73,7 @@ export function Conversation({
           <div className="rounded-panel border border-rule p-3">
             <p className="text-caption text-graphite">Build v1</p>
             <p className="mt-1 text-body">
-              Every stage, its time and its cost are on the right as they
+              Every stage, its time and its cost are in the build panel as they
               happen.
             </p>
           </div>
