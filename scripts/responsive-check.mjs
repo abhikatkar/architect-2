@@ -4,7 +4,13 @@
   rather than a habit.
 
   Usage, against a running server:
-    node scripts/responsive-check.mjs http://localhost:3000/dev/tokens ./shots 375 768 1280 1920
+    node scripts/responsive-check.mjs <url> <outDir> [widths...] [options]
+
+  Options:
+    --cookies <file>   JSON array of {name, value}, from scripts/mint-session.mjs.
+                       Lets the check run against signed-in screens.
+    --theme <name>     light or dark. Emulates prefers-color-scheme so the real
+                       media query is exercised, not a forced attribute.
 
   It drives the installed Chrome over CDP with real device metrics. Passing
   --window-size to headless Chrome is not enough: without Emulation metrics the
@@ -13,13 +19,23 @@
   Overflow must be 0. A wide element inside its own scroll container is fine.
 */
 import { spawn } from "node:child_process";
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const PORT = 9333;
-const url = process.argv[2];
-const outDir = process.argv[3];
-const widths = process.argv.slice(4).map(Number);
+// Random, so back-to-back runs cannot collide on a port still closing.
+const PORT = 9300 + Math.floor(Math.random() * 600);
+
+const argv = process.argv.slice(2);
+const flags = {};
+const positional = [];
+for (let i = 0; i < argv.length; i++) {
+  if (argv[i].startsWith("--")) flags[argv[i].slice(2)] = argv[++i];
+  else positional.push(argv[i]);
+}
+const [url, outDir, ...widthArgs] = positional;
+const widths = widthArgs.length ? widthArgs.map(Number) : [375, 768, 1280, 1920];
+const cookies = flags.cookies ? JSON.parse(readFileSync(flags.cookies, "utf8")) : [];
+const theme = flags.theme;
 mkdirSync(outDir, { recursive: true });
 
 const chrome = spawn(CHROME, [
@@ -66,15 +82,35 @@ const send = (method, params = {}) =>
 
 await send("Page.enable");
 await send("Runtime.enable");
+await send("Network.enable");
+
+if (cookies.length) {
+  const { hostname } = new URL(url);
+  for (const c of cookies) {
+    await send("Network.setCookie", {
+      name: c.name,
+      value: c.value,
+      domain: hostname,
+      path: "/",
+      httpOnly: false,
+      secure: false,
+    });
+  }
+}
+
+if (theme) {
+  await send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-color-scheme", value: theme }],
+  });
+}
 
 const report = [];
 for (const w of widths) {
-  const mobile = w < 640;
   await send("Emulation.setDeviceMetricsOverride", {
     width: w,
     height: 900,
     deviceScaleFactor: 1,
-    mobile,
+    mobile: w < 640,
     screenWidth: w,
     screenHeight: 900,
   });
@@ -83,29 +119,33 @@ for (const w of widths) {
 
   const { result } = await send("Runtime.evaluate", {
     expression: `JSON.stringify({
+      url: location.pathname + location.search,
       inner: window.innerWidth,
       scroll: document.documentElement.scrollWidth,
-      body: document.body.scrollWidth,
       overflow: document.documentElement.scrollWidth - window.innerWidth,
+      bg: getComputedStyle(document.body).backgroundColor,
+      title: (document.querySelector('h1') || {}).textContent || null,
       widest: (() => {
         let worst = null, max = 0;
         for (const el of document.querySelectorAll('*')) {
           const r = el.getBoundingClientRect();
           if (r.right > max) { max = r.right; worst = el; }
         }
-        return worst ? worst.tagName + '.' + (worst.className && worst.className.toString ? worst.className.toString().slice(0,80) : '') + ' right=' + Math.round(max) : 'none';
+        return worst ? worst.tagName + '.' + (worst.className && worst.className.toString ? worst.className.toString().slice(0,60) : '') + ' right=' + Math.round(max) : 'none';
       })(),
     })`,
     returnByValue: true,
   });
   const m = JSON.parse(result.value);
-  report.push({ width: w, ...m });
+  report.push({ width: w, theme: theme ?? "system", ...m });
 
-  const shot = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
-  writeFileSync(`${outDir}/w${w}.png`, Buffer.from(shot.data, "base64"));
+  const suffix = theme ? `-${theme}` : "";
+  const shot = await send("Page.captureScreenshot", { format: "png" });
+  writeFileSync(`${outDir}/w${w}${suffix}.png`, Buffer.from(shot.data, "base64"));
 }
 
 console.log(JSON.stringify(report, null, 2));
+const bad = report.filter((r) => r.overflow !== 0);
 ws.close();
 chrome.kill();
-process.exit(0);
+process.exit(bad.length ? 1 : 0);

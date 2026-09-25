@@ -39,6 +39,7 @@ carries it, because amending or rebasing changes that hash and silently makes th
 | P0 screens built | 3 of 15 | Screens 4 home, 6 workspace shell, 22 guest demo |
 | Screens specified | 23 | [design/screen-inventory.md](../design/screen-inventory.md). 15 at P0, 5 at P1, 3 at P2 |
 | Auth | Functional | Google sign-in verified end to end on production. See [D18](../07-decision-log.md) |
+| Database | Functional | projects table with RLS, proven with two real users. See [D26](../07-decision-log.md) |
 
 ## Teardown
 
@@ -89,6 +90,25 @@ Sign-in, verified with no JavaScript executed, against the server-rendered HTML:
 | `next=/app/settings` | Preserved |
 
 The signed-in branch of the guard is verified on production rather than locally, per [D18](../07-decision-log.md).
+
+Signed-in Home, with session cookies minted through `@supabase/ssr` and `prefers-color-scheme` emulated:
+
+| Viewport | Light overflow | Dark overflow | Background |
+|---|---|---|---|
+| 375 | 0 | 0 | `#F5F7F6` light, `#0E1A2B` dark |
+| 768 | 0 | 0 | same |
+| 1280 | 0 | 0 | same |
+| 1920 | 0 | 0 | same |
+
+Row level security, queried as each user with `request.jwt.claims` set:
+
+| Check | Result |
+|---|---|
+| User A select | 1 row, their own |
+| User B select | 1 row, their own |
+| User B updates A's row | 0 rows updated |
+| User B deletes A's row | 0 rows deleted |
+| Other user's project over HTTP | 404 |
 
 Responsive check on `/dev/tokens`, measured with Chrome device metrics via
 [scripts/responsive-check.mjs](../../scripts/responsive-check.mjs):

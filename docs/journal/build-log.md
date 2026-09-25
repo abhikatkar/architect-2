@@ -39,7 +39,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 15:40 | Slice 1: seed fixtures, the projects table with RLS, the workspace shell, the guest demo, and Home | 1 h 38 min | Claude Code, Supabase MCP, Chrome over CDP | /demo verified at all four widths with overflow 0. Caught an invented number before it shipped: the plan panel derived "25 help articles" from a multiplication, the real figure is 24. Signed-in verification is blocked on two dashboard test users |
 
-**Day total so far:** 6 h 18 min across 12 commits.
+| 16:24 | Finished slice 1 verification: signed-in Home at 4 widths in both themes, the create-project round trip, and the RLS proof with two real users | 44 min | Claude Code, Chrome over CDP, Supabase MCP | Database flipped to functional. Cross-user update and delete both affected 0 rows. Caught a test that could not fail: the first isolation check grepped for text every Home contains |
+
+**Day total so far:** 7 h 2 min across 13 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

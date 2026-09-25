@@ -282,3 +282,29 @@ Format: date, decision, evidence, alternatives rejected.
   client bundle for no gain.
 - **Cost accepted:** each tab change is a server round trip. For a workspace whose panels are server-rendered
   anyway, that is the cheaper trade.
+
+### D26. 2026-09-25: Row level security proven with two real users, and the database called functional
+- **Evidence, at the database.** Two confirmed `auth.users` rows, each with one project, queried as themselves
+  by setting `role authenticated` and `request.jwt.claims`. Actual results:
+
+  | Check, run as | Result |
+  |---|---|
+  | User A select | `rows_visible: 1`, "A support agent that answers billing que..." |
+  | User B select | `rows_visible: 1`, "Internal onboarding concierge for new hi..." |
+  | User B updates user A's row | `cross_user_rows_updated: 0` |
+  | User B deletes user A's row | `cross_user_rows_deleted: 0` |
+  | User A's row afterwards | Still present, name unchanged, so the blocked update did not silently apply |
+
+- **Evidence, over HTTP.** With real session cookies minted through `@supabase/ssr`: user A's Home links to
+  user A's project id and not user B's, and the reverse for user B. Requesting another user's project returns
+  `404`, so it is not found rather than found and refused. The create-project round trip works end to end:
+  form post, insert, redirect to `/app/p/<id>`, and the row then appears on Home.
+- **Decision:** the [README](../README.md) database row moves to functional. Both halves of the bonus in the
+  brief, Google sign-in and a real database, are now exercised rather than asserted.
+- **One test that lied, and what it changed.** The first isolation check grepped user B's Home for user A's
+  prompt text and found a match, which looked like a leak. The match was the textarea placeholder, which is
+  the same string on every Home. The corrected check counts links to each project id. A test that greps for
+  content a page always contains cannot fail, so it proves nothing.
+- **Cleanup:** both test projects were deleted after the proof, leaving `projects_remaining: 0`. The two test
+  users are kept until submission, then deleted with the credentials in `.env.local`, which is gitignored and
+  has never been committed.
