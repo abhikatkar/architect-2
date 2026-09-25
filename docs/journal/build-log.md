@@ -43,7 +43,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 17:30 | Slice 3: plan review, build in progress with the failure path, and the app preview. Demo parity so none of it needs an account | 1 h 6 min | Claude Code, Chrome over CDP, Supabase MCP | 32 of 32 responsive checks pass. The no-JS build screen renders the finished build with zero occurrences of the spinner state. Two screenshots nearly misled me again: the failure capture landed at 2.5s, before the failure at 21s, so responsive-check gained a --wait option |
 
-**Day total so far:** 8 h 8 min across 16 commits.
+| 19:05 | Slice 4: the agent canvas on the blueprint grid, the inspector with depth on demand, and "Why did it do that?" | 1 h 35 min | Claude Code, Chrome over CDP | 40 of 40 responsive checks pass. Three crude checks produced misleading results in a row: Tailwind class names read as parameter values, Next's RSC payload read as a leak, and React's text-node comments broke every grep for interpolated copy. Rewrote the check to measure visible text |
+
+**Day total so far:** 9 h 43 min across 27 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

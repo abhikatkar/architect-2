@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 import { WorkspaceShell } from "@/components/workspace/shell";
 import { Conversation } from "@/components/workspace/conversation";
 import { WorkspaceCanvas } from "@/components/build/workspace-canvas";
-import { parseLayer, parsePane } from "@/components/workspace/types";
-import { parseDevice } from "@/components/build/app-preview";
-import { parseBuild } from "@/lib/build-state";
+import { workspaceUrl } from "@/lib/workspace-url";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
 import { getProject } from "@/lib/projects";
 
@@ -18,18 +16,9 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
   const project = await getProject(id);
   if (!project) notFound();
 
-  const layer = parseLayer(searchParams.tab);
-  const pane = parsePane(searchParams.pane);
-  const build = parseBuild(searchParams.build);
-  const device = parseDevice(searchParams.device);
-
   const basePath = `/app/p/${project.id}`;
-  const query = (patch: Record<string, string>) => {
-    const p = new URLSearchParams({ tab: layer, pane, device });
-    if (build !== "none") p.set("build", build);
-    for (const [k, v] of Object.entries(patch)) p.set(k, v);
-    return `${basePath}?${p.toString()}`;
-  };
+  const { layer, pane, build, device, agent, depth, why, fixApplied, query } =
+    workspaceUrl(basePath, searchParams);
 
   return (
     <WorkspaceShell
@@ -63,7 +52,10 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
           layer={layer}
           build={build}
           device={device}
-          basePath={basePath}
+          agent={agent}
+          depth={depth}
+          why={why}
+          fixApplied={fixApplied}
           query={query}
           finishAction={`${basePath}/built`}
         />

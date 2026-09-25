@@ -362,3 +362,47 @@ Format: date, decision, evidence, alternatives rejected.
   before the build, and match the $1.46 the version history already records. The realistic total of 6 min
   31 s sits inside the "about 6 to 10 min" estimate. An estimate that did not hold would undo the point of
   showing one.
+
+### D31. 2026-09-25: The agent canvas is hand-drawn, and the design system was corrected to match
+- **Decision:** the agent network is agent cards positioned over the blueprint grid with SVG connector lines
+  behind them. No graph library. Under 640 px the canvas is replaced by a list, not shrunk.
+- **Evidence:** every node stays a real focusable link, the selection lives in the URL, and the whole screen
+  renders on the server, which keeps it consistent with [D25](#d25-2026-09-25-workspace-tabs-and-panes-are-url-state).
+  A graph library would push the Agents tab into the client bundle to pan and zoom a diagram of four fixed
+  nodes.
+- **Traded away:** pan, zoom and node dragging. For a four-agent network that fits on screen, none of those
+  earn their cost.
+- **The design system was wrong and has been changed.** It promised "pinch to zoom and pan on touch". That
+  described a product we chose not to build, so `design/design-system.md` was corrected in the same commit.
+  This is the first time building something forced a change back into the design doc rather than the other
+  way round, and the rule in [CLAUDE.md](../CLAUDE.md) that docs stay in sync makes the doc the thing that
+  moves.
+
+### D32. 2026-09-25: Applying a fix is URL state, not a new table
+- **Decision:** applying the suggested fix sets `fix=applied` in the URL. It is identical on the demo and
+  signed-in paths, and nothing is written to the database.
+- **Evidence:** agent versions are not in the schema. Adding a table so one simulated screen could survive a
+  refresh would be schema built to serve a fixture, which [D23](#d23-2026-09-25-demo-content-lives-in-code-not-in-seeded-database-rows)
+  already ruled against. As URL state the applied view is linkable, which matters more for a submission a
+  reviewer walks through.
+- **Rejected:** persisting an agent version for consistency with
+  [D28](#d28-2026-09-25-simulated-builds-write-real-status-values). D28 persisted because `status` already
+  existed and Home visibly depended on it. Neither is true here.
+
+### D33. 2026-09-25: Nothing is applied silently, and the guided layer never names a parameter
+- **Decision:** the "Why did it do that?" screen shows the trace, the exact unsupported words, and the before
+  and after answers, then waits. Applying is an explicit action, and the applied state offers "Revert to
+  v14". The guided layer never contains the word "temperature", any other parameter name, or a bare
+  parameter value. Those live only behind Details.
+- **Evidence:** this is the eight-step diagnosis from GroundTruth, turned into one screen
+  ([03-architect-today.md](03-architect-today.md)). The success condition F4 states is that a non-technical
+  builder fixes a real reliability issue without knowing the word "temperature", so the word's absence is a
+  requirement, not a style preference.
+- **Three signals on the marked phrase, never colour alone:** the `fault` colour, an underline, and a "Not in
+  source" label. The design system requires that everywhere, and it matters most on the one phrase the whole
+  screen exists to point at.
+- **Verified in the served markup, on visible text:** with `<details>` and `<script>` stripped, the canvas,
+  the inspector's guided view, the trace and the applied trace contain no banned word and no bare parameter
+  value. The details layer does contain them, which is the point.
+- **Rejected:** applying the fix automatically once it is found. It removes the builder's learning, and it
+  repeats the teardown's worst pattern of the platform spending a user's money on its own initiative.

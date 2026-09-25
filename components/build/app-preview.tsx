@@ -24,6 +24,8 @@ type Props = {
   previewVersion: string;
   /** Set when the preview is behind the current version. */
   staleFrom?: string;
+  /** Entry point 1 into the trace, from the escalated answer itself. */
+  whyHref?: string;
 };
 
 /**
@@ -41,6 +43,7 @@ export function AppPreview({
   counts,
   previewVersion,
   staleFrom,
+  whyHref,
 }: Props) {
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-3">
@@ -110,8 +113,18 @@ export function AppPreview({
                   </span>
                   <span className="block">{t.text}</span>
                   {t.escalated ? (
-                    <span className="mt-1 inline-block text-caption text-fault">
-                      Escalated to a human
+                    <span className="mt-1 flex flex-wrap items-center gap-2">
+                      <span className="text-caption text-fault">
+                        Escalated to a human
+                      </span>
+                      {whyHref ? (
+                        <Link
+                          href={whyHref}
+                          className="inline-flex min-h-11 items-center rounded-input border border-blueprint px-2 text-caption text-blueprint"
+                        >
+                          Why did it do that?
+                        </Link>
+                      ) : null}
                     </span>
                   ) : null}
                 </li>

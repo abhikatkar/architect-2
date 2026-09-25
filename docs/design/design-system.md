@@ -68,7 +68,7 @@ Every screen works from a 360 px phone to a 1920 px monitor. Designed mobile-awa
 Screen-specific rules:
 - **Home and landing:** single column on phone, prompt box first, recent projects become a vertical list.
 - **Modals** (GitHub consent, deploy, framework picker) become full-height bottom sheets on phone, with the confirm action pinned at the bottom.
-- **Agents canvas:** pinch to zoom and pan on touch; tapping an agent opens its inspector as a bottom sheet. Under 640 px the canvas also offers a list view of agents, because a graph is hard to use on a phone.
+- **Agents canvas:** the network is drawn as a blueprint, hand-rendered rather than in a graph library, so there is no pan and no pinch to zoom. Tapping an agent opens its inspector, as a bottom sheet on phone. Under 640 px the canvas is **replaced** by a list of agents, not shrunk, because a graph that size is unusable. See [D31](../07-decision-log.md).
 - **App preview:** a device toggle (phone, tablet, desktop) on laptop and up. On phone, the preview simply fills the screen.
 - **Code tab:** full editor, diff, and terminal on tablet and up. On phone it is deliberately read-only: browse files, read diffs, accept or revert changes. Editing code on a phone is a poor experience, so we do not pretend otherwise. Logged as a decision.
 - **Tables** (data, usage, versions) scroll horizontally inside their own container on small screens; the page itself never scrolls sideways.

@@ -3,9 +3,7 @@ import type { Metadata } from "next";
 import { WorkspaceShell } from "@/components/workspace/shell";
 import { Conversation } from "@/components/workspace/conversation";
 import { WorkspaceCanvas } from "@/components/build/workspace-canvas";
-import { parseLayer, parsePane } from "@/components/workspace/types";
-import { parseDevice } from "@/components/build/app-preview";
-import { parseBuild } from "@/lib/build-state";
+import { workspaceUrl } from "@/lib/workspace-url";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
 
 export const metadata: Metadata = {
@@ -14,19 +12,12 @@ export const metadata: Metadata = {
     "A finished Architect 2.0 project, open to read without an account.",
 };
 
+const BASE = "/demo";
+
 export default async function DemoPage(props: PageProps<"/demo">) {
   const searchParams = await props.searchParams;
-  const layer = parseLayer(searchParams.tab);
-  const pane = parsePane(searchParams.pane);
-  const build = parseBuild(searchParams.build);
-  const device = parseDevice(searchParams.device);
-
-  const query = (patch: Record<string, string>) => {
-    const p = new URLSearchParams({ tab: layer, pane, device });
-    if (build !== "none") p.set("build", build);
-    for (const [k, v] of Object.entries(patch)) p.set(k, v);
-    return `/demo?${p.toString()}`;
-  };
+  const { layer, pane, build, device, agent, depth, why, fixApplied, query } =
+    workspaceUrl(BASE, searchParams);
 
   return (
     <WorkspaceShell
@@ -69,7 +60,10 @@ export default async function DemoPage(props: PageProps<"/demo">) {
           layer={layer}
           build={build}
           device={device}
-          basePath="/demo"
+          agent={agent}
+          depth={depth}
+          why={why}
+          fixApplied={fixApplied}
           query={query}
           // The demo never writes to the database (D29).
           finishAction={null}
