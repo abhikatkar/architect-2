@@ -81,8 +81,52 @@ export type ImportExample = {
 export type BuildStage = {
   name: string;
   state: StageState;
+  /** What a real build of this stage would take. This is the number shown. */
   elapsedSeconds: number;
+  /**
+   * How long the demo animation spends here. The run is compressed to about
+   * half a minute and says so on screen, so a reviewer is never misled about
+   * which number is the real one.
+   */
+  demoMs: number;
   cost: number;
+  /** Shown under the stage name once it passes, for Checks especially. */
+  detail?: string;
+};
+
+export type Clarifier = {
+  id: string;
+  question: string;
+  options: string[];
+  /** Preselected, so the fast path through the single gate is one click. */
+  defaultOption: string;
+};
+
+export type Plan = {
+  headline: string;
+  /** Plain language, for the guided layer. */
+  points: string[];
+  /** The raw PRD the Details control reveals, rendered in mono. */
+  prd: string;
+  estimate: { low: number; high: number; minutesLow: number; minutesHigh: number };
+};
+
+export type ChatTurn = {
+  from: "customer" | "agent";
+  text: string;
+  escalated?: boolean;
+};
+
+export type BuildFailure = {
+  stageName: string;
+  cause: string;
+  attempts: number;
+  stopped: string;
+  platformCharge: string;
+  /** Raw log for the details layer. */
+  detail: string;
+  rollbackTo: string;
+  retryEstimate: { low: number; high: number };
 };
 
 export type Ledger = {
@@ -112,6 +156,10 @@ export type DemoProject = {
   commits: Commit[];
   imports: ImportExample[];
   stages: BuildStage[];
+  clarifiers: Clarifier[];
+  plan: Plan;
+  previewChat: ChatTurn[];
+  failure: BuildFailure;
   ledger: Ledger;
   copy: Record<string, string>;
 };

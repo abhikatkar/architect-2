@@ -186,13 +186,105 @@ export const DEMO_PROJECT: DemoProject = {
     },
   ],
 
+  // elapsedSeconds is what a real build takes and is the number shown.
+  // demoMs is how long the animation spends there, about 24 s in total.
+  // Costs sum to 1.46, inside the 1.20 to 2.00 estimate shown beforehand.
   stages: [
-    { name: "Plan", state: "done", elapsedSeconds: 38, cost: 0.12 },
-    { name: "Database", state: "done", elapsedSeconds: 64, cost: 0.18 },
-    { name: "Agents", state: "done", elapsedSeconds: 96, cost: 0.41 },
-    { name: "Interface", state: "done", elapsedSeconds: 152, cost: 0.62 },
-    { name: "Checks", state: "done", elapsedSeconds: 41, cost: 0.13 },
+    { name: "Plan", state: "done", elapsedSeconds: 38, demoMs: 2300, cost: 0.12 },
+    { name: "Database", state: "done", elapsedSeconds: 64, demoMs: 3900, cost: 0.18 },
+    { name: "Agents", state: "done", elapsedSeconds: 96, demoMs: 5900, cost: 0.41 },
+    { name: "Interface", state: "done", elapsedSeconds: 152, demoMs: 9300, cost: 0.62 },
+    {
+      name: "Checks",
+      state: "done",
+      elapsedSeconds: 41,
+      demoMs: 2600,
+      cost: 0.13,
+      detail: "preview loads, 0 console errors",
+    },
   ],
+
+  clarifiers: [
+    {
+      id: "surface",
+      question: "Where will customers reach the agent?",
+      options: ["A chat page and an admin inbox", "Chat page only", "Admin inbox only"],
+      defaultOption: "A chat page and an admin inbox",
+    },
+    {
+      id: "escalation",
+      question: "What should happen when the agent is not sure?",
+      options: ["Flag it in the dashboard", "Email a shared inbox", "Answer anyway"],
+      defaultOption: "Flag it in the dashboard",
+    },
+    {
+      id: "auth",
+      question: "Who can open the admin dashboard?",
+      options: ["Signed-in admins only", "Anyone with the link"],
+      defaultOption: "Signed-in admins only",
+    },
+  ],
+
+  plan: {
+    headline: "A grounded support agent with an admin dashboard",
+    points: [
+      "Customers ask billing questions on a chat page.",
+      "Answers come only from your 24 help articles, never invented.",
+      "Anything the agent cannot ground is escalated to a human, with the reason.",
+      "Admins sign in to see conversations by status, read transcripts, and resolve them.",
+    ],
+    prd: `# Northwind Helpline
+
+## Users
+- Customer: asks a billing question, gets a grounded answer or a clear handoff.
+- Admin: reviews conversations, reads transcripts, marks resolved.
+
+## Agents
+- Intake: topic and urgency.
+- Answer: drafts from help articles only.
+- Grounding Checker: verifies every claim against a source.
+- Escalation Router: assigns to a human queue with a reason.
+
+## Screens
+- /chat            customer conversation
+- /admin           inbox, filtered by status
+- /admin/[id]      transcript and resolve
+
+## Rules
+- No answer ships unless every claim appears in a source.
+- Escalation is the safe default, not a failure.
+- Admin access requires a signed-in session.`,
+    estimate: { low: 1.2, high: 2.0, minutesLow: 6, minutesHigh: 10 },
+  },
+
+  previewChat: [
+    { from: "customer", text: "How do I download last month's invoice?" },
+    {
+      from: "agent",
+      text: "You can download it from Billing, then Invoices and receipts. Each invoice has a download link next to its date.",
+    },
+    { from: "customer", text: "When will my credit be applied?" },
+    {
+      from: "agent",
+      text: "I do not have a reliable answer for that, so I have passed this to a person who can help.",
+      escalated: true,
+    },
+  ],
+
+  failure: {
+    stageName: "Interface",
+    cause: "A page could not load because a package is missing.",
+    attempts: 3,
+    stopped: "Stopped after 3 identical failures. No further credits used.",
+    platformCharge: "Retry caused by Architect. Charged $0.00.",
+    detail: `Error: Cannot find module '@/app/sections/AdminWorkspace'
+  at ./app/page.tsx:8:1
+  attempt 1 of 3, identical signature
+  attempt 2 of 3, identical signature
+  attempt 3 of 3, identical signature -> stopped`,
+    rollbackTo: "v3",
+    retryEstimate: { low: 0.2, high: 0.4 },
+  },
 
   ledger: {
     previewVersion: "v14",
