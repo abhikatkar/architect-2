@@ -77,8 +77,24 @@ export function BuildProgress({
     : marks.findIndex((m) => (elapsed as number) < m);
 
   const shown = Math.min(current, lastIndex + 1);
-  const spent = stages.slice(0, shown).reduce((sum, s) => sum + s.cost, 0);
   const failedNow = mode === "failed" && finished;
+
+  // Progress through the stage currently running, 0 to 1.
+  const stageStart = current > 0 ? marks[current - 1] : 0;
+  const inStage =
+    started && !finished && current <= lastIndex
+      ? Math.min(1, Math.max(0, ((elapsed as number) - stageStart) / stages[current].demoMs))
+      : 0;
+
+  /*
+    Completed stages, plus the part of the running one that has actually
+    elapsed. The stage that failed contributes nothing: it was charged $0.00,
+    and counting it was the contradiction the review found, a total that
+    included a charge the copy said was not made.
+  */
+  const spent =
+    stages.slice(0, failedNow ? shown - 1 : shown).reduce((sum, s) => sum + s.cost, 0) +
+    (current <= lastIndex && !finished ? stages[current].cost * inStage : 0);
 
   // Recording completion touches the DOM, not React state, so it belongs here.
   useEffect(() => {
@@ -143,11 +159,26 @@ export function BuildProgress({
                         : "-"}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{s.name}</span>
+                {/*
+                  A running stage shows time and cost so far, scaled by how far
+                  through it is. Showing its final values while it ran was the
+                  bug the review caught: Database read "1m 4s $0.18" mid-run.
+                */}
                 <span className="font-mono text-caption text-graphite">
-                  {state === "waiting" ? "" : duration(s.elapsedSeconds)}
+                  {state === "waiting"
+                    ? ""
+                    : state === "running"
+                      ? duration(Math.round(s.elapsedSeconds * inStage))
+                      : duration(s.elapsedSeconds)}
                 </span>
                 <span className="font-mono text-caption text-cost">
-                  {state === "waiting" ? "" : money(s.cost)}
+                  {state === "waiting"
+                    ? ""
+                    : state === "fault"
+                      ? money(0)
+                      : state === "running"
+                        ? money(s.cost * inStage)
+                        : money(s.cost)}
                 </span>
               </div>
 
@@ -170,7 +201,8 @@ export function BuildProgress({
       </ol>
 
       <p className="mt-3 border-t border-rule pt-2 text-caption text-graphite">
-        Spent so far <span className="font-mono text-cost">{money(spent)}</span>
+        {finished ? "Spent" : "Spent so far"}{" "}
+        <span className="font-mono text-cost">{money(spent)}</span>
         {finished && !failedNow ? ", inside the estimate of $1.20 to $2.00." : "."}
       </p>
 

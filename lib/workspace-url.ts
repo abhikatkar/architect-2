@@ -1,4 +1,4 @@
-import { parseLayer, parsePane } from "@/components/workspace/types";
+import { parseLayer, parsePane, type Layer } from "@/components/workspace/types";
 import { parseDevice } from "@/components/build/app-preview";
 import { parseBuild } from "@/lib/build-state";
 
@@ -23,8 +23,10 @@ export function workspaceUrl(
   searchParams: Search,
   /** From the user's profile. The URL always beats it, so links stay linkable. */
   defaultDepth: "guided" | "details" = "guided",
+  /** The demo opens on App so a reviewer sees the working app first. */
+  defaultLayer: Layer = "plan",
 ) {
-  const layer = parseLayer(searchParams.tab);
+  const layer = parseLayer(searchParams.tab, defaultLayer);
   const pane = parsePane(searchParams.pane);
   const build = parseBuild(searchParams.build);
   const device = parseDevice(searchParams.device);

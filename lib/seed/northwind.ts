@@ -254,6 +254,9 @@ queues: [billing, technical, account]`,
     reRuns: { total: 5, grounded: 5, cost: 0.06 },
   },
 
+  // Every version whose cost is counted is listed, so this list IS the monthly
+  // spend. The review found 5 versions summing to $2.43 beside a footer reading
+  // $3.43, because the total was written by hand somewhere else. See D36.
   versions: [
     {
       id: "v1",
@@ -263,7 +266,12 @@ queues: [billing, technical, account]`,
       environment: "preview",
       estimate: { low: 1.2, high: 2.0 },
     },
+    { id: "v3", label: "v3", change: "Plainer escalation wording", cost: 0.14, environment: null },
+    { id: "v5", label: "v5", change: "Filter the inbox by status", cost: 0.21, environment: null },
+    { id: "v6", label: "v6", change: "Search within conversations", cost: 0.3, environment: null },
     { id: "v8", label: "v8", change: "Admin dashboard counts", cost: 0.38, environment: null },
+    { id: "v9", label: "v9", change: "Full transcript view", cost: 0.19, environment: null },
+    { id: "v11", label: "v11", change: "Mark resolved from the list", cost: 0.16, environment: null },
     {
       id: "v12",
       label: "v12",
@@ -273,7 +281,8 @@ queues: [billing, technical, account]`,
       live: true,
     },
     { id: "v14", label: "v14", change: "Invoice download links", cost: 0.31, environment: "preview" },
-    { id: "v15", label: "v15", change: "Grounding fix", cost: 0.06, environment: "preview" },
+    // v15 is deliberately absent. It does not exist until the reliability fix
+    // is applied, so listing it would count $0.06 the user has not spent.
   ],
 
   commits: [
@@ -402,8 +411,8 @@ queues: [billing, technical, account]`,
   ledger: {
     previewVersion: "v14",
     productionVersion: "v12",
-    builtAgo: "3 min ago",
-    spend: 3.43,
+    // A finished demo, not a build that just ran three minutes ago.
+    builtAgo: "10 builds this month",
     cap: 5.0,
   },
 

@@ -174,8 +174,13 @@ export type BuildFailure = {
 export type Ledger = {
   previewVersion: string;
   productionVersion: string | null;
+  /** How the finished demo describes its own age, not "3 min ago". */
   builtAgo: string;
-  spend: number;
+  /**
+   * The cap only. Spend is never stored: it is summed from `versions` by
+   * lib/seed/totals.ts, because a hand-written total is exactly what drifted
+   * from its parts and the review caught. See D36.
+   */
   cap: number;
 };
 

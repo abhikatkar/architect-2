@@ -1,4 +1,5 @@
-import type { Ledger } from "@/lib/seed/types";
+import type { DemoProject } from "@/lib/seed/types";
+import { ledgerSpend, previewVersion } from "@/lib/seed/totals";
 
 function money(n: number) {
   return `$${n.toFixed(2)}`;
@@ -8,8 +9,18 @@ function money(n: number) {
  * Always on screen. This is the "See it" principle as a permanent surface:
  * which version is live, what state the build is in, and spend against the cap.
  */
-export function LedgerBar({ ledger }: { ledger: Ledger }) {
-  const pct = Math.min(100, Math.round((ledger.spend / ledger.cap) * 100));
+export function LedgerBar({
+  project,
+  fixApplied,
+}: {
+  project: DemoProject;
+  fixApplied?: boolean;
+}) {
+  const { ledger } = project;
+  // Derived, never stored beside the parts it sums. See D36.
+  const spend = ledgerSpend(project, fixApplied);
+  const preview = previewVersion(project, fixApplied);
+  const pct = Math.min(100, Math.round((spend / ledger.cap) * 100));
 
   return (
     <footer className="border-t border-rule bg-paper px-4 py-2 sm:px-6">
@@ -17,7 +28,7 @@ export function LedgerBar({ ledger }: { ledger: Ledger }) {
         <span className="inline-flex items-center gap-1.5">
           <span className="text-graphite">Preview</span>
           <span className="rounded-input border border-rule px-1.5 py-0.5 font-mono">
-            {ledger.previewVersion}
+            {preview}
           </span>
         </span>
 
@@ -35,7 +46,7 @@ export function LedgerBar({ ledger }: { ledger: Ledger }) {
           )}
         </span>
 
-        <span className="text-graphite">Built {ledger.builtAgo}</span>
+        <span className="text-graphite">{ledger.builtAgo}</span>
 
         {/* Spend is cost-coloured because it is money. Nothing else may be. */}
         <span className="ml-auto inline-flex items-center gap-2">
@@ -46,7 +57,7 @@ export function LedgerBar({ ledger }: { ledger: Ledger }) {
             <span className="block h-full bg-cost" style={{ width: `${pct}%` }} />
           </span>
           <span className="font-mono text-cost">
-            {money(ledger.spend)} of {money(ledger.cap)} cap
+            {money(spend)} of {money(ledger.cap)} cap
           </span>
         </span>
       </div>

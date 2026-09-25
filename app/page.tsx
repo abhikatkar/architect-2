@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { currentTheme } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "Architect 2.0",
@@ -41,12 +43,19 @@ const PRINCIPLES = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const theme = await currentTheme();
+
   return (
     <div className="flex min-h-dvh flex-col bg-paper text-ink">
       <main className="mx-auto flex w-full max-w-[1100px] min-w-0 flex-1 flex-col gap-10 px-4 py-12 sm:px-6 sm:py-16">
         <header className="min-w-0">
-          <p className="font-mono text-caption text-graphite">Architect 2.0</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="font-mono text-caption text-graphite">Architect 2.0</p>
+            <span className="ml-auto">
+              <ThemeToggle current={theme} next="/" />
+            </span>
+          </div>
           <h1 className="mt-3 max-w-[20ch] text-display font-semibold">
             Build agentic apps you can actually see inside.
           </h1>

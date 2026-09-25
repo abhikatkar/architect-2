@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { LedgerBar } from "./ledger-bar";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LAYERS, LAYER_LABELS, type Layer, type Pane } from "./types";
-import type { Ledger } from "@/lib/seed/types";
+import type { DemoProject } from "@/lib/seed/types";
 
 type ShellProps = {
   projectName: string;
   subtitle?: string;
   layer: Layer;
   pane: Pane;
-  ledger: Ledger;
+  project: DemoProject;
+  fixApplied?: boolean;
   /** Base path for tab and pane links, e.g. "/demo" or "/app/p/abc". */
   basePath: string;
   readOnly?: boolean;
+  theme: "light" | "dark" | "system";
+  themeNext: string;
   banner?: React.ReactNode;
   conversation: React.ReactNode;
   canvas: React.ReactNode;
@@ -34,9 +38,12 @@ export function WorkspaceShell({
   subtitle,
   layer,
   pane,
-  ledger,
+  project,
+  fixApplied,
   basePath,
   readOnly,
+  theme,
+  themeNext,
   banner,
   conversation,
   canvas,
@@ -60,6 +67,7 @@ export function WorkspaceShell({
                 Read only
               </span>
             ) : null}
+            <ThemeToggle current={theme} next={themeNext} />
             <span className="rounded-input border border-rule px-2 py-1 text-caption">
               Share
             </span>
@@ -68,15 +76,15 @@ export function WorkspaceShell({
 
         {/* Horizontal scroll strip on phone, plain row from tablet up. */}
         <nav aria-label="Layers" className="overflow-x-auto">
-          <ul className="flex min-w-max gap-1 px-4 pb-2 sm:px-6">
+          <ul className="flex min-w-max gap-0.5 px-4 pb-2 sm:gap-1 sm:px-6">
             {LAYERS.map((l) => {
               const active = l === layer;
               return (
                 <li key={l}>
                   <Link
-                    href={href(basePath, l, pane)}
+                    href={href(basePath, l, "canvas")}
                     aria-current={active ? "page" : undefined}
-                    className={`inline-flex min-h-11 items-center rounded-input px-3 text-body ${
+                    className={`inline-flex min-h-11 items-center rounded-input px-2 text-body sm:px-3 ${
                       active
                         ? "bg-blueprint text-paper"
                         : "text-graphite hover:text-ink"
@@ -130,7 +138,7 @@ export function WorkspaceShell({
         ))}
       </nav>
 
-      <LedgerBar ledger={ledger} />
+      <LedgerBar project={project} fixApplied={fixApplied} />
     </div>
   );
 }

@@ -25,7 +25,8 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
       <div className="flex flex-wrap items-baseline gap-2">
         <h2 className="text-title font-semibold">Agents</h2>
         <span className="text-small text-graphite">
-          {agents.length} agents. Open one to see what it does.
+          Every message runs through all {agents.length}, in order. The dashed
+          branch is the one that escalates.
         </span>
       </div>
 
@@ -34,7 +35,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
         {agents.map((a) => (
           <li key={a.id}>
             <Link
-              href={query({ agent: a.id, why: "" })}
+              href={query({ agent: a.id, why: "", pane: "canvas" })}
               aria-current={a.id === selected ? "true" : undefined}
               className={`flex min-h-11 flex-col justify-center rounded-panel border p-3 ${
                 a.id === selected ? "border-blueprint" : "border-rule"
@@ -103,7 +104,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
         {agents.map((a) => (
           <Link
             key={a.id}
-            href={query({ agent: a.id, why: "" })}
+            href={query({ agent: a.id, why: "", pane: "canvas" })}
             aria-current={a.id === selected ? "true" : undefined}
             className={`absolute w-[22%] min-w-[150px] -translate-y-1/2 rounded-panel border bg-paper p-2 ${
               a.id === selected ? "border-blueprint" : "border-rule"
@@ -124,7 +125,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
           {runs.map((r) => (
             <li key={r.id}>
               <Link
-                href={query({ why: r.id, agent: "" })}
+                href={query({ why: r.id, agent: "", pane: "canvas" })}
                 className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 rounded-input border border-rule px-3 py-2"
               >
                 <span className="min-w-0 flex-1 truncate text-body">{r.question}</span>

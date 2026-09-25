@@ -48,26 +48,9 @@ export function LayerCanvas({
     );
   }
 
-  if (layer === "agents") {
-    return (
-      <Panel
-        title="Agents"
-        note="Four agents. The canvas and inspector arrive with the agent slice."
-      >
-        <ul className="flex flex-col gap-2">
-          {project.agents.map((a) => (
-            <li key={a.id} className="rounded-input border border-rule p-3">
-              <p className="text-body font-medium">{a.name}</p>
-              <p className="text-small text-graphite">{a.role}</p>
-              {a.knowledge ? (
-                <p className="mt-1 font-mono text-caption text-graphite">{a.knowledge}</p>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      </Panel>
-    );
-  }
+  // The agents layer is handled by AgentCanvas in workspace-canvas.tsx, which
+  // intercepts it before this runs. The branch that used to sit here was dead
+  // code still claiming the canvas "arrives with the agent slice".
 
   if (layer === "app") {
     return (
@@ -109,7 +92,7 @@ export function LayerCanvas({
 
   if (layer === "data") {
     return (
-      <Panel title="Data" note="Collections the app writes to.">
+      <Panel title="Data" note="Collections the app writes to. Read only in this demo, so the rows below cannot be opened.">
         <Scroller>
           <table className="w-full min-w-[420px] border-collapse text-small">
             <thead>
@@ -138,7 +121,7 @@ export function LayerCanvas({
 
   if (layer === "code") {
     return (
-      <Panel title="Code" note="Every change the agent made, grouped per request.">
+      <Panel title="Code" note="Every change the agent made, grouped per request. Read only in this demo: the file tree and diffs arrive with the code slice.">
         <ul className="flex flex-col gap-2">
           {project.commits.map((c) => (
             <li key={c.sha} className="flex flex-wrap items-baseline gap-2 text-small">

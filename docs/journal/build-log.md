@@ -55,7 +55,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 |---|---|---|---|---|
 | 10:40 | Slice 2, the front door: landing, sign in restyled, onboarding with a profiles table, and error pages | 1 h 35 min | Claude Code, Chrome over CDP, Supabase MCP | 32 of 32 responsive checks pass. The depth preference is proven functional, not just stored. Caught the landing page claiming "seven tools tested hands-on" when only five completed the brief, the same inaccuracy corrected in the docs two days ago |
 
-**Day total so far:** 1 h 35 min across 1 commit.
+| 14:20 | Fix pass from the cold review: derived totals with a consistency check, build rail state bugs, demo navigation, phone tabs, a theme toggle and four rewritten lines | 3 h 40 min | Claude Code, Chrome over CDP | 15 invariants now gate every commit, written before the fixes and shown failing first. The check immediately caught a defect I had just introduced. Also caught myself verifying against a stale server that had failed to bind |
+
+**Day total so far:** 5 h 15 min across 2 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

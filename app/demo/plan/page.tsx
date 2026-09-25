@@ -3,7 +3,7 @@ import { PlanReview } from "@/components/build/plan-review";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
 
 export const metadata: Metadata = {
-  title: "Plan review",
+  title: "Plan review | Northwind Helpline demo",
   description: "Read the plan and the cost before anything runs.",
 };
 

@@ -4,6 +4,7 @@ import { WorkspaceShell } from "@/components/workspace/shell";
 import { Conversation } from "@/components/workspace/conversation";
 import { WorkspaceCanvas } from "@/components/build/workspace-canvas";
 import { workspaceUrl } from "@/lib/workspace-url";
+import { currentTheme } from "@/lib/theme";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
 import { getProject } from "@/lib/projects";
 import { prefersDetails } from "@/lib/profiles";
@@ -18,6 +19,7 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
   if (!project) notFound();
 
   const preferDetails = await prefersDetails();
+  const theme = await currentTheme();
 
   const basePath = `/app/p/${project.id}`;
   const { layer, pane, build, device, agent, depth, why, fixApplied, query } =
@@ -29,7 +31,10 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
       subtitle={`Status: ${project.status}`}
       layer={layer}
       pane={pane}
-      ledger={DEMO_PROJECT.ledger}
+      project={DEMO_PROJECT}
+      fixApplied={fixApplied}
+      theme={theme}
+      themeNext={query({})}
       basePath={basePath}
       banner={
         project.status === "draft" && build === "none" ? (

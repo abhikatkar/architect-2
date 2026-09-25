@@ -137,12 +137,20 @@ export function PlanReview({
                 </button>
               </form>
             ) : (
-              <Link
-                href={demoHref ?? "#"}
-                className="inline-flex min-h-11 items-center justify-center rounded-input bg-blueprint px-4 text-body text-paper"
-              >
-                {buildLabel}
-              </Link>
+              <>
+                {/* Read-only demo: this starts the simulation, and says so,
+                    rather than appearing to spend real credits. */}
+                <Link
+                  href={demoHref ?? "#"}
+                  className="inline-flex min-h-11 items-center justify-center rounded-input bg-blueprint px-4 text-body text-paper"
+                >
+                  Watch this build run
+                </Link>
+                <p className="text-caption text-graphite">
+                  Demo project, so nothing is charged. In a real project this
+                  button reads &ldquo;{buildLabel}&rdquo;.
+                </p>
+              </>
             )}
           </div>
         </section>

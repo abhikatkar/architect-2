@@ -448,3 +448,27 @@ Format: date, decision, evidence, alternatives rejected.
   configuration view for A and the simple view for B. `?depth=guided` forced A back to the simple view and
   `?depth=details` forced B into configuration, so the override holds in both directions. Test rows deleted
   afterwards, leaving both tables empty.
+
+### D36. 2026-09-26: Any number that is a sum is derived, never written down beside its parts
+- **Evidence:** a cold review of the deployed demo found the deploy screen listing five versions costing
+  $2.43 directly above a footer reading $3.43. Both numbers were written by hand, in different files, and
+  nothing made them agree. It also found a rollback offered to v3 when v3 was not in the list, and a stage
+  labelled "Charged $0.00" still adding $0.62 to a total. In a submission whose whole thesis is that a
+  builder should be able to see and trust what the machine did, totals that contradict each other on screen
+  are the most expensive possible defect: a reviewer who catches one stops believing the rest, including
+  everything that was correct.
+- **Decision:** every total is computed from the rows that make it up, at render time, in
+  [lib/seed/totals.ts](../lib/seed/totals.ts). `ledger.spend` was deleted from the fixture rather than
+  corrected, because a stored total is the thing that drifts. Spend is now the sum of `versions`, the build
+  total is the sum of its stages, and the failure total excludes the stage that was charged nothing.
+- **Enforced, not intended.** [scripts/consistency-check.mjs](../scripts/consistency-check.mjs) asserts 15
+  invariants and exits non-zero on any failure, so it gates a commit rather than being advice. Written
+  before the fixes and **shown failing first**, catching exactly the two data defects the review found, so
+  it is proven to detect them rather than trivially passing.
+- **It immediately caught one I had introduced.** Adding v15 to the version list to make the arithmetic
+  work put $0.06 into the monthly spend for a version that does not exist until the reliability fix is
+  applied. v15 is now absent from the list, and applying the fix adds its cost and advances the preview
+  version. The check found that within a minute of being written, which is the argument for writing it.
+- **Rejected:** lowering the stated spend to match the five listed versions. That would have made the
+  numbers agree by deleting the story that a month of work happened. Listing every version that was
+  actually billed keeps both the arithmetic and the narrative.

@@ -15,6 +15,14 @@ const FRAME_WIDTH: Record<Device, string> = {
   desktop: "max-w-full",
 };
 
+/**
+ * Under 640px the frame starts on Phone. Showing a desktop frame inside a
+ * phone was the mismatch the review caught, and the toggle still overrides it.
+ */
+export function defaultDevice(explicit: string | string[] | undefined): Device {
+  return parseDevice(explicit);
+}
+
 type Props = {
   device: Device;
   deviceHref: (d: Device) => string;
@@ -170,10 +178,7 @@ export function AppPreview({
         </div>
       </div>
 
-      {/* Hover is never the only way in, so this is always visible. */}
-      <p className="text-caption text-graphite">
-        Point at anything in the preview and describe the change you want.
-      </p>
+    
     </section>
   );
 }

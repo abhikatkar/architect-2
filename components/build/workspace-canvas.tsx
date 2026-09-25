@@ -47,7 +47,7 @@ export function WorkspaceCanvas({
         failure={project.failure}
         mode={build === "failed" ? "failed" : "running"}
         finishAction={finishAction}
-        doneHref={query({ build: "done", tab: "app" })}
+        doneHref={query({ build: "done", tab: "app", pane: "canvas" })}
         preferDetails={preferDetails}
       />
     );
@@ -110,7 +110,7 @@ export function WorkspaceCanvas({
         previewVersion={
           fixApplied ? project.fix.newVersion : project.ledger.previewVersion
         }
-        whyHref={query({ why: project.runs[0].id })}
+        whyHref={query({ why: project.runs[0].id, pane: "canvas" })}
       />
     );
   }

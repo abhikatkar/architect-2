@@ -17,10 +17,10 @@ carries it, because amending or rebasing changes that hash and silently makes th
 |---|---|---|
 | Commits | 28 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-26 10:40 | `git log -1` |
+| Latest commit | 2026-09-26 14:20 | `git log -1` |
 | Wall clock, first to last commit | 7 h 22 min on day 1, plus 6 h 18 min on day 2 | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 2 | Same |
-| Decision log entries | 35 | `grep -c '^### D' docs/07-decision-log.md` |
+| Decision log entries | 36 | `grep -c '^### D' docs/07-decision-log.md` |
 | Tracked files | 81 | `git ls-files \| wc -l` |
 | Tracked files under docs/ | 49 | `git ls-files 'docs/*' \| wc -l` |
 | Docs still stubs | 1 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
@@ -36,7 +36,7 @@ carries it, because amending or rebasing changes that hash and silently makes th
 | Build status | Passing | `npm run build`, plus `tsc --noEmit` and ESLint clean |
 | Design tokens | 8 colours, 7 type sizes, 3 radii | [design/design-system.md](../design/design-system.md), implemented in `app/globals.css` |
 | Flows specified | 11 | [06-user-flows.md](../06-user-flows.md). F1 to F11 |
-| P0 screens built | 12 of 15 | Screens 1 landing, 2 sign in, 3 onboarding, 4 home, 5 plan review, 6 workspace shell, 7 build in progress, 8 app preview, 9 agent canvas and inspector, 10 why did it do that, 22 guest demo, 23 error pages |
+| P0 screens built | 11 of 15 | Screens 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 and 22. Remaining: 12 code, 14 GitHub consent, 15 import, 16 deploy. Screen 23 error pages is built but is P1, so it does not count here |
 | Screens specified | 23 | [design/screen-inventory.md](../design/screen-inventory.md). 15 at P0, 5 at P1, 3 at P2 |
 | Auth | Functional | Google sign-in verified end to end on production. See [D18](../07-decision-log.md) |
 | Database | Functional | projects and profiles, both with RLS, proven with two real users. See [D26](../07-decision-log.md) and [D35](../07-decision-log.md) |
@@ -109,6 +109,23 @@ Row level security, queried as each user with `request.jwt.claims` set:
 | User B updates A's row | 0 rows updated |
 | User B deletes A's row | 0 rows deleted |
 | Other user's project over HTTP | 404 |
+
+Fix pass after the cold review. `scripts/consistency-check.mjs` asserts 15 invariants over the fixtures and
+gates every commit:
+
+| Invariant | Result |
+|---|---|
+| Spend is derived, never stored beside its parts | $3.37 from 9 versions |
+| Every referenced version exists in the list | rollbackTo v3, preview v14, live v12 |
+| Build stage costs sum to the v1 cost | $1.46 |
+| The actual cost falls inside the estimate shown first | $1.46 inside $1.20 to $2.00 |
+| The failure total excludes the stage charged $0.00 | $0.71, excluding Interface |
+| Applying the fix adds exactly its own cost | $3.37 to $3.43 |
+
+Re-verified on the served demo: the deploy list and the footer agree, a running stage shows partial time and
+cost (Agents at 23s and $0.10 mid-run, not its final 1m 36s and $0.41), "Spent so far" becomes "Spent" when
+done, all six layer tabs fit at 390px with overflow 0, and the theme cookie forces either theme while no
+cookie leaves it to `prefers-color-scheme`.
 
 Slice 2, the front door. 8 runs, 4 widths each, both themes, overflow 0 in all 32: landing, sign in,
 onboarding and a 404.

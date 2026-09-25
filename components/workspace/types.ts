@@ -12,9 +12,12 @@ export const LAYER_LABELS: Record<Layer, string> = {
 
 export type Pane = "chat" | "canvas";
 
-export function parseLayer(value: string | string[] | undefined): Layer {
+export function parseLayer(
+  value: string | string[] | undefined,
+  fallback: Layer = "plan",
+): Layer {
   const v = Array.isArray(value) ? value[0] : value;
-  return LAYERS.includes(v as Layer) ? (v as Layer) : "plan";
+  return LAYERS.includes(v as Layer) ? (v as Layer) : fallback;
 }
 
 export function parsePane(value: string | string[] | undefined): Pane {

@@ -73,8 +73,8 @@ export function Conversation({
           <div className="rounded-panel border border-rule p-3">
             <p className="text-caption text-graphite">Build v1</p>
             <p className="mt-1 text-body">
-              Every stage, its time and its cost are in the build panel as they
-              happen.
+              Five stages, about six and a half minutes of real build time,
+              estimated at $1.20 to $2.00 before it started.
             </p>
           </div>
         ) : (
