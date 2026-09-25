@@ -22,30 +22,143 @@ export const DEMO_PROJECT: DemoProject = {
       name: "Intake",
       role: "Reads the message, sets topic and urgency",
       knowledge: null,
+      tools: ["Topic classifier"],
+      creativity: 20,
+      at: { x: 8, y: 50 },
       settings: { temperature: 0.2 },
+      configFile: `name: Intake
+model: claude-sonnet-4-6
+temperature: 0.2
+outputs:
+  topic: string
+  urgency: low | normal | high`,
+      versions: [{ label: "v1", change: "Created with the first build" }],
+      sample: {
+        input: "When will my credit be applied?",
+        output: "topic: billing.credits\nurgency: normal",
+      },
     },
     {
       id: "answer",
       name: "Answer",
       role: "Drafts a reply using only help articles",
       knowledge: "Help center, 24 articles",
+      tools: ["Help center search"],
+      creativity: 55,
+      creativityAfterFix: 20,
+      at: { x: 37, y: 50 },
       settings: { temperature: 0.4, temperatureAfterFix: 0.2 },
+      configFile: `name: Answer
+model: claude-sonnet-4-6
+temperature: 0.4
+knowledge: help_center
+rules:
+  - Answer only from retrieved articles.`,
+      versions: [
+        { label: "v1", change: "Created with the first build" },
+        { label: "v12", change: "Added escalation reasons" },
+      ],
+      sample: {
+        input: "Can I get a refund on my annual plan?",
+        output:
+          "Refund requests made within 14 days of purchase are reviewed by our support team.",
+      },
     },
     {
       id: "grounding-checker",
       name: "Grounding Checker",
       role: "Confirms every claim is in a source, escalates if not",
       knowledge: "Help center",
+      tools: ["Claim matcher"],
+      creativity: 5,
+      at: { x: 66, y: 50 },
       settings: { temperature: 0.1 },
+      configFile: `name: Grounding Checker
+model: claude-sonnet-4-6
+temperature: 0.1
+returns:
+  grounded: boolean
+  reason: string`,
+      versions: [{ label: "v1", change: "Created with the first build" }],
+      sample: {
+        input: 'Draft: "Refunds are reviewed within 14 days."',
+        output: "grounded: true",
+      },
     },
     {
       id: "escalation-router",
       name: "Escalation Router",
       role: "Assigns escalations to a human queue with a reason",
       knowledge: "Team roster",
+      tools: ["Queue assignment"],
+      creativity: 20,
+      at: { x: 66, y: 88 },
       settings: { temperature: 0.2 },
+      configFile: `name: Escalation Router
+model: claude-sonnet-4-6
+temperature: 0.2
+queues: [billing, technical, account]`,
+      versions: [
+        { label: "v1", change: "Created with the first build" },
+        { label: "v12", change: "Reason now recorded on every escalation" },
+      ],
+      sample: {
+        input: "reason: unsupported_detail",
+        output: "queue: billing",
+      },
     },
   ],
+
+  edges: [
+    { from: "intake", to: "answer" },
+    { from: "answer", to: "grounding-checker" },
+    { from: "grounding-checker", to: "escalation-router", label: "if not grounded" },
+  ],
+
+  // Entry point 2 for the trace. The escalation is the one F4 opens.
+  runs: [
+    {
+      id: "r-104",
+      question: "When will my credit be applied?",
+      outcome: "Escalated, the answer added detail the source did not support",
+      grounded: false,
+      ago: "4 min ago",
+    },
+    {
+      id: "r-103",
+      question: "Can I get a refund on my annual plan?",
+      outcome: "Answered from Refunds for annual plans",
+      grounded: true,
+      ago: "11 min ago",
+    },
+    {
+      id: "r-102",
+      question: "How do I download last month's invoice?",
+      outcome: "Answered from Invoices and receipts",
+      grounded: true,
+      ago: "26 min ago",
+    },
+    {
+      id: "r-101",
+      question: "How do I set up SSO for my team?",
+      outcome: "Escalated, no source covers this",
+      grounded: false,
+      ago: "1 hr ago",
+    },
+  ],
+
+  fix: {
+    // Plain language on purpose. No parameter, no number, no "temperature".
+    summary: "Keep answers as close to the source as possible",
+    before:
+      "Your credit will be applied at the start of your next billing cycle.",
+    after: "Your credit will be applied at the next billing cycle.",
+    cost: 0.06,
+    newVersion: "v15",
+    previousVersion: "v14",
+    unsupported: "at the start of",
+    source: "Account credits apply at the next billing cycle.",
+  },
 
   helpArticleCount: 24,
   helpArticles: [

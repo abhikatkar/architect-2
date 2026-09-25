@@ -16,8 +16,50 @@ export type Agent = {
   name: string;
   role: string;
   knowledge: string | null;
+  tools: string[];
+  /**
+   * Where the agent sits between precise and creative, 0 to 100. This is the
+   * entire representation in the guided layer: no parameter, no number, no use
+   * of the word "temperature". That word and the value behind it appear only in
+   * the details layer.
+   */
+  creativity: number;
+  creativityAfterFix?: number;
+  /** Position on the canvas, as a percentage of the drawing area. */
+  at: { x: number; y: number };
   /** Shown only in the details layer, in mono. */
   settings: { temperature: number; temperatureAfterFix?: number };
+  configFile: string;
+  versions: { label: string; change: string }[];
+  sample: { input: string; output: string };
+};
+
+export type AgentEdge = {
+  from: string;
+  to: string;
+  /** Set where the edge is conditional, which is the interesting one. */
+  label?: string;
+};
+
+export type AgentRun = {
+  id: string;
+  question: string;
+  outcome: string;
+  grounded: boolean;
+  ago: string;
+};
+
+export type FixPreview = {
+  /** Plain language. Never names a parameter. */
+  summary: string;
+  before: string;
+  after: string;
+  cost: number;
+  newVersion: string;
+  previousVersion: string;
+  /** The exact words the source does not support, marked in the draft. */
+  unsupported: string;
+  source: string;
 };
 
 export type HelpArticle = {
@@ -145,6 +187,9 @@ export type DemoProject = {
   owner: { name: string; role: string };
   collaborator: { name: string; role: string };
   agents: Agent[];
+  edges: AgentEdge[];
+  runs: AgentRun[];
+  fix: FixPreview;
   /** Total in the knowledge base. helpArticles below is a named sample of it. */
   helpArticleCount: number;
   helpArticles: HelpArticle[];
