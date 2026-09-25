@@ -18,6 +18,9 @@ type Props = {
   why: string;
   fixApplied: boolean;
   preferDetails: boolean;
+  jev: string;
+  jevResult: string;
+  basePath: string;
   query: (patch: Record<string, string>) => string;
   /** Signed in: the route that records completion. Demo: null. */
   finishAction: string | null;
@@ -37,9 +40,21 @@ export function WorkspaceCanvas({
   why,
   fixApplied,
   preferDetails,
+  jev,
+  jevResult,
+  basePath,
   query,
   finishAction,
 }: Props) {
+  // The result travels in the URL, so a run is linkable like every other view.
+  let parsedJev = null;
+  if (jevResult) {
+    try {
+      parsedJev = JSON.parse(decodeURIComponent(jevResult));
+    } catch {
+      parsedJev = null;
+    }
+  }
   if (build === "running" || build === "failed") {
     return (
       <BuildProgress
@@ -91,6 +106,8 @@ export function WorkspaceCanvas({
               details={depth === "details"}
               applied={fixApplied}
               preferDetails={preferDetails}
+              jevResult={jev === selected.id ? parsedJev : null}
+              formNext={`${basePath}?tab=agents&pane=canvas&agent=${selected.id}`}
               query={query}
             />
           </div>

@@ -57,7 +57,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 14:20 | Fix pass from the cold review: derived totals with a consistency check, build rail state bugs, demo navigation, phone tabs, a theme toggle and four rewritten lines | 3 h 40 min | Claude Code, Chrome over CDP | 15 invariants now gate every commit, written before the fixes and shown failing first. The check immediately caught a defect I had just introduced. Also caught myself verifying against a stale server that had failed to bind |
 
-**Day total so far:** 5 h 15 min across 2 commits.
+| 16:05 | Slice 4.5: Jev as the decision model for the three decision agents. Read the AI SDK and Vercel docs first, built the helper, the guardrails and the inspector split | 2 h 30 min | Claude Code, web research, Supabase MCP, Vercel MCP | Could not create the gateway key: the Vercel MCP connection is not authorised for the team scope, so live verification is pending. Everything else is built and the security posture is proven: anon can insert through a definer function but cannot read the table |
+
+**Day total so far:** 7 h 45 min across 3 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

@@ -17,7 +17,9 @@ const BASE = "/demo";
 
 export default async function DemoPage(props: PageProps<"/demo">) {
   const searchParams = await props.searchParams;
-  const { layer, pane, build, device, agent, depth, why, fixApplied, query } =
+  const {
+    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, query,
+  } =
     workspaceUrl(BASE, searchParams, "guided", "app");
   const theme = await currentTheme();
 
@@ -77,6 +79,9 @@ export default async function DemoPage(props: PageProps<"/demo">) {
           fixApplied={fixApplied}
           // No user on the demo path, so it always starts guided.
           preferDetails={false}
+          jev={jev}
+          jevResult={jevResult}
+          basePath={BASE}
           query={query}
           // The demo never writes to the database (D29).
           finishAction={null}

@@ -22,7 +22,9 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
   const theme = await currentTheme();
 
   const basePath = `/app/p/${project.id}`;
-  const { layer, pane, build, device, agent, depth, why, fixApplied, query } =
+  const {
+    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, query,
+  } =
     workspaceUrl(basePath, searchParams, preferDetails ? "details" : "guided");
 
   return (
@@ -65,6 +67,9 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
           why={why}
           fixApplied={fixApplied}
           preferDetails={preferDetails}
+          jev={jev}
+          jevResult={jevResult}
+          basePath={basePath}
           query={query}
           finishAction={`${basePath}/built`}
         />

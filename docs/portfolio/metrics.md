@@ -15,12 +15,12 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 28 | `git rev-list --count HEAD` |
+| Commits | 30 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-26 14:20 | `git log -1` |
+| Latest commit | 2026-09-26 16:05 | `git log -1` |
 | Wall clock, first to last commit | 7 h 22 min on day 1, plus 6 h 18 min on day 2 | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 2 | Same |
-| Decision log entries | 36 | `grep -c '^### D' docs/07-decision-log.md` |
+| Decision log entries | 38 | `grep -c '^### D' docs/07-decision-log.md` |
 | Tracked files | 81 | `git ls-files \| wc -l` |
 | Tracked files under docs/ | 49 | `git ls-files 'docs/*' \| wc -l` |
 | Docs still stubs | 1 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
@@ -65,6 +65,46 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Tools supporting repo import | 2 of 5 fully, Architect and v0 |
 | Distinct errors or dead ends logged | Architect 9, Lovable 7, Replit 6, Emergent 6, v0 5 |
 | Screenshots captured | 161 teardown raw, 17 published to [research/screenshots/](../research/screenshots/). 14 "before" captures, 11 published to [assets/before/](assets/before/). 12 of the 28 published are redacted per [D12](../07-decision-log.md) |
+
+## Jev decision model
+
+Ours, measured by us. The AI SDK returns no latency, so every figure here is wall-clock measured in our own
+code around the `evaluate` call and includes network time to the Gateway.
+
+| Metric | Value |
+|---|---|
+| Live calls made | **0, no gateway key yet** |
+| Median latency | Not measured yet |
+| Rate limit | 10 per IP per hour, [D38](../07-decision-log.md) |
+| Daily cap | 300 per day |
+
+Verified from the Gateway's own models endpoint, `https://ai-gateway.vercel.sh/v1/models`, which needs no
+authentication, read 2026-09-26. A primary source rather than a published claim:
+
+| Field | Value |
+|---|---|
+| id | `typesafe-ai/jev` |
+| type | `evaluation` |
+| input price | $0.000000042 per token, so $0.042 per million |
+| output price | $0 |
+| context window | 32,000 |
+
+**Vendor claims, not reproduced by us.** TypeSafe AI's own workflow evaluations, quoted to the page that
+states each figure. The two pages give the same benchmark at different precision, so neither is averaged:
+
+| Claim | Source and date |
+|---|---|
+| "up to 193.6x faster ... than LLMs on its workflow evaluations" | [Vercel changelog, 16 Sep 2026](https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway) |
+| "444.6x cheaper" | same changelog |
+| "up to 194 times faster" | [Vercel blog, 18 Sep 2026](https://vercel.com/blog/ai-gateway-jev-model-launch) |
+| "445 times cheaper than language models" | same blog |
+| "By hour 24, nearly 13% of paid teams were using it" | same blog. Vercel Gateway usage data, not TypeSafe's |
+
+Both pages attribute the speed and cost figures to TypeSafe's own evaluations ("TypeSafe reports", "In its
+own workflow evaluations"). No independent evaluator is named on either. A figure of "about 100x" circulates
+elsewhere and appears on none of the three Vercel pages read on 2026-09-26, so it is not cited.
+
+Full write-up, including limitations: [early-adoption-jev.md](early-adoption-jev.md).
 
 ## Verified behaviour
 

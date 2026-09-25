@@ -34,6 +34,7 @@ This repo documents the full zero-to-one process, not just the code.
 |---|---|
 | Authentication | **Functional.** Google sign-in via Supabase, verified end to end on the production deployment: sign in, `/app` shows the signed-in email, sign out, and `/app` then redirects to `/login?next=/app` |
 | Database | **Functional.** `projects` and `profiles` tables in Supabase, each with row level security and four policies scoping every row to its owner. Verified with two real users on both tables: each sees only their own row, and cross-user updates and deletes affect 0 rows. Projects round-trip end to end, and the onboarding depth preference visibly changes the workspace. Results in [D26](docs/07-decision-log.md) and [D35](docs/07-decision-log.md) |
+| Jev decision model | **Implemented, not yet verified.** The three decision agents (Intake, Grounding Checker, Escalation Router) call [Jev](https://vercel.com/ai-gateway/models/jev) through Vercel AI Gateway, with rate limits, a daily cap and a call log. No live call has been made yet, because no gateway key exists, so this is not called functional. Detail in [early-adoption-jev.md](docs/portfolio/early-adoption-jev.md) |
 | Everything else | Simulated |
 
 ## Stack

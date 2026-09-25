@@ -472,3 +472,48 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** lowering the stated spend to match the five listed versions. That would have made the
   numbers agree by deleting the story that a month of work happened. Listing every version that was
   actually billed keeps both the arithmetic and the narrative.
+
+### D37. 2026-09-26: The right model type per agent
+- **Decision:** the three agents that make typed decisions (Intake, Grounding Checker, Escalation Router)
+  run on [Jev](https://vercel.com/ai-gateway/models/jev), TypeSafe AI's decision model, through Vercel AI
+  Gateway. The Answer agent, which writes prose for a customer to read, stays on a language model. The
+  agent inspector shows which is which, and why, in plain words.
+- **Evidence:** all three decisions have a fixed answer space known in advance: a topic from five, a score
+  on a four-level rubric, a yes or no, a queue from three. Asking a model that can emit any string to emit
+  one of five means parsing, validating, and handling the case where it invents a sixth. A decision model
+  returns the answer already inside the schema. Verified from the Gateway's own models endpoint on
+  2026-09-26: `typesafe-ai/jev`, type `evaluation`, input $0.000000042 per token, output free, 32,000
+  context.
+- **Why it belongs in the product, not just the stack:** the thesis is that a builder should be able to see
+  what the machine is doing. "This agent uses a model that cannot invent an answer, and that one uses a
+  model that can" is the most concrete form that idea takes anywhere in the submission, and it is the
+  difference that caused the escalation the whole "Why did it do that?" screen is built around.
+- **Rejected:** running all four on a language model, which is what today's Architect does and what makes
+  the drift in the trace possible. Also rejected: moving the Answer agent to a decision model, which would
+  be the same category error in the other direction, since its output is prose.
+- **Honesty requirement:** confidence is shown only where the provider returns one. The docs state Jev
+  returns `providerMetadata.typesafe.confidence` for choice and score but not boolean, and that a boolean's
+  `probability` is P(true) and "not a confidence in either outcome". The Grounding Checker therefore shows
+  a probability, labelled as one. Latency is wall-clock measured by us, because the API returns none, and
+  the interface says so.
+
+### D38. 2026-09-26: A documented cost ceiling, enforced without a privileged key
+- **Decision:** 10 live Jev calls per IP per hour, and 300 per day in total. Past either, the demo serves a
+  stored result labelled with the date it was captured, and never a fabricated one.
+- **Why these numbers:** 10 per hour is enough for a reviewer to try every agent several times with their
+  own input, and low enough that one visitor cannot drain the budget. 300 a day bounds the worst case
+  across all visitors. At $0.042 per million input tokens these calls cost a fraction of a cent, so the
+  thing actually being protected is the key and the blast radius of a leak, not the bill.
+- **Enforced through `SECURITY DEFINER` functions, not a service role key.** `/demo` is signed out, so the
+  insert runs as `anon`. Shipping a service role key to the app to do that would hand the browser tier a
+  credential that can read and write everything. Instead `log_jev_call` writes exactly one row with only
+  the allowed columns, `jev_call_counts` returns counts and never rows, and `anon` has `execute` on those
+  and no `select` on the table.
+- **Why `anon` must not read the table:** it holds salted IP hashes. The salt is a separate server-only
+  environment variable, so the hashes are not reversible from a copy of the table alone.
+- **What is stored:** timestamp, agent id, outcome, latency, salted IP hash. No user content, not the
+  custom input and not the answer. That is what makes the latency figures publishable.
+- **Verified, not assumed:** as `anon`, `log_jev_call` inserted a row and a direct `select` on
+  `jev_calls` was refused with `permission denied for table jev_calls`. `jev_call_counts` returned counts
+  to `anon` without exposing a row. Test rows deleted afterwards.
+- **Rejected:** in-memory counters, which reset per serverless instance and would mean no real cap at all.

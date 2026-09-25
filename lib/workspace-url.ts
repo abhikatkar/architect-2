@@ -3,7 +3,18 @@ import { parseDevice } from "@/components/build/app-preview";
 import { parseBuild } from "@/lib/build-state";
 
 /** Parameters the workspace carries in the URL, so every view is linkable. */
-const CARRIED = ["tab", "pane", "device", "build", "agent", "depth", "why", "fix"] as const;
+const CARRIED = [
+  "tab",
+  "pane",
+  "device",
+  "build",
+  "agent",
+  "depth",
+  "why",
+  "fix",
+  "jev",
+  "jevResult",
+] as const;
 
 type Search = Record<string, string | string[] | undefined>;
 
@@ -42,6 +53,8 @@ export function workspaceUrl(
           : "";
   const why = first(searchParams.why) ?? "";
   const fixApplied = first(searchParams.fix) === "applied";
+  const jev = first(searchParams.jev) ?? "";
+  const jevResult = first(searchParams.jevResult) ?? "";
 
   const current: Record<string, string> = {
     tab: layer,
@@ -52,6 +65,8 @@ export function workspaceUrl(
     depth,
     why,
     fix: fixApplied ? "applied" : "",
+    jev,
+    jevResult,
   };
 
   const query = (patch: Record<string, string>) => {
@@ -63,7 +78,19 @@ export function workspaceUrl(
     return `${basePath}?${p.toString()}`;
   };
 
-  return { layer, pane, build, device, agent, depth, why, fixApplied, query };
+  return {
+    layer,
+    pane,
+    build,
+    device,
+    agent,
+    depth,
+    why,
+    fixApplied,
+    jev,
+    jevResult,
+    query,
+  };
 }
 
 export type WorkspaceUrl = ReturnType<typeof workspaceUrl>;

@@ -1,5 +1,8 @@
 import Link from "next/link";
 import type { Agent } from "@/lib/seed/types";
+import { isJevAgent } from "@/lib/jev/questions";
+import type { JevResult } from "@/lib/jev";
+import { JevPanel, LanguageModelNote } from "./jev-panel";
 
 /**
  * The precise-to-creative slider.
@@ -52,6 +55,10 @@ type Props = {
   details: boolean;
   applied: boolean;
   preferDetails?: boolean;
+  /** The result of a live Jev run, when one was just made for this agent. */
+  jevResult?: JevResult | null;
+  /** Where the test form returns to. */
+  formNext?: string;
   query: (patch: Record<string, string>) => string;
 };
 
@@ -60,8 +67,11 @@ export function AgentInspector({
   details,
   applied,
   preferDetails,
+  jevResult,
+  formNext,
   query,
 }: Props) {
+  const decisionAgent = isJevAgent(agent.id);
   const creativity =
     applied && agent.creativityAfterFix !== undefined
       ? agent.creativityAfterFix
@@ -133,21 +143,36 @@ export function AgentInspector({
 
           <CreativityScale value={creativity} />
 
-          <details open={preferDetails} className="min-w-0 rounded-input border border-rule">
-            <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
-              Test this agent
-            </summary>
-            <div className="border-t border-rule p-3">
-              <p className="text-caption text-graphite">
-                Sample input, simulated for the demo
-              </p>
-              <p className="mt-1 text-small">{agent.sample.input}</p>
-              <p className="mt-2 text-caption text-graphite">Result</p>
-              <pre className="mt-1 min-w-0 overflow-x-auto font-mono text-caption">
-                {agent.sample.output}
-              </pre>
-            </div>
-          </details>
+          {decisionAgent ? (
+            <JevPanel
+              agentId={agent.id as Parameters<typeof JevPanel>[0]["agentId"]}
+              result={jevResult ?? null}
+              formNext={formNext ?? "/demo?tab=agents"}
+              preferDetails={preferDetails}
+            />
+          ) : (
+            <>
+              <LanguageModelNote />
+              <details
+                open={preferDetails}
+                className="min-w-0 rounded-input border border-rule"
+              >
+                <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
+                  Test this agent
+                </summary>
+                <div className="border-t border-rule p-3">
+                  <p className="text-caption text-graphite">
+                    Sample input, simulated for the demo
+                  </p>
+                  <p className="mt-1 text-small">{agent.sample.input}</p>
+                  <p className="mt-2 text-caption text-graphite">Result</p>
+                  <pre className="mt-1 min-w-0 overflow-x-auto font-mono text-caption">
+                    {agent.sample.output}
+                  </pre>
+                </div>
+              </details>
+            </>
+          )}
 
           <Link
             href={query({ depth: "details" })}
