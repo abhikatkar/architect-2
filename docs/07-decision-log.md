@@ -406,3 +406,45 @@ Format: date, decision, evidence, alternatives rejected.
   value. The details layer does contain them, which is the point.
 - **Rejected:** applying the fix automatically once it is found. It removes the builder's learning, and it
   repeats the teardown's worst pattern of the platform spending a user's money on its own initiative.
+
+### D34. 2026-09-25: "Try the demo" is the primary action on the landing page, ahead of sign in
+- **Decision:** the landing page leads with the demo. Sign in is the secondary control, and the demo is
+  labelled as needing no account.
+- **Evidence:** a reviewer assessing this submission has no reason to create an account, and
+  [D29](#d29-2026-09-25-the-guest-demo-reaches-every-screen-the-signed-in-path-does) made the demo complete
+  enough to carry the whole product. Putting sign in first would put a wall in front of the work being
+  judged.
+- **Also decided:** each of the four principles carries one measured finding rather than an adjective, every
+  figure traceable to [01-competitive-teardown.md](01-competitive-teardown.md). A landing page for a product
+  whose thesis is "show your evidence" cannot itself be assertions.
+- **The footer states what is real**, in the same words as the README: sign-in and projects are real, the
+  rest is simulated. On the first screen rather than buried, because the first screen is where a reviewer
+  forms the impression the rest has to live up to.
+
+### D35. 2026-09-26: The depth preference is a stored default that the URL always overrides
+- **Decision:** onboarding writes `guided` or `details` to a `profiles` row. The workspace reads it and uses
+  it only when the URL says nothing about depth. An explicit `?depth=` always wins.
+- **Why the URL wins:** every workspace view is linkable by
+  [D25](#d25-2026-09-25-workspace-tabs-and-panes-are-url-state). If a stored preference could override a
+  link, the same URL would show two different things to two people, which breaks the one property that
+  makes these screens shareable.
+- **It reaches every disclosure,** not just the agent inspector: the PRD, the build error log, the test
+  panel and the raw trace all open by default for a `details` user. Otherwise the onboarding question would
+  be asking something that changes almost nothing.
+- **Skip writes a row too,** with `guided`. A skipped user who was asked again on every sign in would not
+  have been given a choice, only a delay.
+- **RLS proven with the two real test users**, the same way as `projects` in
+  [D26](#d26-2026-09-25-row-level-security-proven-with-two-real-users-and-the-database-called-functional):
+
+  | Check, run as | Result |
+  |---|---|
+  | User A select | 1 row, `depth: details` |
+  | User B select | 1 row, `depth: guided` |
+  | User B updates user A's row | 0 rows updated |
+  | User B deletes user A's row | 0 rows deleted |
+
+- **Proven functional, not just stored.** With a project each, user A's workspace served `<details open>` on
+  the trace and the plan PRD where user B's served a closed `<details>`, and the inspector opened on its
+  configuration view for A and the simple view for B. `?depth=guided` forced A back to the simple view and
+  `?depth=details` forced B into configuration, so the override holds in both directions. Test rows deleted
+  afterwards, leaving both tables empty.

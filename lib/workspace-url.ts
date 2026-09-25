@@ -18,13 +18,26 @@ function first(value: string | string[] | undefined) {
  * cannot drift (D29). A patch value of "" removes that parameter, which is how
  * the inspector and the trace are closed.
  */
-export function workspaceUrl(basePath: string, searchParams: Search) {
+export function workspaceUrl(
+  basePath: string,
+  searchParams: Search,
+  /** From the user's profile. The URL always beats it, so links stay linkable. */
+  defaultDepth: "guided" | "details" = "guided",
+) {
   const layer = parseLayer(searchParams.tab);
   const pane = parsePane(searchParams.pane);
   const build = parseBuild(searchParams.build);
   const device = parseDevice(searchParams.device);
   const agent = first(searchParams.agent) ?? "";
-  const depth = first(searchParams.depth) === "details" ? "details" : "";
+  const explicitDepth = first(searchParams.depth);
+  const depth =
+    explicitDepth === "details"
+      ? "details"
+      : explicitDepth === "guided"
+        ? ""
+        : defaultDepth === "details"
+          ? "details"
+          : "";
   const why = first(searchParams.why) ?? "";
   const fixApplied = first(searchParams.fix) === "applied";
 

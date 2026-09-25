@@ -17,6 +17,7 @@ type Props = {
   action: string | null;
   demoHref?: string;
   backHref: string;
+  preferDetails?: boolean;
 };
 
 /**
@@ -34,6 +35,7 @@ export function PlanReview({
   action,
   demoHref,
   backHref,
+  preferDetails,
 }: Props) {
   const { low, high, minutesLow, minutesHigh } = plan.estimate;
 
@@ -99,7 +101,7 @@ export function PlanReview({
           </ul>
 
           {/* Details reveals the layer underneath, in place, never a new tab. */}
-          <details className="mt-4 min-w-0 rounded-panel border border-rule">
+          <details open={preferDetails} className="mt-4 min-w-0 rounded-panel border border-rule">
             <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
               Details: the full PRD
             </summary>

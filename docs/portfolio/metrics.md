@@ -15,12 +15,12 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 27 | `git rev-list --count HEAD` |
+| Commits | 28 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-25 19:05 | `git log -1` |
+| Latest commit | 2026-09-26 10:40 | `git log -1` |
 | Wall clock, first to last commit | 7 h 22 min on day 1, plus 6 h 18 min on day 2 | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 2 | Same |
-| Decision log entries | 33 | `grep -c '^### D' docs/07-decision-log.md` |
+| Decision log entries | 35 | `grep -c '^### D' docs/07-decision-log.md` |
 | Tracked files | 81 | `git ls-files \| wc -l` |
 | Tracked files under docs/ | 49 | `git ls-files 'docs/*' \| wc -l` |
 | Docs still stubs | 1 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
@@ -36,10 +36,10 @@ carries it, because amending or rebasing changes that hash and silently makes th
 | Build status | Passing | `npm run build`, plus `tsc --noEmit` and ESLint clean |
 | Design tokens | 8 colours, 7 type sizes, 3 radii | [design/design-system.md](../design/design-system.md), implemented in `app/globals.css` |
 | Flows specified | 11 | [06-user-flows.md](../06-user-flows.md). F1 to F11 |
-| P0 screens built | 8 of 15 | Screens 4 home, 5 plan review, 6 workspace shell, 7 build in progress, 8 app preview, 9 agent canvas and inspector, 10 why did it do that, 22 guest demo |
+| P0 screens built | 12 of 15 | Screens 1 landing, 2 sign in, 3 onboarding, 4 home, 5 plan review, 6 workspace shell, 7 build in progress, 8 app preview, 9 agent canvas and inspector, 10 why did it do that, 22 guest demo, 23 error pages |
 | Screens specified | 23 | [design/screen-inventory.md](../design/screen-inventory.md). 15 at P0, 5 at P1, 3 at P2 |
 | Auth | Functional | Google sign-in verified end to end on production. See [D18](../07-decision-log.md) |
-| Database | Functional | projects table with RLS, proven with two real users. See [D26](../07-decision-log.md) |
+| Database | Functional | projects and profiles, both with RLS, proven with two real users. See [D26](../07-decision-log.md) and [D35](../07-decision-log.md) |
 
 ## Teardown
 
@@ -109,6 +109,28 @@ Row level security, queried as each user with `request.jwt.claims` set:
 | User B updates A's row | 0 rows updated |
 | User B deletes A's row | 0 rows deleted |
 | Other user's project over HTTP | 404 |
+
+Slice 2, the front door. 8 runs, 4 widths each, both themes, overflow 0 in all 32: landing, sign in,
+onboarding and a 404.
+
+The depth preference, proven functional rather than merely stored, with one project per test user:
+
+| Check | User A (`details`) | User B (`guided`) |
+|---|---|---|
+| Run trace disclosure | `<details open>` | closed |
+| Plan PRD disclosure | `<details open>` | closed |
+| Inspector default view | configuration | simple |
+| Forced `?depth=guided` | simple view | n/a |
+| Forced `?depth=details` | n/a | configuration |
+
+Row level security on `profiles`, queried as each user:
+
+| Check | Result |
+|---|---|
+| User A select | 1 row, `details` |
+| User B select | 1 row, `guided` |
+| User B updates A's row | 0 rows updated |
+| User B deletes A's row | 0 rows deleted |
 
 Slice 4, the agent workbench. 10 runs, 4 widths each, both themes, overflow 0 in all 40:
 

@@ -64,6 +64,8 @@ export default async function DemoPage(props: PageProps<"/demo">) {
           depth={depth}
           why={why}
           fixApplied={fixApplied}
+          // No user on the demo path, so it always starts guided.
+          preferDetails={false}
           query={query}
           // The demo never writes to the database (D29).
           finishAction={null}

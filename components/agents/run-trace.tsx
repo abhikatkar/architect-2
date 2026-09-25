@@ -36,6 +36,7 @@ type Props = {
   fix: FixPreview;
   answerAgent: Agent;
   applied: boolean;
+  preferDetails?: boolean;
   query: (patch: Record<string, string>) => string;
 };
 
@@ -47,7 +48,14 @@ type Props = {
  * a parameter until Details is opened, and nothing is ever applied silently
  * (D33).
  */
-export function RunTraceView({ trace, fix, answerAgent, applied, query }: Props) {
+export function RunTraceView({
+  trace,
+  fix,
+  answerAgent,
+  applied,
+  preferDetails,
+  query,
+}: Props) {
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-start gap-2">
@@ -168,7 +176,7 @@ export function RunTraceView({ trace, fix, answerAgent, applied, query }: Props)
       </div>
 
       {/* 4. Details: the raw trace and the actual change. */}
-      <details className="min-w-0 rounded-panel border border-rule">
+      <details open={preferDetails} className="min-w-0 rounded-panel border border-rule">
         <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
           Details: raw trace and the change
         </summary>

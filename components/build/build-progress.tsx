@@ -22,6 +22,7 @@ type Props = {
   /** Signed in: the route that records completion. Demo: null, nothing is written. */
   finishAction: string | null;
   doneHref: string;
+  preferDetails?: boolean;
 };
 
 /**
@@ -43,6 +44,7 @@ export function BuildProgress({
   mode,
   finishAction,
   doneHref,
+  preferDetails,
 }: Props) {
   const failIndex = stages.findIndex((s) => s.name === failure.stageName);
   const lastIndex = mode === "failed" ? failIndex : stages.length - 1;
@@ -191,7 +193,7 @@ export function BuildProgress({
               Roll back to {failure.rollbackTo}
             </button>
           </div>
-          <details className="min-w-0 rounded-panel border border-rule">
+          <details open={preferDetails} className="min-w-0 rounded-panel border border-rule">
             <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
               Details: the error log
             </summary>

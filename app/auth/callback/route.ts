@@ -24,5 +24,20 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) return fail(error.message);
 
-  return NextResponse.redirect(`${base}${safeNext(searchParams.get("next"))}`);
+  const next = safeNext(searchParams.get("next"));
+
+  // First sign in: ask how they like to build before dropping them into the
+  // product. A row exists for anyone who answered or skipped, so this asks once.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("user_id")
+    .maybeSingle();
+
+  if (!profile) {
+    return NextResponse.redirect(
+      `${base}/onboarding?next=${encodeURIComponent(next)}`,
+    );
+  }
+
+  return NextResponse.redirect(`${base}${next}`);
 }

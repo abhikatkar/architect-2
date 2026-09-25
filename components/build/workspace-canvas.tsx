@@ -17,6 +17,7 @@ type Props = {
   depth: string;
   why: string;
   fixApplied: boolean;
+  preferDetails: boolean;
   query: (patch: Record<string, string>) => string;
   /** Signed in: the route that records completion. Demo: null. */
   finishAction: string | null;
@@ -35,6 +36,7 @@ export function WorkspaceCanvas({
   depth,
   why,
   fixApplied,
+  preferDetails,
   query,
   finishAction,
 }: Props) {
@@ -46,6 +48,7 @@ export function WorkspaceCanvas({
         mode={build === "failed" ? "failed" : "running"}
         finishAction={finishAction}
         doneHref={query({ build: "done", tab: "app" })}
+        preferDetails={preferDetails}
       />
     );
   }
@@ -61,6 +64,7 @@ export function WorkspaceCanvas({
           fix={project.fix}
           answerAgent={answerAgent}
           applied={fixApplied}
+          preferDetails={preferDetails}
           query={query}
         />
       );
@@ -86,6 +90,7 @@ export function WorkspaceCanvas({
               agent={selected}
               details={depth === "details"}
               applied={fixApplied}
+              preferDetails={preferDetails}
               query={query}
             />
           </div>

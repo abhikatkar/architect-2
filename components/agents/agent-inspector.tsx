@@ -51,10 +51,17 @@ type Props = {
   agent: Agent;
   details: boolean;
   applied: boolean;
+  preferDetails?: boolean;
   query: (patch: Record<string, string>) => string;
 };
 
-export function AgentInspector({ agent, details, applied, query }: Props) {
+export function AgentInspector({
+  agent,
+  details,
+  applied,
+  preferDetails,
+  query,
+}: Props) {
   const creativity =
     applied && agent.creativityAfterFix !== undefined
       ? agent.creativityAfterFix
@@ -126,7 +133,7 @@ export function AgentInspector({ agent, details, applied, query }: Props) {
 
           <CreativityScale value={creativity} />
 
-          <details className="min-w-0 rounded-input border border-rule">
+          <details open={preferDetails} className="min-w-0 rounded-input border border-rule">
             <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
               Test this agent
             </summary>

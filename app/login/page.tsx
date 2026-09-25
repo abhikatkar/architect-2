@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { safeNext } from "@/lib/site-url";
 
@@ -12,33 +13,58 @@ export default async function LoginPage(props: PageProps<"/login">) {
   const configured = hasSupabaseEnv();
 
   return (
-    <main className="p-8">
-      <h1>Sign in</h1>
+    <div className="flex min-h-dvh flex-col bg-paper text-ink">
+      <main className="mx-auto flex w-full max-w-[520px] min-w-0 flex-1 flex-col justify-center gap-6 px-4 py-12 sm:px-6">
+        <header className="min-w-0">
+          <Link href="/" className="font-mono text-caption text-graphite">
+            Architect 2.0
+          </Link>
+          <h1 className="mt-3 text-heading font-semibold">Sign in</h1>
+          <p className="mt-2 max-w-[72ch] text-body text-graphite">
+            Your projects are saved to your account. Everything else in this
+            concept is simulated.
+          </p>
+        </header>
 
-      {error ? <p role="alert">Sign in failed: {error}</p> : null}
+        {error ? (
+          <p role="alert" className="rounded-panel border border-fault p-3 text-body text-fault">
+            Sign in failed: {error}
+          </p>
+        ) : null}
 
-      {configured ? null : (
-        <p role="alert">
-          Supabase is not configured. Copy .env.example to .env.local and fill
-          both values.
-        </p>
-      )}
+        {configured ? null : (
+          <p role="alert" className="rounded-panel border border-fault p-3 text-body text-fault">
+            Supabase is not configured. Copy .env.example to .env.local and fill
+            both values.
+          </p>
+        )}
 
-      {/*
-        A real form post, handled entirely on the server. No client component
-        and no onClick, so the first click works whether or not JavaScript has
-        finished loading.
-      */}
-      <form action="/auth/signin" method="post">
-        <input type="hidden" name="next" value={next} />
-        <button
-          type="submit"
-          className="border px-4 py-2 disabled:opacity-50"
-          disabled={!configured}
-        >
-          Continue with Google
-        </button>
-      </form>
-    </main>
+        {/*
+          A real form post, handled entirely on the server. No client component
+          and no onClick, so the first click works whether or not JavaScript has
+          finished loading. This is D19 and it must stay this way.
+        */}
+        <form action="/auth/signin" method="post" className="min-w-0">
+          <input type="hidden" name="next" value={next} />
+          <button
+            type="submit"
+            className="min-h-11 w-full rounded-input bg-blueprint px-4 text-lead text-paper disabled:opacity-50"
+            disabled={!configured}
+          >
+            Continue with Google
+          </button>
+        </form>
+
+        <div className="flex flex-wrap items-center gap-2 border-t border-rule pt-4">
+          <span className="text-body text-graphite">Just looking?</span>
+          <Link
+            href="/demo"
+            className="inline-flex min-h-11 items-center rounded-input border border-rule px-4 text-body"
+          >
+            Try the demo, no account needed
+          </Link>
+        </div>
+      </main>
+    </div>
   );
 }

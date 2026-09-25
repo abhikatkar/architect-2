@@ -45,7 +45,17 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 19:05 | Slice 4: the agent canvas on the blueprint grid, the inspector with depth on demand, and "Why did it do that?" | 1 h 35 min | Claude Code, Chrome over CDP | 40 of 40 responsive checks pass. Three crude checks produced misleading results in a row: Tailwind class names read as parameter values, Next's RSC payload read as a leak, and React's text-node comments broke every grep for interpolated copy. Rewrote the check to measure visible text |
 
-**Day total so far:** 9 h 43 min across 27 commits.
+**Day total:** 9 h 43 min across 27 commits.
+
+---
+
+## 2026-09-26
+
+| Time | Work done | Elapsed | Tools | Outcome |
+|---|---|---|---|---|
+| 10:40 | Slice 2, the front door: landing, sign in restyled, onboarding with a profiles table, and error pages | 1 h 35 min | Claude Code, Chrome over CDP, Supabase MCP | 32 of 32 responsive checks pass. The depth preference is proven functional, not just stored. Caught the landing page claiming "seven tools tested hands-on" when only five completed the brief, the same inaccuracy corrected in the docs two days ago |
+
+**Day total so far:** 1 h 35 min across 1 commit.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

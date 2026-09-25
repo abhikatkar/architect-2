@@ -6,6 +6,7 @@ import { WorkspaceCanvas } from "@/components/build/workspace-canvas";
 import { workspaceUrl } from "@/lib/workspace-url";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
 import { getProject } from "@/lib/projects";
+import { prefersDetails } from "@/lib/profiles";
 
 export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
   const { id } = await props.params;
@@ -16,9 +17,11 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
   const project = await getProject(id);
   if (!project) notFound();
 
+  const preferDetails = await prefersDetails();
+
   const basePath = `/app/p/${project.id}`;
   const { layer, pane, build, device, agent, depth, why, fixApplied, query } =
-    workspaceUrl(basePath, searchParams);
+    workspaceUrl(basePath, searchParams, preferDetails ? "details" : "guided");
 
   return (
     <WorkspaceShell
@@ -56,6 +59,7 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
           depth={depth}
           why={why}
           fixApplied={fixApplied}
+          preferDetails={preferDetails}
           query={query}
           finishAction={`${basePath}/built`}
         />
