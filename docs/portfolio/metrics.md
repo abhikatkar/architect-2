@@ -71,12 +71,44 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 Ours, measured by us. The AI SDK returns no latency, so every figure here is wall-clock measured in our own
 code around the `evaluate` call and includes network time to the Gateway.
 
-| Metric | Value |
-|---|---|
-| Live calls made | **0, no gateway key yet** |
-| Median latency | Not measured yet |
-| Rate limit | 10 per IP per hour, [D38](../07-decision-log.md) |
-| Daily cap | 300 per day |
+| Metric | Value | Sample |
+|---|---|---|
+| Successful live decisions | **0.** The Gateway returns "AI Gateway requires a valid credit card on file to service requests" | 3 attempts, 2026-09-25 and 2026-09-26 |
+| Calls attempted against the live Gateway | 3, all from the production deployment | one machine, one IP, `ap-south-1` Supabase, Vercel default region |
+| Round trip to that error | 393 ms, 311 ms, 165 ms | the same 3 attempts |
+| Median latency of a decision | **Not measured.** The three figures above are times to an error, not to a decision, so no latency figure is published | n/a |
+| Rate limit, proven | 10 live calls per IP per hour, [D38](../07-decision-log.md) | see the proof below |
+| Daily cap, proven | 300 live calls per day | see the proof below |
+
+**Sample size, stated plainly: three requests from one machine on one IP over two days.** That is not a
+measurement of anything. It is recorded because it is what actually happened.
+
+What those three calls did prove: the key is live on the deployment, the request reaches the Gateway, the
+error path surfaces the real provider message rather than a generic one, and the call log wrote three rows
+as `anon` through the definer function with a latency and a salted IP hash and no user content.
+
+### Guardrails, proven rather than assumed
+
+Both limits are enforced before the Gateway is called, so they could be proven while the model itself was
+still refusing. `jev_call_counts` counts only rows with `outcome = 'live'`, so a failed call does not spend
+anyone's quota, which also means failures could not be used to trip the limit. The counter state was set
+directly in the table instead, then removed:
+
+| Limit | Counter state set | Request made | Result |
+|---|---|---|---|
+| 10 per IP per hour | 10 rows with `outcome = 'live'` on this IP's hash | `POST /jev/run`, agent `intake` | `rate_limited`, "That is 10 live calls from here in the last hour, which is the limit." No Gateway call attempted |
+| 300 per day | those 10 deleted, then 300 rows on an unrelated hash so the per-IP count read 0 and the day count read 300 | `POST /jev/run`, agent `grounding-checker` | `daily_cap`, "The demo has made 300 live calls today, which is the cap." No Gateway call attempted |
+
+Those 310 rows were synthetic, inserted only to move a counter, and every one carried `latency_ms = null`
+so that no published median could ever be drawn from them. All 310 were deleted afterwards, along with the
+two log rows the two test requests themselves produced. The table now holds exactly the three real rows
+above and nothing else. The method and why it is recorded this way: [D39](../07-decision-log.md).
+
+### Still unproven
+
+**A boolean question returns no confidence.** The code keeps `probability` and `confidence` separate and the
+UI labels each as what it is, but that behaviour rests on the AI SDK docs, not on a response we have seen.
+It cannot be checked until a live call succeeds, so it is listed here rather than claimed.
 
 Verified from the Gateway's own models endpoint, `https://ai-gateway.vercel.sh/v1/models`, which needs no
 authentication, read 2026-09-26. A primary source rather than a published claim:

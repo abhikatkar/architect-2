@@ -59,7 +59,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 16:05 | Slice 4.5: Jev as the decision model for the three decision agents. Read the AI SDK and Vercel docs first, built the helper, the guardrails and the inspector split | 2 h 30 min | Claude Code, web research, Supabase MCP, Vercel MCP | Could not create the gateway key: the Vercel MCP connection is not authorised for the team scope, so live verification is pending. Everything else is built and the security posture is proven: anon can insert through a definer function but cannot read the table |
 
-**Day total so far:** 7 h 45 min across 3 commits.
+| 19:10 | Live verification attempt with the key on the deployment. Proved both guardrails, recorded the launch dates, chased the two build warnings | 1 h 10 min | Claude Code, Supabase MCP, curl against production | **The model still has not answered.** A third real call returned the same Gateway refusal: a credit card is required. Proved the rate limit and the daily cap instead, by moving the counter rather than faking a trigger, then deleted all 310 synthetic rows. Found only one of the two build warnings reproducible: a faithful `npm ci` plus `next build` from the committed tree gives exactly one |
+
+**Day total so far:** 8 h 55 min across 4 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

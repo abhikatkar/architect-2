@@ -13,13 +13,14 @@ product shows it: see [D37](../07-decision-log.md).
 
 | Event | Date | Source |
 |---|---|---|
-| Jev available on AI Gateway | Changelog published 16 Sep 2026 | [changelog](https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway) |
-| Launch write-up | Published 18 Sep 2026 | [blog](https://vercel.com/blog/ai-gateway-jev-model-launch) |
+| Announced, TypeSafe launch | 15 Sep 2026 | [Vercel blog](https://vercel.com/blog/ai-gateway-jev-model-launch), which states Jev "was introduced on September 15" |
+| Available on Vercel AI Gateway | 16 Sep 2026 | [changelog](https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway), published that date |
+| Launch write-up | 18 Sep 2026 | [blog](https://vercel.com/blog/ai-gateway-jev-model-launch) |
 | This integration | 26 Sep 2026 | this repo |
 
-One inconsistency worth recording rather than smoothing over: the blog post says Jev "was introduced on
-September 15", while the changelog it links to as the introduction is dated 16 September 2026. Both are
-cited above rather than picking one.
+The two dates are different events rather than a contradiction: TypeSafe announced the model on the 15th,
+and it became callable through Vercel AI Gateway on the 16th. Both are recorded because this integration
+depends on the Gateway availability date, not the announcement.
 
 ## Why these three agents
 
@@ -39,8 +40,16 @@ Measured by us, on our own calls, and published in [metrics.md](metrics.md):
 - **Median wall-clock latency** of a live call, measured in our own code around the `evaluate` call.
 - **Call count**, from the `jev_calls` table.
 
-Both are small-sample figures from one region on one day. They are not a benchmark and are not comparable
-to the vendor's evaluations below.
+Both are small-sample figures from one machine in one region on one day. They are not a benchmark and are
+not comparable to the vendor's evaluations below.
+
+**Status as of 26 Sep 2026: no successful live call yet.** The key is configured on the deployment and the
+request does reach the Gateway, which returns:
+
+> AI Gateway requires a valid credit card on file to service requests.
+
+So the integration is wired end to end and the failure path is exercised, but the model has not answered.
+Latency figures below are for the round trip to that error, not for a decision.
 
 **The AI SDK does not return a latency.** No timing field is documented on the evaluate result, so every
 latency here is wall-clock measured on our side, which includes network time to the Gateway. That is what
@@ -106,3 +115,8 @@ That is $0.042 per million input tokens, with output free.
 [D38](../07-decision-log.md): 10 live calls per IP per hour, 300 per day in total, enforced through
 `SECURITY DEFINER` functions so the browser never needs a privileged key, and the call log stores only a
 timestamp, the agent id, a latency and a salted IP hash. No user content is stored, ever.
+
+Both limits are proven rather than asserted, and they could be proven even while the Gateway was refusing,
+because both are checked before the model is called. The method, the results and the cleanup are in
+[metrics.md](metrics.md) and [D39](../07-decision-log.md). Worth stating: the counter deliberately counts
+only successful calls, so a visitor who hits a Gateway error has spent none of their quota.

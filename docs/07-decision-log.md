@@ -517,3 +517,43 @@ Format: date, decision, evidence, alternatives rejected.
   `jev_calls` was refused with `permission denied for table jev_calls`. `jev_call_counts` returned counts
   to `anon` without exposing a row. Test rows deleted afterwards.
 - **Rejected:** in-memory counters, which reset per serverless instance and would mean no real cap at all.
+
+### D39. 2026-09-26: Proving a guardrail by moving its counter, not by faking its trigger
+- **Decision:** the two Jev limits were proven by setting the counter state directly in `jev_calls`, making
+  a real request against production, and reading the outcome. The synthetic rows were then deleted.
+- **Why it had to be done this way:** both limits are checked before the Gateway is called, and
+  `jev_call_counts` counts only rows with `outcome = 'live'`. That is deliberate, so a failed call does not
+  spend a visitor's quota. It also means the failing calls we do have could not be used to trip either
+  limit: 300 errors would still read as a day count of 0. Without a working Gateway, there was no way to
+  accumulate 10 real live calls, so the counter was moved instead of the calls being faked.
+- **What was proven:** 10 `live` rows on this IP's hash produced `rate_limited` with the real message and no
+  Gateway call. Those deleted, 300 rows on an unrelated hash produced `daily_cap` the same way. Both served
+  a stored result that correctly said no recorded result had been captured yet, rather than inventing one.
+- **How it was kept honest:** every synthetic row carried `latency_ms = null`, so no published median could
+  ever be computed from one even if cleanup had failed. All 310 were deleted, as were the two log rows the
+  two test requests produced, since the state that triggered them was synthetic. The table was read back
+  afterwards and holds exactly the three real rows, all with `outcome = 'error'`.
+- **Rejected:** writing a plausible `live` row with a plausible latency to make the metrics table look
+  finished. That is the same error as a hand-written "recorded result": a number presented as a measurement
+  of something that never ran. Also rejected: lowering the limits to 1 so a single call could trip them,
+  which would prove the code path but not the limits that ship.
+
+### D40. 2026-09-26: Staying on eslint 9.39.5, and only one of the two build warnings accounted for
+- **Decision:** keep `eslint` on the 9.x maintenance line, and treat its deprecation notice as expected
+  output rather than something to silence.
+- **The warning:** `npm warn deprecated eslint@9.39.5: This version is no longer supported.` It comes from
+  the install step, not from the build. `eslint` publishes `maintenance: 9.39.5` and `latest: 10.11.0`, and
+  `eslint-config-next@16.3.6` declares a peer range of `eslint: ">=9.0.0"`, so a clean install resolves the
+  maintenance release.
+- **Why it is not fixed:** bumping to `eslint@^10` resolved 10.11.0 and lint then crashed inside
+  `node_modules/eslint-config-next/node_modules/eslint-plugin-react/lib/util/usedPropTypes.js`. The bundled
+  plugin does not support eslint 10 yet. Reverted from backups; lint exits 0 and the build compiles on 9.x.
+  Trading a working linter for a quieter install log is the wrong trade.
+- **Only one warning reproduces.** A faithful reproduction of the deployment build, `git archive HEAD` into a
+  clean directory then `npm ci` and `next build` on Node 22.16.0 with npm 10.9.2, produces exactly this one
+  warning and no others. The build output itself is clean: compiled, TypeScript finished, 17 static pages,
+  19 routes, exit 0. A second warning was reported from the deployment log and is not reproducible here, so
+  it is recorded as unexplained rather than guessed at. It is most likely emitted by the platform's own
+  build wrapper, which is outside this tree.
+- **Rejected:** `npm install --no-warnings` or pinning a transitive dependency to hide the notice. The notice
+  is true and it is the only signal that this pin needs revisiting once `eslint-plugin-react` supports 10.
