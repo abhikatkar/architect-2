@@ -47,9 +47,17 @@ function StageList({ stages }: { stages: BuildStage[] }) {
 export function Conversation({
   project,
   readOnly,
+  building,
 }: {
   project: DemoProject;
   readOnly?: boolean;
+  /**
+   * True on the build screens. The panel then points at the canvas instead of
+   * showing a finished summary that would contradict it. The wording stays
+   * state-neutral because the canvas is client-side and this panel is not, so
+   * the two cannot be kept in lockstep.
+   */
+  building?: boolean;
 }) {
   const total = project.stages.reduce((sum, s) => sum + s.cost, 0);
 
@@ -61,6 +69,15 @@ export function Conversation({
           center and escalates when it is not sure.
         </p>
 
+        {building ? (
+          <div className="rounded-panel border border-rule p-3">
+            <p className="text-caption text-graphite">Build v1</p>
+            <p className="mt-1 text-body">
+              Every stage, its time and its cost are on the right as they
+              happen.
+            </p>
+          </div>
+        ) : (
         <div className="rounded-panel border border-rule p-3">
           <p className="mb-2 text-caption text-graphite">Build v1</p>
           <StageList stages={project.stages} />
@@ -70,11 +87,14 @@ export function Conversation({
             <span className="font-mono text-cost">$1.20 to $2.00</span> estimate.
           </p>
         </div>
+        )}
 
-        <p className="max-w-[72ch] text-body text-graphite">
-          {project.name} is ready. {project.counts.escalated} conversations are
-          waiting on a human, and {project.counts.open} are still open.
-        </p>
+        {building ? null : (
+          <p className="max-w-[72ch] text-body text-graphite">
+            {project.name} is ready. {project.counts.escalated} conversations are
+            waiting on a human, and {project.counts.open} are still open.
+          </p>
+        )}
       </div>
 
       <form className="flex flex-col gap-2">

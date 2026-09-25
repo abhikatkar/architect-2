@@ -98,9 +98,6 @@ export default async function HomePage(props: PageProps<"/app">) {
           <span className="text-caption text-graphite">
             {DEMO_PROJECT.copy.firstBuildEstimate}
           </span>
-          <Link href="/app/import" className="ml-auto text-body text-blueprint underline">
-            Import a repo
-          </Link>
         </div>
       </form>
 

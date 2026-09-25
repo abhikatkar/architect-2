@@ -15,12 +15,12 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 21 | `git rev-list --count HEAD` |
+| Commits | 24 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-25 15:40 | `git log -1` |
+| Latest commit | 2026-09-25 17:30 | `git log -1` |
 | Wall clock, first to last commit | 7 h 22 min on day 1, plus 6 h 18 min on day 2 | Difference of the two rows above. Wall clock, not effort |
 | Calendar days elapsed | 2 | Same |
-| Decision log entries | 25 | `grep -c '^### D' docs/07-decision-log.md` |
+| Decision log entries | 30 | `grep -c '^### D' docs/07-decision-log.md` |
 | Tracked files | 81 | `git ls-files \| wc -l` |
 | Tracked files under docs/ | 49 | `git ls-files 'docs/*' \| wc -l` |
 | Docs still stubs | 1 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
@@ -29,14 +29,14 @@ carries it, because amending or rebasing changes that hash and silently makes th
 
 | Metric | Value | Source |
 |---|---|---|
-| Pages built | 6 | `/`, `/login`, `/app`, `/app/p/[id]`, `/demo`, `/dev/tokens`. `git ls-files 'app/*' \| grep page.tsx` |
-| Route handlers built | 4 | `/auth/signin`, `/auth/callback`, `/auth/signout`, `/app/projects`. Same command, `route.ts` |
+| Pages built | 8 | `/`, `/login`, `/app`, `/app/p/[id]`, `/demo`, `/dev/tokens`. `git ls-files 'app/*' \| grep page.tsx` |
+| Route handlers built | 6 | Auth x3, plus `/app/projects`, `/app/p/[id]/build`, `/app/p/[id]/built` |
 | Production dependencies | 5 | `package.json`. next, react, react-dom, @supabase/ssr, @supabase/supabase-js |
 | Next.js version | 16.3.6 | `package.json` |
 | Build status | Passing | `npm run build`, plus `tsc --noEmit` and ESLint clean |
 | Design tokens | 8 colours, 7 type sizes, 3 radii | [design/design-system.md](../design/design-system.md), implemented in `app/globals.css` |
 | Flows specified | 11 | [06-user-flows.md](../06-user-flows.md). F1 to F11 |
-| P0 screens built | 3 of 15 | Screens 4 home, 6 workspace shell, 22 guest demo |
+| P0 screens built | 6 of 15 | Screens 4 home, 5 plan review, 6 workspace shell, 7 build in progress, 8 app preview, 22 guest demo |
 | Screens specified | 23 | [design/screen-inventory.md](../design/screen-inventory.md). 15 at P0, 5 at P1, 3 at P2 |
 | Auth | Functional | Google sign-in verified end to end on production. See [D18](../07-decision-log.md) |
 | Database | Functional | projects table with RLS, proven with two real users. See [D26](../07-decision-log.md) |
@@ -109,6 +109,35 @@ Row level security, queried as each user with `request.jwt.claims` set:
 | User B updates A's row | 0 rows updated |
 | User B deletes A's row | 0 rows deleted |
 | Other user's project over HTTP | 404 |
+
+Slice 3, responsive sweep across the demo path. 8 runs, 4 widths each, both themes, overflow 0 in all 32:
+
+| Screen | Light | Dark |
+|---|---|---|
+| Plan review | 0, 0, 0, 0 | 0, 0, 0, 0 |
+| Build running | 0, 0, 0, 0 | 0, 0, 0, 0 |
+| Build failed | 0, 0, 0, 0 | 0, 0, 0, 0 |
+| App preview | 0, 0, 0, 0 | 0, 0, 0, 0 |
+
+No-JavaScript fallback on the build screen, measured against the served HTML with nothing executed:
+
+| Check | Result |
+|---|---|
+| Renders the finished build | "Built" present |
+| Shows the compressed-time label | present |
+| Checks stage detail visible | present |
+| Cost stated inside the estimate | present |
+| Occurrences of the spinner state | **0** |
+
+Status round trip, signed in, against the real database:
+
+| Step | Result |
+|---|---|
+| Create | row inserted, status `draft` |
+| Build | redirect to `?build=running` |
+| Finish | redirect to `?build=done` |
+| Row read back | `status: built`, `updated_at > created_at` |
+| Home chip | reads "built" |
 
 Responsive check on `/dev/tokens`, measured with Chrome device metrics via
 [scripts/responsive-check.mjs](../../scripts/responsive-check.mjs):

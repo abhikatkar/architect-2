@@ -308,3 +308,57 @@ Format: date, decision, evidence, alternatives rejected.
 - **Cleanup:** both test projects were deleted after the proof, leaving `projects_remaining: 0`. The two test
   users are kept until submission, then deleted with the credentials in `.env.local`, which is gitignored and
   has never been committed.
+
+### D27. 2026-09-25: Where the no-JavaScript rule stops, and what replaces it
+- **Decision:** [D19](#d19-2026-09-25-auth-controls-must-work-before-hydration) covers auth actions and
+  [D25](#d25-2026-09-25-workspace-tabs-and-panes-are-url-state) navigation. Progress is neither, so the build
+  screen is the one client component in the product. The condition: its server render is the **finished**
+  build, not an empty one.
+- **How that works:** the elapsed timer starts as `null`, which renders the completed stage list, the cost
+  inside the estimate, and a working "Finish build" control. On mount the interval starts and the animation
+  plays from the beginning. A visitor without JavaScript keeps the finished view.
+- **Evidence it holds:** the served HTML of `/demo?tab=app&build=running`, with nothing executed, contains
+  "Built", the compressed-time label, the Checks detail and "Open the preview", and contains **zero**
+  occurrences of "Building your app". The failure mode this rules out is precisely the one the teardown
+  recorded: a spinner that never resolves and tells you nothing.
+- **Rejected:** rendering the empty state on the server and letting hydration fill it in, which shows a
+  visitor without JavaScript an unstarted build forever. Also rejected: advancing stages by link, which is
+  fully server-rendered but makes progress something you click, which is not what this screen is for.
+- **Secondary constraint:** no state is set from inside an effect body. The interval callback is the only
+  writer, and everything else is derived from elapsed time. The linter caught two violations of this in the
+  first version, and the fix made the component simpler rather than more complex.
+
+### D28. 2026-09-25: Simulated builds write real status values
+- **Decision:** starting a build sets `projects.status` to `building`, finishing sets it to `built`. The
+  simulation is fake; the status is a real row.
+- **Evidence:** verified end to end with a real session: create, then `/plan`, then Build, then Finish, and
+  the row read back as `status: built` with `updated_at` later than `created_at`, so the trigger fired.
+  Home's chip then reads "built". Without this the chip would say "draft" on every project forever, which
+  looks broken in a way that undermines the real database underneath it.
+- **Both paths, one handler:** the hidden form the animation submits and the visible no-JS "Finish build"
+  control post to the same route, so the two cannot drift.
+- **Test row deleted afterwards,** leaving `projects_remaining: 0`.
+
+### D29. 2026-09-25: The guest demo reaches every screen the signed-in path does
+- **Decision:** `/demo` reaches the plan gate, a running build, a failed build and the app preview, on client
+  and URL state only, writing nothing to the database. The signed-in path keeps the real status round trip.
+- **Evidence:** most reviewers will never sign in. A demo that stops at the workspace and sends them to a
+  sign-in wall to see the thesis screens hides the exact work being assessed.
+- **How duplication is avoided:** every screen takes its data as props, and one `WorkspaceCanvas` decides what
+  to show. The route supplies either Supabase data and a write action, or fixtures and `null`. There is no
+  second implementation to keep in sync.
+- **Verified:** all six demo URLs return 200 signed out, and the responsive sweep runs against the demo path
+  as well as the signed-in one.
+
+### D30. 2026-09-25: The simulated build is time compressed and says so on screen
+- **Decision:** the animation runs about 24 seconds while the stage list shows the real durations a build of
+  this size would take, totalling 6 min 31 s. A label reading "Demo build, time compressed" sits next to the
+  stage list, not in a footnote.
+- **Evidence:** the teardown's sharpest finding was a "usually 4 to 6 min" label that ran for 35 minutes. A
+  demo that silently implies 24 seconds is the real build time commits the same offence against the reviewer.
+  Showing both numbers, and saying which is which, is the only version of this screen consistent with the
+  thesis.
+- **Arithmetic checked, not assumed:** stage costs total $1.46 against the $1.20 to $2.00 estimate shown
+  before the build, and match the $1.46 the version history already records. The realistic total of 6 min
+  31 s sits inside the "about 6 to 10 min" estimate. An estimate that did not hold would undo the point of
+  showing one.

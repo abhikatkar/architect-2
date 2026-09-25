@@ -41,7 +41,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 16:24 | Finished slice 1 verification: signed-in Home at 4 widths in both themes, the create-project round trip, and the RLS proof with two real users | 44 min | Claude Code, Chrome over CDP, Supabase MCP | Database flipped to functional. Cross-user update and delete both affected 0 rows. Caught a test that could not fail: the first isolation check grepped for text every Home contains |
 
-**Day total so far:** 7 h 2 min across 13 commits.
+| 17:30 | Slice 3: plan review, build in progress with the failure path, and the app preview. Demo parity so none of it needs an account | 1 h 6 min | Claude Code, Chrome over CDP, Supabase MCP | 32 of 32 responsive checks pass. The no-JS build screen renders the finished build with zero occurrences of the spinner state. Two screenshots nearly misled me again: the failure capture landed at 2.5s, before the failure at 21s, so responsive-check gained a --wait option |
+
+**Day total so far:** 8 h 8 min across 16 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

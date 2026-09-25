@@ -11,6 +11,9 @@
                        Lets the check run against signed-in screens.
     --theme <name>     light or dark. Emulates prefers-color-scheme so the real
                        media query is exercised, not a forced attribute.
+    --wait <ms>        settle time before measuring, default 2500. Raise it for
+                       screens that animate, so the capture lands on the state
+                       you meant to check rather than an early frame.
 
   It drives the installed Chrome over CDP with real device metrics. Passing
   --window-size to headless Chrome is not enough: without Emulation metrics the
@@ -36,6 +39,7 @@ const [url, outDir, ...widthArgs] = positional;
 const widths = widthArgs.length ? widthArgs.map(Number) : [375, 768, 1280, 1920];
 const cookies = flags.cookies ? JSON.parse(readFileSync(flags.cookies, "utf8")) : [];
 const theme = flags.theme;
+const wait = flags.wait ? Number(flags.wait) : 2500;
 mkdirSync(outDir, { recursive: true });
 
 const chrome = spawn(CHROME, [
@@ -115,7 +119,7 @@ for (const w of widths) {
     screenHeight: 900,
   });
   await send("Page.navigate", { url });
-  await sleep(2500);
+  await sleep(wait);
 
   const { result } = await send("Runtime.evaluate", {
     expression: `JSON.stringify({
