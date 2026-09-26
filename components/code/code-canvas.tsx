@@ -173,7 +173,7 @@ export function CodeCanvas({
     <div className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h2 className="text-title font-semibold">Code</h2>
+          <h2 className="text-title font-bold">Code</h2>
           <span className="max-w-[72ch] text-small text-graphite">
             Every change the agents made, grouped by the request that caused it.
           </span>

@@ -31,11 +31,19 @@ export function LedgerBar({
   const kept = applied.versionsKept;
 
   return (
-    <footer className="border-t border-rule bg-paper px-4 py-2 sm:px-6">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-caption">
+    <footer className="border-t border-rule bg-paper px-4 py-2.5 sm:px-6">
+      {/*
+        14px from tablet up, 13 on a phone.
+
+        This bar is the one surface that is always on screen and it carries the
+        four numbers the whole product is about, so it is worth a step up in
+        the dense tier. Not on a phone: at 14px it wrapped to three lines at
+        375, and this bar is supposed to cost one line of a screen that small.
+      */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-caption sm:gap-x-5 sm:text-small">
         <span className="inline-flex items-center gap-1.5">
           <span className="text-graphite">Preview</span>
-          <span className="rounded-input border border-rule px-1.5 py-0.5 font-mono">
+          <span className="rounded-input border border-rule px-2 py-0.5 font-mono text-caption">
             {preview}
           </span>
         </span>
@@ -44,7 +52,7 @@ export function LedgerBar({
           <span className="text-graphite">Production</span>
           {ledger.productionVersion ? (
             <>
-              <span className="rounded-input border border-live px-1.5 py-0.5 font-mono text-live">
+              <span className="rounded-input border border-live px-2 py-0.5 font-mono text-caption text-live">
                 {ledger.productionVersion}
               </span>
               <span className="text-live">live</span>
@@ -61,10 +69,10 @@ export function LedgerBar({
         {/* Spend is cost-colored because it is money. Nothing else may be. */}
         <span className="ml-auto inline-flex items-center gap-2">
           <span
-            className="hidden h-1.5 w-24 overflow-hidden rounded-input bg-rule sm:block"
+            className="hidden h-2 w-28 overflow-hidden rounded-pill bg-rule sm:block"
             aria-hidden="true"
           >
-            <span className="block h-full bg-cost" style={{ width: `${pct}%` }} />
+            <span className="block h-full rounded-pill bg-cost" style={{ width: `${pct}%` }} />
           </span>
           <span className="font-mono text-cost">
             {money(spend)} of {money(ledger.cap)} cap

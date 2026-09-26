@@ -68,7 +68,7 @@ export function AppPreview({
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-title font-semibold">App preview</h2>
+        <h2 className="text-title font-bold">App preview</h2>
         <span className="rounded-input border border-rule px-1.5 py-0.5 font-mono text-caption">
           {previewVersion}
         </span>

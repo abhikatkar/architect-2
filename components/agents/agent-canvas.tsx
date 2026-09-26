@@ -24,7 +24,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-baseline gap-2">
-        <h2 className="text-title font-semibold">Agents</h2>
+        <h2 className="text-title font-bold">Agents</h2>
         {/* Screen 11. The framework picker opens from here, as a sheet. */}
         <Link
           id="add-agent-trigger"

@@ -58,20 +58,20 @@ export function Sheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={headingId}
-        className="relative flex max-h-full w-full flex-col overflow-hidden rounded-t-overlay border border-rule bg-paper shadow-lg sm:max-w-2xl sm:rounded-overlay"
+        className="relative flex max-h-full w-full flex-col overflow-hidden rounded-t-overlay border border-rule bg-paper shadow-soft sm:max-w-2xl sm:rounded-overlay"
       >
-        <div className="flex min-w-0 items-start gap-3 border-b border-rule p-4">
+        <div className="flex min-w-0 items-start gap-3 border-b border-rule p-5">
           <div className="min-w-0">
             <h2
               id={headingId}
               data-sheet-heading
               tabIndex={-1}
-              className="text-lead font-semibold outline-none"
+              className="text-title font-bold outline-none"
             >
               {title}
             </h2>
             {note ? (
-              <p className="mt-1 max-w-[72ch] text-small text-graphite">{note}</p>
+              <p className="mt-1.5 max-w-[72ch] text-small text-graphite">{note}</p>
             ) : null}
           </div>
           <Link
@@ -82,10 +82,10 @@ export function Sheet({
           </Link>
         </div>
 
-        <div className="min-w-0 flex-1 overflow-y-auto p-4">{children}</div>
+        <div className="min-w-0 flex-1 overflow-y-auto p-5">{children}</div>
 
         {/* Pinned, so the confirm never scrolls out of reach on a phone. */}
-        <div className="sticky bottom-0 flex min-w-0 flex-wrap items-center gap-3 border-t border-rule bg-paper p-4">
+        <div className="sticky bottom-0 flex min-w-0 flex-wrap items-center gap-3 border-t border-rule bg-paper p-5">
           {footer}
         </div>
       </div>
@@ -112,7 +112,7 @@ export function SheetTrigger({
       id={id}
       data-return-to={id}
       href={href}
-      className={`inline-flex min-h-11 items-center rounded-input px-3 text-body ${
+      className={`inline-flex min-h-11 items-center rounded-input px-4 text-body font-medium ${
         variant === "primary"
           ? "bg-blueprint text-paper"
           : "border border-rule-strong text-ink"

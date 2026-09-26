@@ -122,7 +122,7 @@ export function BuildProgress({
   return (
     <section className="min-w-0 rounded-panel border border-rule p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-title font-semibold">
+        <h2 className="text-title font-bold">
           {failedNow ? "Build stopped" : finished ? "Built" : "Building your app"}
         </h2>
         {/* The honesty label sits with the timing, not in small print. */}

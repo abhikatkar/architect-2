@@ -84,7 +84,7 @@ export function ImportReport({
     <main className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col gap-6 p-4 sm:p-6">
       <header className="flex min-w-0 flex-col gap-2">
         <p className="text-caption text-graphite">Architect 2.0</p>
-        <h1 className="text-title font-semibold">Import a repository</h1>
+        <h1 className="text-title font-bold">Import a repository</h1>
         <p className="max-w-[72ch] text-body text-graphite">
           Pick the repository, read what Architect would do to it, then import.
           Nothing is charged before you press Import.

@@ -60,7 +60,7 @@ export function RunTraceView({
     <section className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-start gap-2">
         <div className="min-w-0">
-          <h2 className="text-title font-semibold">Why did it do that?</h2>
+          <h2 className="text-title font-bold">Why did it do that?</h2>
           <p className="mt-1 max-w-[72ch] text-body text-graphite">
             The customer asked{" "}
             <span className="text-ink">&ldquo;{trace.question}&rdquo;</span> and the

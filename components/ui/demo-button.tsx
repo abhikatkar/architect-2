@@ -40,7 +40,7 @@ export function DemoButton({
         id={id}
         aria-disabled="true"
         aria-describedby={noteId}
-        className={`inline-flex min-h-11 cursor-not-allowed items-center rounded-input px-4 text-body ${
+        className={`inline-flex min-h-11 cursor-not-allowed items-center rounded-input px-4 text-body font-medium ${
           variant === "primary"
             ? "bg-blueprint text-paper"
             : "border border-rule-strong text-ink"
