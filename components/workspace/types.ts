@@ -20,7 +20,12 @@ export function parseLayer(
   return LAYERS.includes(v as Layer) ? (v as Layer) : fallback;
 }
 
-export function parsePane(value: string | string[] | undefined): Pane {
+export function parsePane(
+  value: string | string[] | undefined,
+  fallback: Pane = "chat",
+): Pane {
   const v = Array.isArray(value) ? value[0] : value;
-  return v === "canvas" ? "canvas" : "chat";
+  if (v === "canvas") return "canvas";
+  if (v === "chat") return "chat";
+  return fallback;
 }

@@ -671,3 +671,54 @@ Format: date, decision, evidence, alternatives rejected.
   version one tap away for anyone who wants it.
 - **Rejected:** shrinking the labels back to fit one laptop height, which optimises for a screenshot over a
   reader. Also rejected: hand-drawing a phone version, which would drift the first time the code changed.
+
+### D46. 2026-09-27: The 0.90 grounding bar was wrong, and six real drafts showed it
+- **Decision:** the grounding bar moves from **0.90 to 0.60**, set from a small labeled set rather than from
+  arithmetic on an assumption.
+- **What went wrong with D43.** The 0.90 bar was derived from an error budget: at a bar of p, roughly
+  (1 - p) of shipped answers carry an unsupported claim, so fewer than 1 in 10 meant 0.90. That derivation
+  assumes the returned probability is calibrated. It is not. The docs already warn that calibration is not
+  promised, and this repo had already written that down under limitations, then went ahead and depended on
+  it anyway.
+- **How it surfaced.** Round 3 asked for a second worked example, since the criteria name the exact phrase
+  from the demo case and a reader could suspect the prompt was tuned to it. The first faithful draft came
+  back at **0.82**: correct, fully supported, and rejected by our own bar. A checker that escalates correct
+  answers is not a checker.
+- **Six drafts, labeled before they were run**, three faithful and three unsupported, each a real call:
+
+  | Draft | Expected | P(grounded) |
+  |---|---|---|
+  | Says exactly what the source says | pass | **0.83** |
+  | Same claim, different words | pass | **0.82** |
+  | Less specific than the source | pass | **0.78** |
+  | Adds a timing word, the demo's case | fail | **0.13** |
+  | Contradicts the source | fail | **0.02** |
+  | Changes a number | fail | **0.04** |
+
+- **Why 0.60 and not the middle of the gap.** The gap runs from 0.13 to 0.78, so almost any bar inside it
+  separates the two groups, and a midpoint of 0.455 would be a number invented to fit six points. 0.60 is
+  the bar this product already uses for a decision it will not act on alone, so there is one rule rather
+  than two, and it sits inside the gap with 0.47 of room above the worst unsupported draft and 0.18 below
+  the best faithful one. The exact number is not load bearing, which is the point.
+- **Held in place by a check.** `scripts/consistency-check.mjs` asserts every labeled example lands on its
+  expected side of the bar, and that the set contains both outcomes. The bar cannot drift back to a value
+  that passes a draft we called unsupported without failing the build.
+- **Published, not buried.** The examples are dated and shown in the inspector beside the sample, so a
+  reader sees the checker pass supported answers rather than only fail the one the criteria mention.
+- **Rejected:** keeping 0.90 and calling the escalations conservative, which would have meant shipping a
+  checker that never passes anything. Also rejected: rewording the criteria until the faithful draft cleared
+  0.90, which is fitting the evidence to the conclusion.
+
+### D47. 2026-09-27: Skipped version numbers are accounted for, not explained away
+- **Decision:** the five numbers the deploy list skips (v2, v4, v7, v10, v13) are recorded as builds that
+  never deployed, each charged **$0.00**, with a reason, and included in the month's total.
+- **Why the cost matters and not just the absence.** "Some builds did not deploy" answers where the numbers
+  went but leaves a second question open: what they cost. A reader who is being asked to trust a $3.37 total
+  is entitled to know that 5 of the 14 builds behind it are in there at zero, rather than quietly missing.
+  The rule is the same one the failed build stage already follows: the platform did not deliver a working
+  app, so the platform does not charge for it.
+- **The footer noun changed with it.** It said "9 builds this month" against 14 builds, of which 9 deployed.
+  It now says 9 deploys.
+- **Checked, not asserted:** invariants cover that every number from 1 to the highest is accounted for with
+  no gaps, that no number is both deployed and discarded, that every discarded build costs exactly $0.00 and
+  carries a reason, and that the published total equals deployed plus discarded.

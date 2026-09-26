@@ -21,7 +21,13 @@ export async function POST(request: NextRequest) {
     typeof form.get("next") === "string" ? (form.get("next") as string) : null,
   );
 
-  const response = NextResponse.redirect(`${base}${next}`, { status: 303 });
+  // The enhanced toggle has already flipped the attribute in the browser and
+  // only needs the cookie written, so answer 204 and let it stay where it is.
+  // Without JavaScript the same post gets the redirect and a re-render.
+  const wantsCookieOnly = request.headers.get("x-theme-only") === "1";
+  const response = wantsCookieOnly
+    ? new NextResponse(null, { status: 204 })
+    : NextResponse.redirect(`${base}${next}`, { status: 303 });
 
   if (theme === "system") {
     response.cookies.delete(THEME_COOKIE);

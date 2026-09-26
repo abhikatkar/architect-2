@@ -99,94 +99,93 @@ export function AgentInspector({
         </Link>
       </div>
 
-      {details ? (
-        /* Details layer. Every number in the product lives behind this door. */
-        <div className="flex min-w-0 flex-col gap-3">
-          <pre className="min-w-0 overflow-x-auto rounded-input border border-rule p-3 font-mono text-caption">
-            {agent.configFile}
-          </pre>
-          <div className="min-w-0">
-            <p className="text-caption text-graphite">Version history</p>
-            <ul className="mt-1 flex flex-col gap-1">
-              {agent.versions.map((v) => (
-                <li key={v.label} className="flex gap-2 text-small">
-                  <span className="font-mono text-graphite">{v.label}</span>
-                  <span className="min-w-0">{v.change}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <Link
-            href={query({ depth: "" })}
-            className="inline-flex min-h-11 items-center self-start rounded-input border border-rule px-3 text-body"
-          >
-            Back to the simple view
-          </Link>
+      {/*
+        One inspector, not two. This used to swap the whole panel for a config
+        dump, so clicking "Details: configuration and versions" removed the
+        model type, the source article and the Run control. Round 3 reported it
+        as showing nothing, which is what a panel that loses its contents looks
+        like. Now it expands in place, like every other "Details:" here, and
+        the stored depth preference decides whether it starts open.
+      */}
+      <div className="flex min-w-0 flex-col gap-3">
+        <div className="min-w-0">
+          <p className="text-caption text-graphite">Knowledge</p>
+          <p className="text-body">{agent.knowledge ?? "None. It reads the message only."}</p>
         </div>
-      ) : (
-        /* Guided layer. No parameter names, no numbers. */
-        <div className="flex min-w-0 flex-col gap-3">
-          <div className="min-w-0">
-            <p className="text-caption text-graphite">Knowledge</p>
-            <p className="text-body">{agent.knowledge ?? "None. It reads the message only."}</p>
-          </div>
 
-          <div className="min-w-0">
-            <p className="text-caption text-graphite">Tools</p>
-            <ul className="mt-1 flex flex-wrap gap-1">
-              {agent.tools.map((t) => (
-                <li
-                  key={t}
-                  className="rounded-input border border-rule px-2 py-0.5 text-caption"
-                >
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <CreativityScale value={creativity} />
-
-          {decisionAgent ? (
-            <JevPanel
-              agentId={agent.id as Parameters<typeof JevPanel>[0]["agentId"]}
-              result={jevResult ?? null}
-              verified={jevVerified ?? false}
-              formNext={formNext ?? "/demo?tab=agents"}
-              preferDetails={preferDetails}
-            />
-          ) : (
-            <>
-              <LanguageModelNote />
-              <details
-                open={preferDetails}
-                className="min-w-0 rounded-input border border-rule"
+        <div className="min-w-0">
+          <p className="text-caption text-graphite">Tools</p>
+          <ul className="mt-1 flex flex-wrap gap-1">
+            {agent.tools.map((t) => (
+              <li
+                key={t}
+                className="rounded-input border border-rule px-2 py-0.5 text-caption"
               >
-                <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
-                  Test this agent
-                </summary>
-                <div className="border-t border-rule p-3">
-                  <p className="text-caption text-graphite">
-                    Sample input, simulated for the demo
-                  </p>
-                  <p className="mt-1 text-small">{agent.sample.input}</p>
-                  <p className="mt-2 text-caption text-graphite">Result</p>
-                  <pre className="mt-1 min-w-0 overflow-x-auto font-mono text-caption">
-                    {agent.sample.output}
-                  </pre>
-                </div>
-              </details>
-            </>
-          )}
-
-          <Link
-            href={query({ depth: "details" })}
-            className="inline-flex min-h-11 items-center self-start rounded-input border border-rule px-3 text-body"
-          >
-            Details: configuration and versions
-          </Link>
+                {t}
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
+
+        <CreativityScale value={creativity} />
+
+        {decisionAgent ? (
+          <JevPanel
+            agentId={agent.id as Parameters<typeof JevPanel>[0]["agentId"]}
+            result={jevResult ?? null}
+            verified={jevVerified ?? false}
+            formNext={formNext ?? "/demo?tab=agents"}
+            preferDetails={preferDetails || details}
+          />
+        ) : (
+          <>
+            <LanguageModelNote />
+            <details
+              open={preferDetails || details}
+              className="min-w-0 rounded-input border border-rule"
+            >
+              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
+                Test this agent
+              </summary>
+              <div className="border-t border-rule p-3">
+                <p className="text-caption text-graphite">
+                  Sample input, simulated for the demo
+                </p>
+                <p className="mt-1 text-small">{agent.sample.input}</p>
+                <p className="mt-2 text-caption text-graphite">Result</p>
+                <pre className="mt-1 min-w-0 whitespace-pre-wrap break-words font-mono text-caption">
+                  {agent.sample.output}
+                </pre>
+              </div>
+            </details>
+          </>
+        )}
+
+        <details
+          open={preferDetails || details}
+          className="min-w-0 rounded-input border border-rule"
+        >
+          <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
+            Details: configuration and versions
+          </summary>
+          <div className="flex min-w-0 flex-col gap-3 border-t border-rule p-3">
+            <pre className="min-w-0 whitespace-pre-wrap break-words font-mono text-caption">
+              {agent.configFile}
+            </pre>
+            <div className="min-w-0">
+              <p className="text-caption text-graphite">Version history</p>
+              <ul className="mt-1 flex flex-col gap-1">
+                {agent.versions.map((v) => (
+                  <li key={v.label} className="flex gap-2 text-small">
+                    <span className="font-mono text-graphite">{v.label}</span>
+                    <span className="min-w-0">{v.change}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </details>
+      </div>
     </aside>
   );
 }

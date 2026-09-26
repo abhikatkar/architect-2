@@ -23,7 +23,16 @@ const round = (n: number) => +n.toFixed(2);
  */
 export function ledgerSpend(p: DemoProject, fixApplied = false): number {
   const built = p.versions.reduce((sum, v) => sum + v.cost, 0);
-  return round(fixApplied ? built + p.fix.cost : built);
+  // Discarded builds are summed rather than skipped. They are $0.00 each, so
+  // this adds nothing, and that is the point: the total accounts for all 14
+  // numbers, not only the 9 that shipped.
+  const discarded = p.discarded.reduce((sum, v) => sum + v.cost, 0);
+  return round(fixApplied ? built + discarded + p.fix.cost : built + discarded);
+}
+
+/** Every version number taken this month, deployed or not. */
+export function buildsAttempted(p: DemoProject): number {
+  return p.versions.length + p.discarded.length;
 }
 
 /** The newest version in preview, which the applied fix advances. */

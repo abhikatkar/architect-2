@@ -5,6 +5,7 @@ import {
   type JevAgentId,
 } from "@/lib/jev/questions";
 import type { JevResult } from "@/lib/jev";
+import { examplesFor } from "@/lib/jev/examples";
 
 function pct(n: number) {
   return `${Math.round(n * 100)}%`;
@@ -37,6 +38,7 @@ export function JevPanel({
   const fixedFields = Object.entries(spec.sampleState).filter(
     ([key]) => key !== spec.inputField,
   );
+  const examples = examplesFor(agentId);
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
@@ -62,6 +64,21 @@ export function JevPanel({
           <p className="mt-2 text-caption text-graphite">
             Sent with every run and not editable here, so you can see what the
             answer was checked against.
+          </p>
+        </div>
+      ) : null}
+
+      {spec.passThreshold !== undefined ? (
+        <div className="min-w-0 rounded-input border border-rule p-3">
+          <p className="text-caption text-graphite">Before it is sent</p>
+          <p className="max-w-[72ch] text-small">
+            An answer only reaches a customer unread if the checker is at least{" "}
+            <span className="font-medium">{pct(spec.passThreshold)}</span> sure
+            every detail is supported. Below that it goes to a person.
+          </p>
+          <p className="mt-1 max-w-[72ch] text-caption text-graphite">
+            Same bar the other agents use before acting alone. Checked against{" "}
+            {examples.length} drafts we labeled by hand: see below.
           </p>
         </div>
       ) : null}
@@ -102,6 +119,44 @@ export function JevPanel({
         />
       ) : null}
 
+      {examples.length ? (
+        <details open={preferDetails} className="min-w-0 rounded-input border border-rule">
+          <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
+            Worked examples: {examples.length} real calls, {examples[0].capturedOn}
+          </summary>
+          <div className="min-w-0 border-t border-rule p-3">
+            <p className="mb-2 max-w-[72ch] text-caption text-graphite">
+              Drafts we labeled before running them, so the checker can be seen
+              passing supported answers and not only failing the demo&apos;s one.
+              Every number here came back from a real call.
+            </p>
+            <ul className="flex flex-col gap-2">
+              {examples.map((e) => {
+                const primary = e.answers.find((a) => a.key === spec.primary);
+                const p = primary?.probability ?? 0;
+                const passes = spec.passThreshold !== undefined && p >= spec.passThreshold;
+                return (
+                  <li key={e.id} className="min-w-0 border-t border-rule pt-2 first:border-0 first:pt-0">
+                    <p className="text-small font-medium">{e.label}</p>
+                    <p className="max-w-[72ch] text-caption text-graphite">{e.note}</p>
+                    <p className="mt-1 max-w-[72ch] font-mono text-caption">
+                      {e.state[spec.inputField]}
+                    </p>
+                    <p className={`text-caption ${passes ? "text-live" : "text-cost"}`}>
+                      {pct(p)}, {passes ? "sent as it is" : "goes to a person"}
+                      <span className="text-graphite">
+                        {" "}
+                        . We expected it to {e.expected === "pass" ? "be sent" : "go to a person"}.
+                      </span>
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </details>
+      ) : null}
+
       <details
         open={preferDetails}
         className="min-w-0 rounded-input border border-rule"
@@ -109,7 +164,9 @@ export function JevPanel({
         <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">
           Details: the typed question sent to {JEV_MODEL}
         </summary>
-        <pre className="min-w-0 overflow-x-auto border-t border-rule p-3 font-mono text-caption">
+        {/* Wrapped, not scrolled: a hidden horizontal scrollbar in a narrow
+            sidebar reads as truncated, which is what round 3 reported. */}
+        <pre className="min-w-0 whitespace-pre-wrap break-words border-t border-rule p-3 font-mono text-caption">
           {JSON.stringify(spec.questions, null, 2)}
         </pre>
       </details>

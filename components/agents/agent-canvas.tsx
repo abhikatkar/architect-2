@@ -19,14 +19,16 @@ type Props = {
  */
 export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
   const byId = new Map(agents.map((a) => [a.id, a]));
+  const outgoing = (id: string) => edges.filter((e) => e.from === id);
 
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-baseline gap-2">
         <h2 className="text-title font-semibold">Agents</h2>
-        <span className="text-small text-graphite">
-          Every message runs through all {agents.length}, in order. The dashed
-          branch is the one that escalates.
+        <span className="max-w-[72ch] text-small text-graphite">
+          A message starts at Intake and moves left to right. The dashed
+          branches leave that line: either agent can send a message to a person
+          instead of passing it on.
         </span>
       </div>
 
@@ -43,6 +45,14 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
             >
               <span className="text-body font-medium">{a.name}</span>
               <span className="text-small text-graphite">{a.role}</span>
+              {/* The phone list had no edges at all, so the branch to a person
+                  existed only on the drawing. Round 3. */}
+              {outgoing(a.id).map((e) => (
+                <span key={`${e.from}-${e.to}`} className="mt-1 text-caption text-graphite">
+                  {e.label ? `${e.label}: ` : "then: "}
+                  {byId.get(e.to)?.name ?? e.to}
+                </span>
+              ))}
             </Link>
           </li>
         ))}

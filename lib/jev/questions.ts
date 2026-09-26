@@ -33,12 +33,19 @@ export type JevAnswer = {
  * The bar a grounding check must clear before an answer is sent to a customer
  * without a person reading it first.
  *
- * Derived from an error budget, not from any one result: at a bar of p, roughly
- * (1 - p) of shipped answers carry a claim the source does not support. We are
- * willing to ship fewer than 1 in 10 such answers, so the bar is 0.90. A coin
- * flip at 0.50 is not a bar at all. See D43.
+ * This was 0.90, derived from an error budget: at a bar of p, roughly (1 - p)
+ * of shipped answers carry an unsupported claim, and we wanted fewer than 1 in
+ * 10. That derivation assumed the returned probability is calibrated. It is
+ * not. Measured over six labeled drafts, a fully faithful one tops out at 0.83,
+ * so a 0.90 bar escalates everything and the checker stops being a checker.
+ *
+ * 0.60 is the bar the rest of the product already uses for a decision it will
+ * not act on alone, so this is one rule rather than two. The measured
+ * separation is wide enough that the exact number is not load bearing:
+ * unsupported drafts came back at 0.02 to 0.13, faithful ones at 0.78 to 0.83.
+ * See D46 for the numbers and why the first derivation was wrong.
  */
-export const GROUNDING_PASS_THRESHOLD = 0.9;
+export const GROUNDING_PASS_THRESHOLD = 0.6;
 
 /** One line a cold reader can understand, shown next to "Decision model". */
 export const JEV_PLAIN_EXPLAINER =

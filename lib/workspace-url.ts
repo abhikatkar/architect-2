@@ -1,4 +1,9 @@
-import { parseLayer, parsePane, type Layer } from "@/components/workspace/types";
+import {
+  parseLayer,
+  parsePane,
+  type Layer,
+  type Pane,
+} from "@/components/workspace/types";
 import { parseDevice } from "@/components/build/app-preview";
 import { parseBuild } from "@/lib/build-state";
 
@@ -37,9 +42,16 @@ export function workspaceUrl(
   defaultDepth: "guided" | "details" = "guided",
   /** The demo opens on App so a reviewer sees the working app first. */
   defaultLayer: Layer = "plan",
+  /**
+   * Which pane a phone lands on. Above lg both panes render, so this only
+   * decides what a narrow screen sees first. The demo lands on the canvas,
+   * because a reviewer opening it on a phone should meet the running app, not
+   * the chat rail beside it.
+   */
+  defaultPane: Pane = "chat",
 ) {
   const layer = parseLayer(searchParams.tab, defaultLayer);
-  const pane = parsePane(searchParams.pane);
+  const pane = parsePane(searchParams.pane, defaultPane);
   const build = parseBuild(searchParams.build);
   const device = parseDevice(searchParams.device);
   const agent = first(searchParams.agent) ?? "";

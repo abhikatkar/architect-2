@@ -72,7 +72,10 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 |---|---|---|
 | Generated diagrams | 3, from JSON committed in [docs/architecture/](../architecture/) | `archify deliver` |
 | Source links verified against the pinned commit | **22**, all in the architecture diagram | the delivery receipt, `evidence.references` |
-| Smallest node text at a 1440px desktop | **7.7px**, up from 6.2px after the round 2 review | `archify visual-check`, `minimumProjectedNodeTextPx` |
+| Smallest node text at a 1440px desktop | **7.7px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
+| Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
+| Consistency invariants | **25** | `scripts/consistency-check.mjs` |
+| Rendered-page assertions | **26** | `scripts/rendered-check.mjs` |
 | Pinned revision | `a2ea7a2` | [D42](../07-decision-log.md) |
 | Nodes marked Real | 10 | the diagram |
 | Nodes marked Simulated | 1, `lib/seed` | the diagram |
@@ -145,6 +148,23 @@ No client component imports `lib/jev`, which is `import "server-only"` at its fi
 the key value does appear in `.next/cache/turbopack` on the machine that ran the build. That directory is a
 local build cache, it is covered by `.gitignore`, no file under `.next` is tracked, and only `.next/static`
 is ever served.
+
+### The grounding bar, set from labeled drafts
+
+Six drafts, labeled before they were run, one real call each. The bar moved from 0.90 to 0.60 because a
+fully faithful draft only reaches 0.83, so the old bar escalated correct answers. See
+[D46](../07-decision-log.md).
+
+| Draft | Expected | P(grounded) | At the 0.60 bar |
+|---|---|---|---|
+| Says exactly what the source says | pass | 0.83 | sent |
+| Same claim, reworded | pass | 0.82 | sent |
+| Less specific than the source | pass | 0.78 | sent |
+| Adds a timing word, the demo's case | fail | 0.13 | to a person |
+| Contradicts the source | fail | 0.02 | to a person |
+| Changes a number | fail | 0.04 | to a person |
+
+6 of 6 land on the expected side. A consistency invariant asserts this, so the bar cannot drift back.
 
 ### Signed results, checked on the deployment and not only locally
 

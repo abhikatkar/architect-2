@@ -48,10 +48,11 @@ export function LedgerBar({
           )}
         </span>
 
-        {/* Derived from the rows on Deploy. A hand-written "10" against 9 rows
-            is exactly the kind of small lie a reviewer checks. */}
+        {/* Deploys, not builds: 14 builds were started this month and 9 of them
+            deployed. Calling 9 "builds" was the wrong noun once the other 5
+            were written down. */}
         <span className="text-graphite">
-          {buildCount} {buildCount === 1 ? "build" : "builds"} this month
+          {buildCount} {buildCount === 1 ? "deploy" : "deploys"} this month
         </span>
 
         {/* Spend is cost-colored because it is money. Nothing else may be. */}

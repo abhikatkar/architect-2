@@ -20,7 +20,7 @@ export default async function DemoPage(props: PageProps<"/demo">) {
   const {
     layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, query,
   } =
-    workspaceUrl(BASE, searchParams, "guided", "app");
+    workspaceUrl(BASE, searchParams, "guided", "app", "canvas");
   const theme = await currentTheme();
 
   return (

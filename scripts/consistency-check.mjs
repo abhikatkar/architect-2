@@ -17,7 +17,14 @@
   catches the case where a stored figure drifts from its parts anyway.
 */
 import { DEMO_PROJECT as p } from "../lib/seed/northwind.ts";
-import { JEV_AGENT_IDS, JEV_MODEL } from "../lib/jev/questions.ts";
+import { buildsAttempted } from "../lib/seed/totals.ts";
+import {
+  JEV_AGENT_IDS,
+  JEV_MODEL,
+  JEV_AGENTS,
+  GROUNDING_PASS_THRESHOLD,
+} from "../lib/jev/questions.ts";
+import { JEV_EXAMPLES } from "../lib/jev/examples.ts";
 import {
   ledgerSpend,
   conversationTotal,
@@ -26,6 +33,7 @@ import {
 } from "../lib/seed/totals.ts";
 
 const money = (n) => `$${n.toFixed(2)}`;
+const round = (n) => Math.round(n * 100) / 100;
 const results = [];
 
 function check(name, ok, detail) {
@@ -122,6 +130,47 @@ check(
   `preview ${p.ledger.previewVersion}, live ${p.ledger.productionVersion}`,
 );
 
+// 15b. The version numbers account for themselves.
+//
+// Round 3 asked why the deploy list skips v2, v4, v7, v10 and v13. A gap in a
+// list of numbers is a question, and "some builds did not deploy" is only half
+// an answer: the other half is what they cost. They are $0.00 each, by the same
+// rule the failed stage follows, and the total is checked to include them.
+const deployedLabels = p.versions.map((v) => v.label);
+const discardedLabels = p.discarded.map((v) => v.label);
+const allNumbers = [...deployedLabels, ...discardedLabels]
+  .map((l) => Number(String(l).slice(1)))
+  .sort((a, b) => a - b);
+
+check(
+  "every version number from 1 to the highest is accounted for",
+  allNumbers.length === allNumbers[allNumbers.length - 1] &&
+    allNumbers.every((n, i) => n === i + 1),
+  `${allNumbers.length} numbers, 1 to ${allNumbers[allNumbers.length - 1]}, no gaps`,
+);
+
+check(
+  "no version number is both deployed and discarded",
+  discardedLabels.every((l) => !deployedLabels.includes(l)),
+  `${deployedLabels.length} deployed, ${discardedLabels.length} discarded`,
+);
+
+check(
+  "every discarded build is charged $0.00 and says why",
+  p.discarded.every((v) => v.cost === 0 && typeof v.reason === "string" && v.reason.length > 10),
+  "the platform did not deliver a working app",
+);
+
+check(
+  "the month's spend accounts for the discarded builds, not just the deployed ones",
+  ledgerSpend(p) ===
+    round(
+      p.versions.reduce((sum, v) => sum + v.cost, 0) +
+        p.discarded.reduce((sum, v) => sum + v.cost, 0),
+    ),
+  `${money(ledgerSpend(p))} over ${buildsAttempted(p)} builds, ${p.versions.length} of them deployed`,
+);
+
 // 16. An agent's config file names the model it actually calls.
 //
 // This drifted unnoticed for a whole slice: the three decision agents called
@@ -147,6 +196,31 @@ check(
   "no decision agent's config file sets a temperature",
   jevAgents.every((a) => !a.configFile.includes("temperature")),
   "a decision model has no temperature to set",
+);
+
+// 16b. The grounding bar still separates the labeled examples.
+//
+// The bar was 0.90 until six real drafts showed a faithful one tops out at
+// 0.83, so the bar escalated everything. It is 0.60 now. This asserts the
+// number still does its job, so it cannot drift back to a value that passes a
+// draft we labeled unsupported, or fails one we labeled faithful.
+const graded = JEV_EXAMPLES.filter((e) => e.agentId === "grounding-checker");
+const wrong = graded.filter((e) => {
+  const primary = e.answers.find((a) => a.key === JEV_AGENTS[e.agentId].primary);
+  const passes = (primary?.probability ?? 0) >= GROUNDING_PASS_THRESHOLD;
+  return passes !== (e.expected === "pass");
+});
+
+check(
+  "the grounding bar puts every worked example on its expected side",
+  graded.length >= 6 && wrong.length === 0,
+  `${graded.length} examples, ${wrong.length} on the wrong side of ${GROUNDING_PASS_THRESHOLD}`,
+);
+
+check(
+  "the worked examples cover both outcomes, not just the failing one",
+  graded.some((e) => e.expected === "pass") && graded.some((e) => e.expected === "fail"),
+  `${graded.filter((e) => e.expected === "pass").length} faithful, ${graded.filter((e) => e.expected === "fail").length} unsupported`,
 );
 
 // 17. The build count in the footer is derived, not written down.

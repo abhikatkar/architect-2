@@ -111,14 +111,52 @@ Two changes came out of it, and the second matters more than the first:
 
 1. **The source article is now shown** beside the input, with every fixed field labeled. A grounding result
    that does not show what it was checked against cannot be checked by the reader either.
-2. **A grounding answer ships only at P(grounded) >= 0.90**, and below that it goes to a person. The bar is
-   an error budget, not a tuned number: at a bar of p, roughly (1 - p) of shipped answers carry an
-   unsupported claim, and we will ship fewer than 1 in 10. Jev reads a boolean at 0.5, which is a coin flip
-   rather than a bar. Full reasoning in [D43](../07-decision-log.md).
+2. **A grounding answer ships only if the checker clears a bar**, and below it the answer goes to a person.
+   That bar started at 0.90, derived from an error budget, and the next section is the story of why that was
+   wrong. Full reasoning in [D43](../07-decision-log.md) and its correction in
+   [D46](../07-decision-log.md).
 
 The honest lesson for anyone adopting a decision model: **the criteria are the program.** A vague criterion
 does not fail loudly, it returns a confident number for a question you did not mean to ask. The fix was not
 a better model or a higher temperature. It was writing down what we actually wanted checked.
+
+### The bar we set from arithmetic was wrong, and six real drafts showed it
+
+Round 3 asked a fair question: the grounding criteria name the exact phrase from the demo case, so was the
+prompt tuned to that one example? The way to answer that is a second case, run live, published whatever it
+says.
+
+The first faithful draft, saying exactly what the source says and nothing more, came back at **0.82**.
+Correct, fully supported, and rejected by our own 0.90 bar. A checker that escalates correct answers is not
+a checker, so the bar was the problem.
+
+The 0.90 came from an error budget: at a bar of p, roughly (1 - p) of shipped answers carry an unsupported
+claim, so fewer than 1 in 10 meant 0.90. That is only true if the probability is calibrated. It is not, and
+this document already said so under limitations before we went ahead and relied on it anyway.
+
+So we wrote six drafts, labeled them before running them, and called each one:
+
+| Draft | What it does | Expected | P(grounded) |
+|---|---|---|---|
+| "Your credit will be applied at the next billing cycle." | Says what the source says | pass | **0.83** |
+| "Credits are applied on your next billing cycle." | Same claim, reworded | pass | **0.82** |
+| "Refund requests are reviewed by our support team." | Drops a condition, adds nothing | pass | **0.78** |
+| "...at the start of your next billing cycle." | Adds a timing word | fail | **0.13** |
+| "...within 24 hours." | Contradicts the source | fail | **0.02** |
+| "Refunds are reviewed within 7 days." | Changes 14 to 7 | fail | **0.04** |
+
+The two groups separate from 0.13 to 0.78, which is a wide gap and the encouraging part: the criteria do
+generalize past the sentence they mention. They catch an added timing word, a contradiction and a changed
+number, and they leave a reworded paraphrase and a vaguer draft alone.
+
+The bar is now **0.60**, which is what the rest of the product already uses for a decision it will not act
+on alone. We deliberately did not put it in the middle of the observed gap: 0.455 would be a number invented
+to fit six points. A consistency check now asserts all six land on their expected side, so the bar cannot
+drift back to one that passes a draft we called unsupported.
+
+**What this says about adopting a decision model.** The first version of this bar was a tidy derivation from
+a premise nobody had checked. It survived a design review, a decision-log entry and a shipped build. What
+caught it was running six inputs and looking at the numbers, which cost about a tenth of a cent.
 
 ### A boolean question really does return no confidence
 

@@ -286,6 +286,23 @@ queues: [billing, technical, account]`,
     // is applied, so listing it would count $0.06 the user has not spent.
   ],
 
+  /*
+    The five numbers the deploy list skips.
+
+    A version number is taken the moment a build starts, so a build that never
+    reaches deploy still consumes one. Round 3 asked why v2, v4, v7, v10 and
+    v13 are missing, and the honest answer has to account for their cost as
+    well as their absence: each is $0.00, because the platform did not deliver
+    a working app, which is the same rule the failed stage follows.
+  */
+  discarded: [
+    { label: "v2", reason: "Build failed: the agent graph had a cycle", cost: 0 },
+    { label: "v4", reason: "Build failed: the help center import timed out", cost: 0 },
+    { label: "v7", reason: "Discarded: the preview health check never passed", cost: 0 },
+    { label: "v10", reason: "Build failed: the interface stage lost a component", cost: 0 },
+    { label: "v13", reason: "Discarded: the escalation queue was not configured", cost: 0 },
+  ],
+
   commits: [
     { sha: "a41c9e2", message: "Add escalation reason to dashboard", files: 3 },
     { sha: "7be0d15", message: "Keep answers as specific as the source", files: 1 },

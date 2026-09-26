@@ -1,4 +1,5 @@
 import type { DemoProject } from "@/lib/seed/types";
+import { ledgerSpend } from "@/lib/seed/totals";
 import type { Layer } from "./types";
 
 function money(n: number) {
@@ -138,7 +139,28 @@ export function LayerCanvas({
   return (
     <Panel title="Deploy" note="What is live, and what is waiting in preview.">
       <Scroller>
-        <table className="w-full min-w-[480px] border-collapse text-small">
+        {/* Phone: one block per version. The table forced 480px inside a 324px
+            card, so the Cost column was cut off. Round 3. */}
+        <ul className="flex flex-col gap-2 sm:hidden">
+          {project.versions.map((v) => (
+            <li key={v.id} className="min-w-0 rounded-input border border-rule p-3">
+              <p className="flex flex-wrap items-baseline gap-x-2">
+                <span className="font-mono text-small">{v.label}</span>
+                <span className="font-mono text-caption text-cost">{money(v.cost)}</span>
+                <span className="text-caption">
+                  {v.live ? (
+                    <span className="text-live">production, live</span>
+                  ) : (
+                    <span className="text-graphite">{v.environment ?? "not deployed"}</span>
+                  )}
+                </span>
+              </p>
+              <p className="mt-1 min-w-0 text-small">{v.change}</p>
+            </li>
+          ))}
+        </ul>
+
+        <table className="hidden w-full border-collapse text-small sm:table">
           <thead>
             <tr className="text-left text-graphite">
               <th className="border-b border-rule py-2 pr-4 font-medium">Version</th>
@@ -166,6 +188,30 @@ export function LayerCanvas({
             ))}
           </tbody>
         </table>
+
+        {/* The gaps in the numbering are a question a reader will ask, so it is
+            answered here rather than left to be noticed. */}
+        <div className="mt-3 min-w-0 border-t border-rule pt-3">
+          <p className="max-w-[72ch] text-caption text-graphite">
+            A version number is taken when a build starts, so the list skips{" "}
+            {project.discarded.map((d) => d.label).join(", ")}: {project.discarded.length} of
+            the {project.versions.length + project.discarded.length} builds this month never
+            reached deploy. Each is charged{" "}
+            <span className="font-mono text-cost">{money(0)}</span>, because the platform did
+            not deliver a working app. They are inside the{" "}
+            <span className="font-mono text-cost">{money(ledgerSpend(project))}</span> total,
+            adding nothing to it.
+          </p>
+          <ul className="mt-2 flex flex-col gap-1">
+            {project.discarded.map((d) => (
+              <li key={d.label} className="flex flex-wrap gap-x-2 text-caption">
+                <span className="font-mono text-graphite">{d.label}</span>
+                <span className="font-mono text-cost">{money(d.cost)}</span>
+                <span className="min-w-0 text-graphite">{d.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </Scroller>
     </Panel>
   );

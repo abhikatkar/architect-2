@@ -200,6 +200,8 @@ export type DemoProject = {
   conversations: Conversation[];
   counts: Record<ConversationStatus, number>;
   trace: RunTrace;
+  /** Numbers taken by builds that never deployed. Each charged $0.00. */
+  discarded: { label: string; reason: string; cost: number }[];
   versions: Version[];
   commits: Commit[];
   imports: ImportExample[];

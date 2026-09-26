@@ -31,12 +31,13 @@
       },
       {
         "id": "escalation",
-        "label": "When grounding fails",
+        "label": "Routes to a person",
         "focus": [
+          "intake",
           "ground",
           "escal"
         ],
-        "note": "The one agent that writes is the one that can drift, and this is where that gets caught."
+        "note": "Two agents can hand a message to a person: the checker when a draft is not supported, and Intake when it is not clearly decided."
       }
     ],
     "viewBox": [
@@ -66,16 +67,23 @@
       "toCol": 1
     },
     {
-      "id": "draft",
-      "label": "Draft",
+      "id": "handoff",
+      "label": "Hand to a person",
       "fromCol": 2,
       "toCol": 2,
+      "variant": "dashed"
+    },
+    {
+      "id": "draft",
+      "label": "Draft",
+      "fromCol": 3,
+      "toCol": 3,
       "variant": "emphasis"
     },
     {
       "id": "check",
       "label": "Check and route",
-      "fromCol": 3,
+      "fromCol": 4,
       "toCol": 5
     }
   ],
@@ -108,7 +116,7 @@
     {
       "id": "answer",
       "lane": "write",
-      "col": 2,
+      "col": 3,
       "type": "backend",
       "label": "Answer",
       "sublabel": "Language model: drafts reply",
@@ -117,7 +125,7 @@
     {
       "id": "ground",
       "lane": "decide",
-      "col": 3,
+      "col": 4,
       "type": "backend",
       "label": "Grounding Checker",
       "sublabel": "Jev decision: grounded?",
@@ -126,7 +134,7 @@
     {
       "id": "escal",
       "lane": "decide",
-      "col": 4,
+      "col": 2,
       "type": "security",
       "label": "Escalation Router",
       "sublabel": "Jev decision: which queue",
@@ -177,6 +185,14 @@
       "label": "not grounded",
       "variant": "security",
       "role": "error"
+    },
+    {
+      "id": "intake-escal",
+      "from": "intake",
+      "to": "escal",
+      "label": "if not clearly decided",
+      "variant": "security",
+      "role": "branch"
     }
   ],
   "cards": [
@@ -203,8 +219,8 @@
       "title": "What the live calls showed",
       "items": [
         "Jev returns a confidence for choice and score, and none for boolean",
-        "One real call scored topic at 100% and urgency at 42% at the same time",
-        "Below 60% the product sends the decision to a person instead"
+        "Below 60% confident, a decision goes to a person instead of onward",
+        "The grounding bar is the same 60%, set from 6 labeled drafts, not from one"
       ]
     }
   ]

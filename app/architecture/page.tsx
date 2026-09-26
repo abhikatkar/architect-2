@@ -84,23 +84,28 @@ export default function ArchitectureIndex() {
 
             {/* The still carries the whole diagram, so a phone is not sent to a
                 canvas it cannot use. Hidden once there is room for the real one. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/architecture/still/${d.slug}.png`}
-              alt={`${d.title} diagram, still image`}
-              width={1440}
-              height={900}
-              className="w-full rounded-input border border-rule sm:hidden"
-            />
+            <a href={`/architecture/still/${d.slug}.png`} className="sm:hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/architecture/still/${d.slug}.png`}
+                alt={`${d.title} diagram, still image. Tap to open it full size.`}
+                width={1440}
+                height={900}
+                className="w-full rounded-input border border-rule"
+              />
+              <span className="mt-1 block text-caption text-blueprint underline">
+                Tap the image to open it full size and zoom
+              </span>
+            </a>
 
             <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption">
-              <a
-                href={`/architecture/${d.slug}.html`}
+              <Link
+                href={`/architecture/${d.slug}`}
                 className="inline-flex min-h-11 items-center rounded-input bg-blueprint px-3 text-body text-paper"
               >
                 <span className="hidden sm:inline">Open the diagram</span>
                 <span className="sm:hidden">Open anyway, needs a wide screen</span>
-              </a>
+              </Link>
               <span className="text-graphite">
                 Source: <span className="font-mono">{d.source}</span>
               </span>

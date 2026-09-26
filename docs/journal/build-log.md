@@ -71,7 +71,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 05:20 | Verified the signed results on production once JEV_RESULT_SECRET was set | 20 min | Claude Code, curl against production, Supabase MCP | All 3 agents live and signed. Four tamper cases on production all read "Unverified result". The run tripped our own rate limit half way through, which is the guardrail working on a real visitor rather than on a test fixture |
 
-**Day total so far:** 16 h 30 min across 10 commits.
+| 06:40 | Polish pass 3: the grounding bar corrected against six labeled drafts, four demo bugs, an instant theme toggle, and the diagrams brought back in sync | 3 h 20 min | Claude Code, Chrome over CDP, archify | The second worked example did its job immediately: a faithful draft scored 0.82 and our own 0.90 bar rejected it, so the bar was wrong, not the model. Six labeled drafts now hold it in place. Theme switch measured at 12 ms against the 4 to 6 seconds the review saw |
+
+**Day total so far:** 19 h 50 min across 11 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

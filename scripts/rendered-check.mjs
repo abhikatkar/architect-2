@@ -142,10 +142,12 @@ async function get(path) {
     text.includes("First build, v1"),
     '"First build, v1"',
   );
+  // Deploys, not builds: 14 numbers were taken this month and 9 deployed, so
+  // calling 9 of them "builds" became the wrong noun (round 3).
   check(
-    "the build count matches the rows on Deploy",
-    text.includes("9 builds this month"),
-    "9 versions, 9 builds",
+    "the footer counts deploys and matches the rows on Deploy",
+    text.includes("9 deploys this month") && !/\d+ builds this month/.test(text),
+    "9 rows, 9 deploys",
   );
 }
 
@@ -165,6 +167,113 @@ async function get(path) {
     if (hit) found = `${hit[0]} on ${path}`;
   }
   check("served copy uses US spelling", !found, found || "none of the listed forms");
+}
+
+// 8. The Agents subtitle must not claim every message runs through all four,
+//    now that two agents can hand a message to a person instead (round 3).
+{
+  const { html } = await get("/demo?tab=agents&pane=canvas");
+  const text = visibleText(html);
+  check(
+    "the agents subtitle does not claim all four, in order",
+    !/runs through all \d+, in order/.test(text),
+    "no 'all 4, in order'",
+  );
+  check(
+    "the phone agent list names the branch to a person",
+    text.includes("if not clearly decided") && text.includes("if not grounded"),
+    "both branch labels present in the list",
+  );
+}
+
+// 9. The config and version history expand in place, rather than replacing the
+//    panel. Round 3 reported the old behavior as showing nothing.
+{
+  const { html } = await get(
+    "/demo?tab=agents&pane=canvas&agent=grounding-checker&depth=details",
+  );
+  const text = visibleText(html);
+  check(
+    "config and version history appear without losing the panel",
+    text.includes("model: typesafe-ai/jev") &&
+      text.includes("Version history") &&
+      text.includes("Decision model: Jev"),
+    "config, versions and the model block together",
+  );
+  check(
+    "the typed question wraps instead of clipping",
+    html.includes("whitespace-pre-wrap"),
+    "whitespace-pre-wrap on the JSON block",
+  );
+}
+
+// 10. The Deploy table must not force a width wider than a phone card.
+{
+  const { html } = await get("/demo?tab=deploy&pane=canvas");
+  const text = visibleText(html);
+  check(
+    "the deploy table sets no phone-breaking minimum width",
+    !html.includes("min-w-[480px]"),
+    "no min-w-[480px]",
+  );
+  check(
+    "the skipped version numbers are explained on Deploy",
+    /A version number is taken when a build starts/.test(text) &&
+      text.includes("v2, v4, v7, v10, v13"),
+    "the gap is accounted for",
+  );
+  check(
+    "discarded builds are shown at $0.00",
+    text.includes("$0.00"),
+    "charged nothing, with a reason",
+  );
+}
+
+// 11. The grounding bar is stated before a run, not only in the result.
+{
+  const { html } = await get(
+    "/demo?tab=agents&pane=canvas&agent=grounding-checker",
+  );
+  const text = visibleText(html);
+  check(
+    "the bar is shown before anyone presses Run",
+    /at least 60% sure every detail is supported/.test(text),
+    "60% stated up front",
+  );
+  check(
+    "the worked examples are shown with their date",
+    /Worked examples: \d+ real calls, \d{4}-\d{2}-\d{2}/.test(text),
+    "dated worked examples",
+  );
+}
+
+// 12. Diagram pages link back, and the sequence title matches the button.
+{
+  for (const slug of ["architecture", "agent-workflow", "jev-call-sequence"]) {
+    const { html, status } = await get(`/architecture/${slug}`);
+    check(
+      `the ${slug} page links back to the demo`,
+      status === 200 && html.includes('href="/demo"'),
+      `status ${status}`,
+    );
+  }
+  const { html } = await get("/architecture/jev-call-sequence.html");
+  check(
+    "the sequence diagram title matches the button",
+    html.includes("Run this agent") && !html.includes("Test this agent:"),
+    "titled 'Run this agent'",
+  );
+}
+
+// 13. A phone opening /demo lands on the app preview, not the chat rail.
+{
+  const { html } = await get("/demo");
+  check(
+    "/demo resolves to the canvas pane",
+    /aria-current="page"[^>]*>\s*Canvas\s*</.test(html.replace(/\s+/g, " ")) ||
+      html.includes("App preview"),
+    "the canvas pane is what a phone meets first",
+  );
 }
 
 const failed = results.filter((r) => !r.ok).length;
