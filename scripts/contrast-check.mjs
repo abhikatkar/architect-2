@@ -23,6 +23,13 @@
       hairline divider is decorative and exempt, which is why `rule` and
       `rule-strong` are two tokens rather than one.
     - The focus ring, which is blueprint on paper, at 3:1.
+    - The type tier. Marketing surfaces may not drop into the workspace's dense
+      scale: nothing under 16 px on a page meant to be read at arm's length,
+      with monospace allowed one step down at 14 px, because mono set inline in
+      a sentence matches the sans around it one size smaller. It rides along
+      here because this pass already holds the computed size of every run of
+      text, and a second browser just to read font sizes would double the gate
+      for nothing.
 
   Usage, against a running server:
 
@@ -47,24 +54,27 @@ for (let i = 0; i < argv.length; i++) {
 const base = positional[0] ?? "http://127.0.0.1:3131";
 const cookies = flags.cookies ? JSON.parse(readFileSync(flags.cookies, "utf8")) : [];
 
-/* Every surface in the product, both tiers. */
+/*
+  Every surface, marked with its type tier. "marketing" pages are also held to
+  the 16 px floor; the workspace is dense on purpose and is not.
+*/
 const PAGES = [
-  ["the landing page", "/"],
-  ["sign in", "/login"],
-  ["onboarding", "/onboarding"],
-  ["privacy", "/privacy"],
-  ["terms", "/terms"],
-  ["the diagrams index", "/architecture"],
-  ["the demo, App", "/demo?tab=app&pane=canvas"],
-  ["the demo, Agents", "/demo?tab=agents&pane=canvas"],
-  ["the demo, why did it do that", "/demo?tab=agents&pane=canvas&why=r-104"],
-  ["the demo, Code", "/demo?tab=code&pane=canvas"],
-  ["the demo, Deploy", "/demo?tab=deploy&pane=canvas"],
-  ["the demo, the GitHub sheet", "/demo?tab=deploy&pane=canvas&sheet=github"],
-  ["the demo, a build running", "/demo?tab=app&pane=canvas&build=running"],
-  ["the plan gate", "/demo/plan"],
-  ["the import report", "/demo/import"],
-  ["the signed in workspace", "/app"],
+  ["the landing page", "/", "marketing"],
+  ["sign in", "/login", "marketing"],
+  ["onboarding", "/onboarding", "marketing"],
+  ["privacy", "/privacy", "marketing"],
+  ["terms", "/terms", "marketing"],
+  ["the diagrams index", "/architecture", "marketing"],
+  ["the demo, App", "/demo?tab=app&pane=canvas", "workspace"],
+  ["the demo, Agents", "/demo?tab=agents&pane=canvas", "workspace"],
+  ["the demo, why did it do that", "/demo?tab=agents&pane=canvas&why=r-104", "workspace"],
+  ["the demo, Code", "/demo?tab=code&pane=canvas", "workspace"],
+  ["the demo, Deploy", "/demo?tab=deploy&pane=canvas", "workspace"],
+  ["the demo, the GitHub sheet", "/demo?tab=deploy&pane=canvas&sheet=github", "workspace"],
+  ["the demo, a build running", "/demo?tab=app&pane=canvas&build=running", "workspace"],
+  ["the plan gate", "/demo/plan", "workspace"],
+  ["the import report", "/demo/import", "workspace"],
+  ["the signed in workspace", "/app", "workspace"],
 ];
 
 const chrome = spawn(CHROME, [
@@ -199,6 +209,7 @@ const SAMPLE = `(() => {
   const text = [];
   const borders = [];
   let smallest = Infinity;
+  let smallestFloor = 16;
   let smallestWhat = "";
 
   for (const el of document.querySelectorAll("body *")) {
@@ -227,7 +238,15 @@ const SAMPLE = `(() => {
           bg: hex(bg),
           what: el.tagName.toLowerCase() + ": " + label.slice(0, 40),
         });
-        if (size < smallest) { smallest = size; smallestWhat = el.tagName.toLowerCase() + ": " + label.slice(0, 40); }
+        // Mono is allowed one step down, so it is measured against its own
+        // floor rather than pulling the page's smallest reading down with it.
+        const mono = /mono|JetBrains/i.test(s.fontFamily);
+        const floor = mono ? 14 : 16;
+        if (size - floor < smallest - smallestFloor) {
+          smallest = size;
+          smallestFloor = floor;
+          smallestWhat = el.tagName.toLowerCase() + (mono ? " (mono)" : "") + ": " + label.slice(0, 40);
+        }
       }
     }
 
@@ -274,6 +293,7 @@ const SAMPLE = `(() => {
   return JSON.stringify({
     rows: text.concat(borders),
     smallest: smallest === Infinity ? null : smallest,
+    smallestFloor,
     smallestWhat,
     ring: { got: Math.round(ringRatio * 100) / 100, need: 3, fg: ring ? hex(ring) : "?", bg: hex(ringBg) },
   });
@@ -288,7 +308,7 @@ for (const theme of ["light", "dark"]) {
     features: [{ name: "prefers-color-scheme", value: theme }],
   });
 
-  for (const [label, path] of PAGES) {
+  for (const [label, path, tier] of PAGES) {
     await send("Page.navigate", { url: `${base}${path}` });
     await sleep(1400);
 
@@ -330,6 +350,17 @@ for (const theme of ["light", "dark"]) {
               )
               .join("; "),
     });
+
+    if (tier === "marketing" && data.smallest !== null) {
+      const ok = data.smallest >= data.smallestFloor;
+      results.push({
+        ok,
+        name: `${label} in ${theme} stays in the marketing tier`,
+        detail: ok
+          ? `smallest text ${data.smallest}px against its ${data.smallestFloor}px floor`
+          : `${data.smallest}px under a ${data.smallestFloor}px floor (${data.smallestWhat})`,
+      });
+    }
 
     if (path === "/" ) {
       results.push({

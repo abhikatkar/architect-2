@@ -69,7 +69,7 @@ export default async function LandingPage() {
           <span className="truncate text-subhead font-semibold">Architect 2.0</span>
         </span>
         <span className="ml-auto shrink-0">
-          <ThemeToggle current={theme} next="/" />
+          <ThemeToggle current={theme} next="/" tier="marketing" />
         </span>
       </header>
 

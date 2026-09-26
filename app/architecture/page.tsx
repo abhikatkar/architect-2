@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { MarketingHeader } from "@/components/ui/marketing-header";
 
 export const metadata: Metadata = {
   title: "Architecture diagrams",
@@ -44,16 +45,20 @@ const DIAGRAMS = [
  */
 export default function ArchitectureIndex() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col gap-6 p-4 sm:p-6">
-      <header className="flex flex-col gap-2">
-        <p className="text-caption text-graphite">Architect 2.0</p>
-        <h1 className="text-title font-semibold">Architecture diagrams</h1>
-        <p className="max-w-[72ch] text-body text-graphite">
+    <div className="flex min-h-dvh flex-col bg-paper text-ink">
+      <div className="mx-auto w-full max-w-5xl min-w-0 px-4 py-6 sm:px-8">
+        <MarketingHeader />
+      </div>
+
+      <main className="mx-auto flex w-full max-w-5xl min-w-0 flex-1 flex-col gap-8 px-4 pt-8 pb-16 sm:px-8">
+      <header className="flex flex-col gap-4">
+        <h1 className="text-display font-bold">Architecture diagrams</h1>
+        <p className="max-w-[72ch] text-lead text-graphite">
           Generated from JSON committed in the repo, not drawn by hand, and
           rebuilt before submission. A node is never marked Real unless it
           actually runs.
         </p>
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption">
+        <p className="flex flex-wrap items-center gap-x-5 gap-y-1 text-note">
           <Link href="/demo" className="text-blueprint underline">
             Back to the demo
           </Link>
@@ -63,7 +68,7 @@ export default function ArchitectureIndex() {
         </p>
       </header>
 
-      <p className="rounded-panel border border-rule p-3 text-small text-graphite sm:hidden">
+      <p className="rounded-card border border-rule p-5 text-note text-graphite shadow-soft sm:hidden">
         These are desktop canvases. On a phone you get the still image below,
         which is the whole diagram. Open this page on a larger screen for the
         interactive version, with zoom, search and the source links.
@@ -73,11 +78,11 @@ export default function ArchitectureIndex() {
         {DIAGRAMS.map((d) => (
           <li
             key={d.slug}
-            className="flex min-w-0 flex-col gap-3 rounded-panel border border-rule p-4"
+            className="flex min-w-0 flex-col gap-4 rounded-card border border-rule bg-paper p-6 shadow-soft"
           >
             <div className="min-w-0">
-              <h2 className="text-lead font-semibold">{d.title}</h2>
-              <p className="mt-1 max-w-[72ch] text-small text-graphite">
+              <h2 className="text-subhead font-semibold">{d.title}</h2>
+              <p className="mt-2 max-w-[72ch] text-note text-graphite">
                 {d.blurb}
               </p>
             </div>
@@ -93,15 +98,15 @@ export default function ArchitectureIndex() {
                 height={900}
                 className="w-full rounded-input border border-rule"
               />
-              <span className="mt-1 block text-caption text-blueprint underline">
+              <span className="mt-2 block text-note text-blueprint underline">
                 Tap the image to open it full size and zoom
               </span>
             </a>
 
-            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption">
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-2 text-note">
               <Link
                 href={`/architecture/${d.slug}`}
-                className="inline-flex min-h-11 items-center rounded-input bg-blueprint px-3 text-body text-paper"
+                className="inline-flex min-h-12 items-center rounded-pill bg-blueprint px-6 text-note font-medium text-paper"
               >
                 <span className="hidden sm:inline">Open the diagram</span>
                 <span className="sm:hidden">Open anyway, needs a wide screen</span>
@@ -114,7 +119,7 @@ export default function ArchitectureIndex() {
         ))}
       </ul>
 
-      <p className="max-w-[72ch] text-caption text-graphite">
+      <p className="max-w-[72ch] text-note text-graphite">
         One known limitation: below about 900px of viewport height the diagram
         page scrolls, and the viewer&apos;s floating toolbar then sits over the
         rightmost guided-view chip. Scrolling back up clears it. Fixing it
@@ -123,6 +128,7 @@ export default function ArchitectureIndex() {
         traded away. See <span className="font-mono">D45</span> in the decision
         log.
       </p>
-    </main>
+      </main>
+    </div>
   );
 }
