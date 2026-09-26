@@ -173,6 +173,38 @@ h6,
   font-family: var(--font-sans);
 }
 
+/*
+  A screenshot follows the theme the same way the tokens do.
+
+  The landing page shows one real screen, and it exists as two files. A
+  <picture> with a prefers-color-scheme source would be simpler and would be
+  wrong here: the theme on this site can be forced with the toggle, so a
+  visitor holding forced light would get a dark screenshot on a light page.
+  These are the same three selectors the tokens above use, so the picture and
+  the palette can never disagree. Both images are lazy, so the hidden one is
+  never fetched.
+*/
+[data-shot="dark"] {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) [data-shot="light"] {
+    display: none;
+  }
+  :root:not([data-theme="light"]) [data-shot="dark"] {
+    display: block;
+  }
+}
+
+[data-theme="dark"] [data-shot="light"] {
+  display: none;
+}
+
+[data-theme="dark"] [data-shot="dark"] {
+  display: block;
+}
+
 /* Focus is always visible, and always in blueprint. */
 :focus-visible {
   outline: 2px solid var(--blueprint);
