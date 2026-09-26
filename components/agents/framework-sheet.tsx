@@ -1,5 +1,6 @@
 import { CAPABILITIES, FRAMEWORKS, notManaged } from "@/lib/seed/frameworks";
-import { Sheet, DemoNote } from "@/components/ui/sheet";
+import { DemoButton } from "@/components/ui/demo-button";
+import { Sheet } from "@/components/ui/sheet";
 
 /**
  * Screen 11, the framework picker.
@@ -35,10 +36,9 @@ export function FrameworkSheet({
       returnTo="add-agent-trigger"
       footer={
         <>
-          <span className="inline-flex min-h-11 cursor-default items-center rounded-input bg-blueprint px-4 text-body text-paper">
+          <DemoButton id="framework-confirm" note="Demo action. No agent is created.">
             Add a {current.name} agent
-          </span>
-          <DemoNote>Demo action. No agent is created.</DemoNote>
+          </DemoButton>
         </>
       }
     >

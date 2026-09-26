@@ -27,9 +27,7 @@ export async function generateMetadata(props: {
   const { slug } = await props.params;
   const diagram = DIAGRAMS[slug];
   return {
-    title: diagram
-      ? `${diagram.title} | Architect 2.0`
-      : "Diagram | Architect 2.0",
+    title: diagram ? diagram.title : "Diagram",
   };
 }
 

@@ -89,7 +89,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 20:20 | Round 4 cold review fixes: the Deploy table derived from the applied state, rollback separated from promotion, one charging policy, the fix reaching the preview, real controls, and the theme switch measured | 4 h 30 min | Claude Code, Chrome over CDP, Supabase MCP | The blocker went down into the fixture: versions stored where they were, so v1 and v14 both claimed "preview", v14 kept claiming it after v15 existed, and v15 could never appear in the table the total was summed from. Deleting that field fixed four findings at once. The theme toggle was the opposite of what two reviews called it: not ignored, not dead, just 1.5 seconds behind a form post, which a measurement showed and a nine line inline script fixed to 16 ms. 87 invariants and 138 rendered assertions |
 
-**Day total so far:** 38 h 45 min across 19 commits.
+| 22:10 | Final pre-submission polish: the cursor rule and its browser check, our own icon and link preview, the push list derived, and the inbox note | 1 h 40 min | Claude Code, Chrome over CDP | The cursor check found nothing once written, which is the wrong way round, so it was run again with the rule removed: 6 of 7 pages failed, which is what makes the green run worth having. The icon was drawn at 16px first and the first version failed there, with the hub's hole closing up and the artwork sitting small in the tile, so it was rasterised at true 16px and tightened |
+
+**Day total so far:** 40 h 25 min across 20 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

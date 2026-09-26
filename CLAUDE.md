@@ -37,6 +37,9 @@ Dummy flows are acceptable for everything else, but they must look and feel real
   Run scripts/focus-check.mjs whenever a sheet or its trigger changes: focus and key handling are not in the
   HTML, so only a browser can answer where focus went, and a decision log entry claimed the wrong answer for
   a full slice.
+  Run scripts/cursor-check.mjs when a control is added or its markup changes, and scripts/theme-check.mjs
+  when the theme toggle or the layout script changes. Both measure computed behaviour in a browser, which
+  the served HTML cannot show.
 - A number shown on more than one surface is computed once per request and passed down. Never let two
   components derive the same fact from the URL: that is what D57 exists to prevent, and a page contradicting
   its own footer is the bug it produced.

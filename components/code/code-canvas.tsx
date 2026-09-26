@@ -10,6 +10,7 @@ import {
   requestVerdict,
   versionForPending,
 } from "@/lib/seed/totals";
+import { DemoButton } from "@/components/ui/demo-button";
 import { DiffView } from "./diff-view";
 import { BottomPanel } from "./bottom-panel";
 
@@ -180,12 +181,13 @@ export function CodeCanvas({
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
           {/* D48: read only at every width, and it says so rather than
               offering an editor that discards what you type. */}
-          <span className="inline-flex min-h-11 cursor-default items-center rounded-input border border-rule px-3 text-body text-graphite">
+          <DemoButton
+            id="edit-file"
+            variant="quiet"
+            note="In the full product this opens an editor. This demo is read-only."
+          >
             Edit
-          </span>
-          <span className="max-w-[72ch] text-caption text-graphite">
-            In the full product this opens an editor. This demo is read-only.
-          </span>
+          </DemoButton>
         </p>
       </div>
 

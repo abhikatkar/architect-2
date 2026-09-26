@@ -3,7 +3,7 @@ import { ImportReport } from "@/components/import/import-report";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
 
 export const metadata: Metadata = {
-  title: "Import a repository | Architect 2.0 demo",
+  title: "Import a repository, demo",
   description:
     "Pick a repository and read the compatibility report before anything runs.",
 };

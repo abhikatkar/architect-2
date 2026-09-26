@@ -58,10 +58,52 @@ document.addEventListener("click", function (event) {
 }, true);
 `;
 
+/*
+  What a shared link looks like.
+
+  The icon, the apple icon and the link preview are app/icon.svg,
+  app/apple-icon.png and app/opengraph-image.png, which the App Router finds by
+  name, so there are no <link> tags to keep in sync. The two rasters are built
+  from the same geometry as the SVG by scripts/make-brand-images.mjs. The
+  default Next favicon is gone: shipping another project's mark on a submission
+  about owning what you build would have been a poor first impression.
+
+  metadataBase makes the preview URLs absolute, which is what a link unfurler
+  needs. It follows the deployment rather than being written down, so a preview
+  build advertises itself and not production.
+*/
+const SITE =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_ENV === "production"
+    ? "https://architect-2-zeta.vercel.app"
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
+const TITLE = "Architect 2.0";
+const DESCRIPTION =
+  "See it. Steer it. Own it. Ship it safely. A vibe-coding platform for agentic apps, for people who do not write code and the developers they hand the repo to.";
+
 export const metadata: Metadata = {
-  title: "Architect 2.0",
-  description:
-    "A vibe-coding platform for building agentic applications, for builders and developers alike.",
+  metadataBase: new URL(SITE),
+  title: {
+    default: TITLE,
+    // Every page names itself, and gets the product name after it.
+    template: "%s | Architect 2.0",
+  },
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: TITLE,
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

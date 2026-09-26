@@ -204,6 +204,19 @@ export function AppPreview({
                 </li>
               ))}
             </ul>
+            {/*
+              Why the numbers do not move when the fix does.
+
+              The chat above answers the credit question once the fix is
+              applied, and a reader can reasonably expect "7 escalated" to
+              become 6. It does not: these are the month's conversations, and
+              Lena K.'s was escalated before the fix existed. The fix changes
+              what the app does next, not what it already did.
+            */}
+            <p className="mt-2 max-w-[72ch] text-caption text-graphite">
+              This month&apos;s conversations. Applying a fix changes what happens
+              next, so an answer that already went to a person stays there.
+            </p>
           </div>
         </div>
       </div>

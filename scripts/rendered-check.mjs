@@ -492,8 +492,8 @@ async function raw(path) {
   const text = visibleText((await get("/demo?tab=deploy&pane=canvas&sheet=github")).html);
   check(
     "the consent sheet lists what will be written",
-    text.includes("Push 42 files") && text.includes("Create 3 commits"),
-    "42 files and 3 commits, from the tree and the change list",
+    text.includes("Push 42 files") && text.includes("Create 2 commits"),
+    "42 files and 2 commits, from the tree and the change list",
   );
   check(
     "the repository is private by default and says so",
@@ -957,17 +957,47 @@ async function raw(path) {
     (await get("/demo?tab=deploy&pane=canvas&sheet=github")).html,
   );
   const code = visibleText((await get("/demo?tab=code&pane=canvas")).html);
-  const hashes = ["7be0d15", "a41c9e2", "c93f7a0"];
+  const landedHashes = ["a41c9e2", "c93f7a0"];
   check(
-    "the consent sheet names the three commits it would create",
-    hashes.every((h) => sheet.includes(h)),
-    hashes.join(", "),
+    "the consent sheet names the commits it would create",
+    landedHashes.every((h) => sheet.includes(h)),
+    landedHashes.join(", "),
   );
   check(
     "and every one of them is on the Code tab",
-    hashes.every((h) => code.includes(h)),
+    [...landedHashes, "7be0d15"].every((h) => code.includes(h)),
     "the same list, not a second one",
   );
+
+  /*
+    A change nobody has agreed to is not a commit.
+
+    The sheet offered to push the pending reliability fix in the default state,
+    where it has not been accepted anywhere. It appears once it has, by either
+    route, which is the same signal every other surface reads (D57).
+  */
+  for (const [label, q, expected] of [
+    ["not accepted", "", 2],
+    ["applied from the trace", "&fix=applied", 3],
+    ["accepted in the Code tab", "&accept=d6", 3],
+    ["accepted then reverted", "&accept=d6&revert=d6", 2],
+  ]) {
+    const t = visibleText(
+      (await get(`/demo?tab=deploy&pane=canvas&sheet=github${q}`)).html,
+    );
+    // Only the sheet's own list: the pending change is also named on the
+    // Deploy screen behind it, under "Waiting on your review".
+    const list = t.slice(
+      t.indexOf("What will be written"),
+      t.indexOf("Counted and named"),
+    );
+    check(
+      `the push list holds only landed or accepted changes, ${label}`,
+      list.includes(`Create ${expected} commit`) &&
+        list.includes("7be0d15") === (expected === 3),
+      `${expected} commits, the pending fix ${expected === 3 ? "included" : "left out"}`,
+    );
+  }
   check(
     "the commits arriving from the editor are labelled as such",
     sheet.includes("commits you made in your own editor"),
@@ -1161,6 +1191,101 @@ async function raw(path) {
     html.includes("data-theme-form") &&
       html.includes('form[data-theme-form] button[name="theme"]'),
     "a capture handler, not only the hydrated component",
+  );
+}
+
+/*
+  39. The inbox says why its counts do not move when the fix does.
+
+  The chat answers the credit question once the fix is applied, so a reader can
+  reasonably expect "7 escalated" to become 6. It does not, because those are
+  the month's conversations and Lena K.'s was escalated before the fix existed.
+*/
+{
+  const text = visibleText(
+    (await get("/demo?tab=app&pane=canvas&fix=applied")).html,
+  );
+  check(
+    "the admin inbox says its counts are history",
+    text.includes("This month's conversations") &&
+      text.includes("an answer that already went to a person stays there"),
+    "7 escalated stays 7, and the screen says why",
+  );
+  check(
+    "and Lena K.'s earlier conversation is still escalated after the fix",
+    /Lena K\.[^|]{0,80}escalated/.test(text),
+    "history is not rewritten by a fix",
+  );
+}
+
+/* 40. Each repository option carries its own description, not the group's. */
+{
+  const { html } = await get("/demo?tab=deploy&pane=canvas&sheet=github");
+  check(
+    "every repository option describes what would happen to it",
+    ["repo-new", "repo-existing"].every(
+      (id) =>
+        new RegExp(`id="${id}"[^>]*aria-describedby="${id}-note"`).test(
+          html.replace(/\s+/g, " "),
+        ) && html.includes(`id="${id}-note"`),
+    ),
+    "two options, two notes",
+  );
+}
+
+/* 41. Every clickable thing shows the pointing hand. Checked in a browser by
+   scripts/cursor-check.mjs, because a cursor is a computed style. What is in
+   the HTML is the rule itself, which is asserted here so it cannot vanish. */
+{
+  const page = await fetch(`${base}/demo`).then((r) => r.text());
+  // Whatever Next called the bundle: its path moves between builds.
+  const href = page.match(/href="(\/_next\/static\/[^"]+\.css)"/)?.[1];
+  const sheet = href ? await fetch(`${base}${href}`).then((r) => r.text()) : "";
+  check(
+    "the cursor rule is in the served stylesheet",
+    Boolean(href) &&
+      // The minifier drops the quotes around the attribute value.
+      /button:not\(\[aria-disabled=("?)true\1\]\):not\(:disabled\)/.test(sheet) &&
+      sheet.includes("cursor:pointer") &&
+      sheet.includes("cursor:not-allowed"),
+    href ? "one rule, served, not a utility class per control" : "no stylesheet found",
+  );
+}
+
+/* 42. The tab icon and the link preview are this project's own. */
+{
+  const { html } = await get("/");
+  check(
+    "the page carries our own icon, not the framework's default",
+    /<link rel="icon"[^>]*\/icon\.svg/.test(html) &&
+      !html.includes("favicon.ico"),
+    "app/icon.svg, and no favicon.ico",
+  );
+  check(
+    "a shared link has a preview image and a description",
+    /<meta property="og:image"[^>]*opengraph-image/.test(html) &&
+      /<meta property="og:title" content="Architect 2\.0"/.test(html) &&
+      /See it\. Steer it\. Own it\. Ship it safely\./.test(html),
+    "1200x630, titled and described",
+  );
+  const icon = await fetch(`${base}/icon.svg`);
+  const svg = await icon.text();
+  check(
+    "the icon is a real SVG with a dark variant inside it",
+    icon.status === 200 &&
+      svg.includes("prefers-color-scheme: dark") &&
+      svg.includes("#1d4ed8"),
+    "blueprint light and dark, in one file",
+  );
+  const og = await fetch(`${base}/opengraph-image.png`);
+  // The body, not the header: the response can be chunked with no length.
+  const bytes = (await og.arrayBuffer()).byteLength;
+  check(
+    "and the preview image is actually served",
+    og.status === 200 &&
+      og.headers.get("content-type") === "image/png" &&
+      bytes > 10000,
+    `${og.status}, ${og.headers.get("content-type")}, ${bytes} bytes`,
   );
 }
 

@@ -91,9 +91,9 @@ this table is a description of what the code computes rather than a second place
 - Loop stopped: "Stopped after 3 identical failures. No further credits used."
 - Platform retry charge: "Retry caused by Architect. Charged $0.00."
 - Stale preview: "This preview is from v13. Refresh preview to see v14."
-- Estimate over cap: "This build may cost up to $2.00, which would pass your $5.00 cap by $0.43. Raise the cap or build anyway."
 - GitHub consent: "Nothing is written to your GitHub account until you confirm." The sheet lists what would
-  be written above that line, counted from the file tree and the change list rather than written here: 42
-  files and 3 commits today. The earlier version of this string said "1 commit", which was wrong and sat
-  directly under the derived line that said otherwise.
+  be written above that line, counted and named from the file tree and the change list rather than written
+  here: 42 files and **2 commits**, becoming 3 once the pending fix has been accepted, because a change
+  nobody has agreed to is not a commit. The earlier version of this string said "1 commit", which was wrong
+  and sat directly under the derived line that said otherwise.
 - Marketplace note: "If published, people who use your app spend your credits. Off by default."

@@ -825,9 +825,10 @@ Format: date, decision, evidence, alternatives rejected.
 - **Decision:** every action that would write outside Architect states exactly what it would write, counted
   from real data, and does nothing until its confirm. This is the answer to the finding that a GitHub repo
   was created and set to auto-sync without anyone pressing Push.
-- **Counted, not typed.** The consent sheet says "push 42 files, create 3 commits" by counting the file tree
-  and the change list on the Code tab. The old copy had "42 files, 1 commit" written into a string, and the
-  commit half was wrong: there are three.
+- **Counted, not typed.** The consent sheet says "push 42 files, create 2 commits" by counting the file tree
+  and the change list on the Code tab, naming each commit by its hash. The old copy had "42 files, 1 commit"
+  written into a string, and the commit half was wrong. It reads 3 once the pending fix has been accepted:
+  a change nobody has agreed to is not something this screen offers to push.
 - **Asserted as a negative.** A rendered check visits every sheet and the import screen and fails if any of
   them contains "Deployed", "Connected to GitHub", "Repository created", "Rolled back", "Imported
   successfully" or "Invite sent" before its confirm, and requires the words "Demo action" to be present. It
@@ -1019,3 +1020,31 @@ Format: date, decision, evidence, alternatives rejected.
   without ever saying at what point, because the sentence stating the bar only rendered for the Grounding
   Checker while the confidence path carried its own hardcoded `0.6`. One constant,
   `ACT_ALONE_BAR`, named for what it governs rather than for one agent.
+
+### D63. 2026-09-26: The product has its own mark, and its controls behave like controls
+- **Decision:** a cursor rule for every clickable thing, an original icon and link preview, and a push list
+  that only offers what someone has agreed to. The last pass before the code was frozen.
+- **The cursor.** Tailwind v4's preflight sets `button { cursor: default }`, which is the HTML default and
+  wrong for an interface. Most controls here are buttons or ARIA roles rather than links, so the hand cursor
+  appeared on the links and nowhere else. One rule in `globals.css` rather than a utility class per control,
+  because the next control added would have been missed. The demo confirms read `not-allowed`, since they
+  are focusable and inert on purpose ([D62](#d62-2026-09-26-a-control-that-does-nothing-is-still-a-control)).
+- **Checked in a browser,** because a cursor is a computed style:
+  [scripts/cursor-check.mjs](../scripts/cursor-check.mjs) samples every element with a clickable role on the
+  landing page, sign in, three workspace tabs, an open sheet and the signed-in workspace, and asserts the
+  computed value. **137 interactive elements.** It was run once with the rule removed, where it failed on 6
+  of 7 pages, so it is a check that can fail.
+- **The mark.** Three connected nodes on a faint grid: two inputs meeting at one decision point, which is
+  the shape of every agent graph in the product. Drawn for 16px first, in the blueprint tokens, with the
+  dark variant inside the SVG because a favicon gets no stylesheet. `app/icon.svg`, `app/apple-icon.png` and
+  `app/opengraph-image.png`, all built from the same geometry by
+  [scripts/make-brand-images.mjs](../scripts/make-brand-images.mjs), and the default Next favicon deleted.
+  Shipping another project's mark on a submission about owning what you build would be a poor first line.
+- **A change nobody has agreed to is not a commit.** The consent sheet counted all three changes, so it
+  offered to push the pending reliability fix before it had been accepted anywhere. It is derived from the
+  applied state now: 2 commits by default, 3 once the fix has been applied by either route, and back to 2 if
+  the file is reverted.
+- **One line the inbox needed.** The preview answers the credit question once the fix is applied, so "7
+  escalated" looks as though it should drop to 6. It does not, because those are the month's conversations
+  and Lena K.'s was escalated before the fix existed. The screen says so, rather than leaving a reader to
+  decide whether the number is stale or the fix is fake.

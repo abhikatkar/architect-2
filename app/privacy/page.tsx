@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { LEGAL_CONTACT, LEGAL_UPDATED } from "@/lib/legal";
 
 export const metadata: Metadata = {
-  title: "Privacy | Architect 2.0",
+  title: "Privacy",
   description:
     "Exactly what this concept stores, who processes it, and how to have it deleted.",
 };

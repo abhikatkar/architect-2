@@ -10,6 +10,7 @@ import {
   newerThanProduction,
   pendingChanges,
   productionDeploys,
+  pushableChanges,
   revertedBy,
   rollbackTargets,
   rowsTotal,
@@ -563,7 +564,7 @@ export function DeployCanvas({
         <GithubSheet
           project={project}
           fileCount={fileCount}
-          changes={changes}
+          changes={pushableChanges(applied)}
           closeHref={query({ sheet: "" })}
         />
       ) : null}
@@ -616,7 +617,6 @@ function GithubSheet({
           <ul
             role="radiogroup"
             aria-labelledby="repo-choice-label"
-            aria-describedby="repo-choice-note"
             className="mt-1 flex flex-col gap-1"
           >
             {[
@@ -625,20 +625,26 @@ function GithubSheet({
                 name: "northwind-helpline",
                 what: "New repository under your account",
                 checked: true,
+                note: "Demo action. This repository is not created, and the choice cannot be changed here.",
               },
               {
                 id: "repo-existing",
                 name: "northwind/helpline-app",
                 what: "A repository you already own",
                 checked: false,
+                note: "Demo action. Nothing is pushed to a repository you already own.",
               },
             ].map((r) => (
               <li key={r.id} className="min-w-0">
                 <button
                   type="button"
+                  id={r.id}
                   role="radio"
                   aria-checked={r.checked}
                   aria-disabled="true"
+                  /* Its own note, not the group's, so each option says what
+                     would and would not happen to that repository. */
+                  aria-describedby={`${r.id}-note`}
                   className={`flex min-h-11 w-full min-w-0 cursor-not-allowed flex-wrap items-baseline gap-x-2 rounded-input px-1 text-left text-small ${
                     r.checked ? "" : "text-graphite"
                   }`}
@@ -655,13 +661,10 @@ function GithubSheet({
                   <span className="font-mono">{r.name}</span>
                   <span className="text-caption">{r.what}</span>
                 </button>
+                <DemoNote id={`${r.id}-note`}>{r.note}</DemoNote>
               </li>
             ))}
           </ul>
-          <DemoNote id="repo-choice-note">
-            Demo action. The choice cannot be changed here, and no repository is
-            created either way.
-          </DemoNote>
         </section>
 
         <section className="min-w-0">
@@ -696,7 +699,8 @@ function GithubSheet({
               Push <span className="font-mono">{fileCount}</span> files
             </li>
             <li>
-              Create <span className="font-mono">{changes.length}</span> commits
+              Create <span className="font-mono">{changes.length}</span>{" "}
+              {changes.length === 1 ? "commit" : "commits"}
             </li>
           </ul>
           {/*
@@ -705,7 +709,8 @@ function GithubSheet({
             The sheet said "3 commits" while the only hashes on the screen were
             two that arrive from the editor, so the three it meant appeared
             nowhere. These are the same hashes the Code tab lists, in the same
-            order, because they are the same list.
+            order, and only the ones that have landed or that you have accepted:
+            a change nobody has agreed to is not a commit.
           */}
           <ul className="mt-1 flex flex-col gap-0.5">
             {changes.map((c) => (

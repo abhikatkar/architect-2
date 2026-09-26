@@ -7,7 +7,7 @@ import {
 } from "@/lib/jev/limits";
 
 export const metadata: Metadata = {
-  title: "Terms | Architect 2.0",
+  title: "Terms",
   description:
     "A product concept built for a hiring assignment, provided as is.",
 };

@@ -74,8 +74,9 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Source links verified against the pinned commit | **22**, all in the architecture diagram, re-derived at the final commit | the delivery receipt, `evidence.references` |
 | Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
-| Consistency invariants | **87** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **138** | `scripts/rendered-check.mjs` |
+| Consistency invariants | **91** | `scripts/consistency-check.mjs` |
+| Rendered-page assertions | **150** | `scripts/rendered-check.mjs` |
+| Interactive elements checked for the right cursor | **137**, over 7 pages, 0 wrong | `scripts/cursor-check.mjs` |
 | Surfaces required to agree on one page | **17 to 18 readings** per URL state, over 5 states and 3 tabs, plus the version rows added up from the HTML | `scripts/rendered-check.mjs`, section 28 |
 | Theme switch, earliest possible click | **10 ms** on production and 16 ms locally, 5 of 5 each, against **1470 to 1522 ms** for the same click before this fix | `scripts/theme-check.mjs`, throttled to 400 ms latency |
 | Sheet focus and keyboard checks | **8 of 8**, four sheets at 1280px and 390px, measured in a browser | `scripts/focus-check.mjs` |

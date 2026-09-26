@@ -4,7 +4,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { currentTheme } from "@/lib/theme";
 
 export const metadata: Metadata = {
-  title: "Architect 2.0",
+  // The landing page is the product, so it takes the bare name rather than
+  // the layout's template, which would make it "Architect 2.0 | Architect 2.0".
+  title: { absolute: "Architect 2.0" },
   description:
     "The agentic app builder where every layer is visible, steerable and yours.",
 };

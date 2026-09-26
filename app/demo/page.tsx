@@ -9,7 +9,7 @@ import { DEMO_PROJECT } from "@/lib/seed/northwind";
 import { appliedState } from "@/lib/seed/totals";
 
 export const metadata: Metadata = {
-  title: "Northwind Helpline demo | Architect 2.0",
+  title: "Northwind Helpline demo",
   description:
     "A finished Architect 2.0 project, open to read without an account.",
 };

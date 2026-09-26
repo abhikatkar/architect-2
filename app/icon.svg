@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Architect 2.0">
+  <!--
+    Three connected nodes on a blueprint grid.
+
+    The product's whole argument is that an agentic app is a small graph you can
+    see and steer, so the mark is that graph: two inputs meeting at one decision
+    point, drawn on the faint grid the design system uses for its canvases.
+
+    Drawn for 16px first. At that size a fourth node and the grid lines between
+    the nodes turned to mush, so the grid is four lines at the edges and the
+    nodes are 3px solid discs with a 2px gap to the strokes that join them.
+
+    The colours are the blueprint tokens from globals.css, with the dark variant
+    inside the file, because a favicon gets no stylesheet and a tab bar can be
+    either colour. Original to this project: no existing product's mark.
+  -->
+  <style>
+    .plate { fill: #f5f7f6; }
+    .grid  { stroke: #d9dfe3; }
+    .line  { stroke: #1d4ed8; }
+    .node  { fill: #1d4ed8; }
+    .hub   { fill: #f5f7f6; stroke: #1d4ed8; }
+    @media (prefers-color-scheme: dark) {
+      .plate { fill: #0e1a2b; }
+      .grid  { stroke: #22324a; }
+      .line  { stroke: #7fa6ff; }
+      .node  { fill: #7fa6ff; }
+      .hub   { fill: #0e1a2b; stroke: #7fa6ff; }
+    }
+  </style>
+
+  <rect class="plate" width="32" height="32" rx="7" />
+
+  <g class="grid" stroke-width="1" opacity="0.9">
+    <path d="M7.5 2.5V29.5M24.5 2.5V29.5M2.5 7.5H29.5M2.5 24.5H29.5" />
+  </g>
+
+  <g class="line" stroke-width="2.6" stroke-linecap="round" fill="none">
+    <path d="M8 8 15.5 16" />
+    <path d="M8 24 15.5 16" />
+    <path d="M15.5 16h3.4" />
+  </g>
+
+  <circle class="node" cx="7.6" cy="7.6" r="3.6" />
+  <circle class="node" cx="7.6" cy="24.4" r="3.6" />
+  <circle class="hub" cx="23.2" cy="16" r="4.6" stroke-width="2.4" />
+</svg>

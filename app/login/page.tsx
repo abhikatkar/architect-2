@@ -6,7 +6,7 @@ import { safeNext } from "@/lib/site-url";
 // Every other page names itself. Without this one, a tab or a bookmark for the
 // sign-in page is indistinguishable from the landing page.
 export const metadata: Metadata = {
-  title: "Sign in | Architect 2.0",
+  title: "Sign in",
   description: "Sign in with Google to create a project.",
 };
 

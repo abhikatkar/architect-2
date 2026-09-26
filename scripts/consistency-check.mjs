@@ -38,6 +38,7 @@ import {
   previewAfter,
   previewChat,
   productionDeploys,
+  pushableChanges,
   requestVerdict,
   revertedBy,
   rollbackTargets,
@@ -752,6 +753,27 @@ check(
     byLevel.get("unsupported").estimate === undefined,
     "no estimate, nothing charged",
   );
+}
+
+/* 34. A change nobody has agreed to is not a commit. */
+{
+  const cases = [
+    ["nothing accepted", false, "", "", 2],
+    ["applied from the trace", true, "", "", 3],
+    ["accepted in the Code tab", false, FIX_DIFF, "", 3],
+    ["accepted then reverted", true, FIX_DIFF, FIX_DIFF, 2],
+  ];
+  for (const [label, fix, accept, revert, expected] of cases) {
+    const a = appliedState(p, fix, accept, revert);
+    const push = pushableChanges(a);
+    check(
+      `the push list holds only landed or accepted changes, ${label}`,
+      push.length === expected &&
+        push.every((c) => c.version !== null || a.accepted.length > 0) &&
+        push.some((c) => c.id === FIX_CHANGE_ID) === (expected === 3),
+      `${push.map((c) => c.id).join(", ")}`,
+    );
+  }
 }
 
 const failedCount = results.filter((r) => !r.ok).length;

@@ -110,3 +110,38 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+  A control that can be clicked says so under the pointer.
+
+  Tailwind v4's preflight sets `button { cursor: default }`, which is the HTML
+  default and is wrong for an interface: most of this product's controls are
+  buttons or ARIA roles rather than links, so the hand cursor appeared only on
+  the links and everything else read as text. One rule rather than a utility
+  class on each control, because the next control added would have been missed.
+
+  The demo confirms are the deliberate exception. They carry
+  aria-disabled="true" and are focusable on purpose (D62), so the cursor has to
+  say they will not act, rather than promising something that does not happen.
+*/
+button:not([aria-disabled="true"]):not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+[role="switch"]:not([aria-disabled="true"]),
+[role="radio"]:not([aria-disabled="true"]),
+[role="tab"]:not([aria-disabled="true"]),
+a[href],
+summary,
+label[for],
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"] {
+  cursor: pointer;
+}
+
+[aria-disabled="true"],
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}

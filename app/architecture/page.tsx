@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Architecture diagrams | Architect 2.0",
+  title: "Architecture diagrams",
   description:
     "Three generated diagrams: the system and its trust boundaries, the agent workflow, and one Jev call end to end.",
 };

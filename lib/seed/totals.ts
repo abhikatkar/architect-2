@@ -417,6 +417,19 @@ export function appliedState(
   };
 }
 
+/**
+ * The commits a push would create: what has landed, plus what you accepted.
+ *
+ * A change nobody has agreed to is not a commit. The consent sheet counted all
+ * three, so it offered to push the pending reliability fix before it had been
+ * accepted anywhere, which is the same class of promise D52 exists to prevent.
+ */
+export function pushableChanges(applied: AppliedState): ChangeRequest[] {
+  return applied.changes.filter(
+    (c) => c.version !== null || isApplied(c, applied.accepted),
+  );
+}
+
 /** The rows added up, which must equal the spend the same state reports. */
 export function rowsTotal(rows: Version[], p: DemoProject): number {
   const built = rows.reduce((sum, v) => sum + v.cost, 0);
