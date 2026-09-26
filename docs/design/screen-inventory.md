@@ -18,7 +18,7 @@ Priority: **P0** must ship for submission, **P1** should ship, **P2** shown only
 | 8 | App preview: device toggle, point-and-prompt editing, version badge | Workspace, App tab | Both | Steer it | App preview | Simulated | P0 |
 | 9 | Agent network canvas and inspector (guided view and config file view) | Workspace, Agents tab | Both | Steer it | Agent section | Simulated | P0 |
 | 10 | "Why did it do that?" run trace and guided fix | Workspace, Agents tab | Both | Steer it | Agent section | Simulated | P0 |
-| 11 | New agent: framework picker (Lyzr, GitAgent, LangGraph, CrewAI, OpenAI Agents SDK) | Modal | B | Own it | Agent section | Simulated | P1 |
+| 11 | New agent: framework picker (Lyzr, GitAgent, LangGraph, CrewAI, OpenAI Agents SDK), each stating what Architect can and cannot manage | Sheet, from the Agents tab | B | Own it | Agent section | Simulated, built | P1 |
 | 12 | Code: file tree, read-only file view, diff per change, accept and revert, terminal, logs, checks | Workspace, Code tab | B | Steer it | Beyond list | Simulated, except one real change from this repo | P0 |
 | 13 | Data: collections, users and roles (admin invite UI), secrets and env vars, integrations and MCP | Workspace, Data tab | Both | Ship safely | Beyond list | Simulated | P1 |
 | 14 | GitHub connect: explicit consent, new or existing repo, private by default, two-way sync, what will be written counted from the tree, nothing written until confirmed | Sheet, from Deploy | Both | Own it | GitHub integration | Simulated | P0 |

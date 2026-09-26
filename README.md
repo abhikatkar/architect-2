@@ -6,9 +6,36 @@ Built as a submission for the Technical Product Manager role at Lyzr AI (Archite
 
 | | |
 |---|---|
-| Live app | _coming soon_ |
-| Walkthrough (2 min) | _coming soon_ |
+| Live demo, no account needed | [architect-2-zeta.vercel.app/demo](https://architect-2-zeta.vercel.app/demo) |
+| Diagrams | [/architecture](https://architect-2-zeta.vercel.app/architecture) |
 | Start reading | [docs/00-assignment-brief.md](docs/00-assignment-brief.md) |
+
+## How to review this in 5 minutes
+
+If you only have a few minutes, these five in order:
+
+1. **[Open the demo](https://architect-2-zeta.vercel.app/demo).** A finished project, open without an
+   account. The banner across the top is a guided tour of the screens worth seeing.
+2. **[Why did it do that?](https://architect-2-zeta.vercel.app/demo?tab=agents&why=r-104&pane=canvas)** The
+   screen the whole thesis rests on: an agent misbehaved, here is the trace, here is the exact phrase that
+   was not in the source, here is the fix and what it costs.
+3. **Run a real agent.** On the Agents tab, open the Grounding Checker and press Run this agent. That is a
+   live call to a decision model, not a simulation: about 430 ms and $0.000017, and the result is signed so
+   an edited address cannot pass a fake result off as live.
+4. **[The Code tab](https://architect-2-zeta.vercel.app/demo?tab=code&pane=canvas&diff=d6).** Diffs grouped
+   by the request that caused them, accept or revert per file, and one real commit from this repository
+   sitting beside the simulated ones.
+5. **[The decision log](docs/07-decision-log.md).** Every decision with its evidence and what was rejected.
+   If you read one document, read [D46](docs/07-decision-log.md): a bar I derived from a tidy argument was
+   wrong, and six real calls proved it.
+
+**What is real:** Google sign-in, per-user projects in Postgres with row level security, and three agents
+making live calls to a decision model. Everything else is simulated and labeled, screen by screen, in the
+table below.
+
+**How honest it is, mechanically:** 55 invariants over the fixtures and 71 assertions against served HTML
+gate every commit. They exist because three review rounds caught contradictions that reading the code had
+missed.
 
 ## How to read this repo
 
@@ -26,7 +53,9 @@ This repo documents the full zero-to-one process, not just the code.
 10. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md)**
 11. **[Design](docs/design/):** the [design system](docs/design/design-system.md), the [screen inventory](docs/design/screen-inventory.md), and the [seed content](docs/design/content-and-seed-data.md) behind the build
 12. **[Build log](docs/journal/build-log.md):** what was done each day, and how long it took
-13. **[Metrics](docs/portfolio/metrics.md):** the hard numbers, each with the command that produced it
+13. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md):** the north star metric, one input metric per principle, and what comes next
+14. **[Measured numbers](docs/portfolio/metrics.md):** every hard number, each with the command that produced it
+15. **[Early adoption write-up](docs/portfolio/early-adoption-jev.md):** the decision model, what it cost, and the bar that was wrong
 
 ## What is functional vs simulated
 

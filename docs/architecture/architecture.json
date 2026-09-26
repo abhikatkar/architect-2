@@ -13,7 +13,7 @@
     "repository": {
       "url": "https://github.com/abhikatkar/architect-2",
       "provider": "github",
-      "revision": "a2ea7a235e5b0adff807d0cc12332dd9214918f9"
+      "revision": "a34f252da5d984eb1d65f5b7ce24f34210bf03b6"
     },
     "views": [
       {
@@ -109,7 +109,7 @@
       "id": "seed",
       "type": "backend",
       "label": "lib/seed fixtures",
-      "sublabel": "Simulated: 1 project, 4 agents",
+      "sublabel": "Simulated: 1 project, code, deploy",
       "pos": [
         555,
         70
@@ -122,13 +122,13 @@
         {
           "path": "lib/seed/northwind.ts",
           "line": 19,
-          "end_line": 105,
+          "end_line": 107,
           "label": "the four agents"
         },
         {
           "path": "lib/seed/totals.ts",
-          "line": 24,
-          "end_line": 60,
+          "line": 29,
+          "end_line": 213,
           "label": "derived totals"
         }
       ]
@@ -183,8 +183,8 @@
       "sources": [
         {
           "path": "app/jev/run/route.ts",
-          "line": 16,
-          "end_line": 43,
+          "line": 17,
+          "end_line": 49,
           "label": "POST handler"
         }
       ]
@@ -211,8 +211,8 @@
         },
         {
           "path": "lib/jev/questions.ts",
-          "line": 45,
-          "end_line": 95,
+          "line": 67,
+          "end_line": 114,
           "label": "typed questions"
         },
         {
@@ -491,7 +491,7 @@
       "dot": "amber",
       "title": "Simulated",
       "items": [
-        "Builds, previews, deploys and agent runs read from lib/seed",
+        "Builds, previews, deploys, code and agent runs read from lib/seed",
         "No code is generated, executed or shipped anywhere"
       ]
     },

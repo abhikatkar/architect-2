@@ -39,12 +39,24 @@ import {
   versionForPending,
 } from "../lib/seed/totals.ts";
 import { DOMAINS, MEMBERS, PUBLISH, ROLES } from "../lib/seed/deploy.ts";
+import { CAPABILITIES, FRAMEWORKS, notManaged } from "../lib/seed/frameworks.ts";
 import {
   ledgerSpend,
   conversationTotal,
   failureSpend,
   buildTotal,
 } from "../lib/seed/totals.ts";
+
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
+/** Every .ts and .tsx under a directory, so copy usage can be checked. */
+function readdirRecursive(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = join(dir, entry.name);
+    return entry.isDirectory() ? readdirRecursive(full) : [full];
+  });
+}
 
 const money = (n) => `$${n.toFixed(2)}`;
 const round = (n) => Math.round(n * 100) / 100;
@@ -275,11 +287,10 @@ check(
   `${diffIds.length} ids, dot separated in the address`,
 );
 
-check(
-  "the github consent line counts the files a reviewer can browse",
-  Number((p.copy.githubConsent.match(/push (\d+) files/) ?? [])[1]) === files.length,
-  `${files.length} files in the tree`,
-);
+// Superseded on 2026-09-27: the consent copy no longer carries counts at all,
+// so there is nothing in it to compare. The sheet derives them from this tree
+// and from the change list, which the rendered check asserts on the page, and
+// "the consent copy carries no counts" below keeps them from creeping back.
 
 // 20. The pending fix is the same change in all three places it appears.
 const pending = changes.find((c) => c.id === "7be0d15");
@@ -419,6 +430,87 @@ check(
   DOMAINS.filter((d) => d.kind === "default").length === 1 &&
     DOMAINS.find((d) => d.kind === "default")?.state === "live",
   DOMAINS.map((d) => `${d.host} ${d.state}`).join(", "),
+);
+
+// 22b. The framework picker. The useful half is what Architect cannot manage.
+check(
+  "the picker offers the five frameworks the brief and the gap name",
+  FRAMEWORKS.length === 5 &&
+    ["lyzr", "gitagent", "langgraph", "crewai", "openai-agents"].every((id) =>
+      FRAMEWORKS.some((f) => f.id === id),
+    ),
+  FRAMEWORKS.map((f) => f.name).join(", "),
+);
+
+check(
+  "every framework says what you keep doing yourself",
+  FRAMEWORKS.every((f) => f.limits.length > 0),
+  FRAMEWORKS.map((f) => `${f.name}: ${f.limits.length}`).join(", "),
+);
+
+check(
+  "only Lyzr claims everything, and the rest say what is missing",
+  FRAMEWORKS.filter((f) => notManaged(f).length === 0).map((f) => f.id).join() === "lyzr",
+  FRAMEWORKS.map((f) => `${f.name} ${f.manages.length}/${CAPABILITIES.length}`).join(", "),
+);
+
+check(
+  "every framework manages runs and traces, which is the part that does not change",
+  FRAMEWORKS.every((f) => f.manages.includes("runs")),
+  "one run and trace view behind all five",
+);
+
+check(
+  "a framework only claims capabilities that exist on the list",
+  FRAMEWORKS.every((f) => f.manages.every((m) => CAPABILITIES.some((c) => c.id === m))),
+  `${CAPABILITIES.length} capabilities`,
+);
+
+check(
+  "the two frameworks Architect has today are marked as such",
+  FRAMEWORKS.filter((f) => f.availableToday).map((f) => f.id).sort().join() ===
+    "gitagent,lyzr",
+  "the other three are new in 2.0",
+);
+
+// 22c. The plan gate warns when a build would cross the cap.
+check(
+  "this project's own next build would cross the cap, so the warning has something to warn about",
+  ledgerSpend(p) + p.plan.estimate.high > p.ledger.cap,
+  `${money(ledgerSpend(p))} spent plus up to ${money(p.plan.estimate.high)} against a ${money(p.ledger.cap)} cap`,
+);
+
+// 23. Copy that nothing renders is copy that drifts.
+//
+// Five keys sat unread for four slices. Two were exact duplicates of strings
+// the build screen already rendered, and one carried an overage figure that was
+// only right in one of the demo's two states. This reads the sources so a dead
+// key fails the build instead of aging quietly.
+const sourceText = [
+  "app",
+  "components",
+  "lib",
+]
+  .flatMap((dir) => readdirRecursive(dir))
+  .filter((f) => /\.(ts|tsx)$/.test(f) && !f.endsWith("lib/seed/northwind.ts"))
+  .map((f) => readFileSync(f, "utf8"))
+  .join("\n");
+
+const copyKeys = Object.keys(p.copy);
+const unreadKeys = copyKeys.filter((k) => !sourceText.includes(`copy.${k}`));
+
+check(
+  "every copy string is read somewhere in the app",
+  unreadKeys.length === 0,
+  unreadKeys.length === 0
+    ? `${copyKeys.length} keys, all rendered`
+    : `unread: ${unreadKeys.join(", ")}`,
+);
+
+check(
+  "the consent copy carries no counts, because the sheet derives them",
+  !/\d/.test(p.copy.githubConsent),
+  "counts come from the tree and the change list",
 );
 
 const failedCount = results.filter((r) => !r.ok).length;

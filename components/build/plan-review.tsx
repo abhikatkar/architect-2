@@ -10,6 +10,8 @@ type Props = {
   clarifiers: Clarifier[];
   plan: Plan;
   cap: number;
+  /** Already spent this month. Needed to tell whether this build crosses the cap. */
+  spent: number;
   /**
    * Signed in: a route that writes status and redirects. Demo: null, and the
    * button becomes a link, because the demo never writes to the database.
@@ -32,12 +34,25 @@ export function PlanReview({
   clarifiers,
   plan,
   cap,
+  spent,
   action,
   demoHref,
   backHref,
   preferDetails,
 }: Props) {
   const { low, high, minutesLow, minutesHigh } = plan.estimate;
+
+  /*
+    Would this build cross the cap?
+
+    The gate has always shown "of your $5.00 cap" without ever checking, and in
+    this project's own state it would: $3.37 spent, up to $2.00 more, against a
+    $5.00 cap. The fixture used to carry a sentence about this with the overage
+    written into it, computed against the other state, so the number was wrong
+    half the time. It is arithmetic on three numbers, so it is arithmetic here.
+  */
+  const over = +(spent + high - cap).toFixed(2);
+  const crossesCap = over > 0;
 
   const buildLabel = `Build, ${money(low)} to ${money(high)} of your ${money(cap)} cap`;
 
@@ -126,6 +141,17 @@ export function PlanReview({
               First build for this kind of app, so the estimate may vary. You
               will see the cost climb as it runs.
             </p>
+
+            {crossesCap ? (
+              <p className="max-w-[72ch] text-caption text-cost">
+                This build may cost up to{" "}
+                <span className="font-mono">{money(high)}</span>, which with the{" "}
+                <span className="font-mono">{money(spent)}</span> already spent
+                would pass your <span className="font-mono">{money(cap)}</span>{" "}
+                cap by <span className="font-mono">{money(over)}</span>. Raise
+                the cap or build anyway.
+              </p>
+            ) : null}
 
             {action ? (
               <form action={action} method="post">

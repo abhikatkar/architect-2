@@ -33,6 +33,8 @@ const CARRIED = [
   // so a sheet is a shareable link and nothing client side decides it.
   "sheet",
   "rollback",
+  // Screen 11: which framework the picker has selected.
+  "framework",
 ] as const;
 
 type Search = Record<string, string | string[] | undefined>;
@@ -91,6 +93,7 @@ export function workspaceUrl(
   const revert = first(searchParams.revert) ?? "";
   const sheet = first(searchParams.sheet) ?? "";
   const rollback = first(searchParams.rollback) ?? "";
+  const framework = first(searchParams.framework) ?? "";
 
   const current: Record<string, string> = {
     tab: layer,
@@ -112,6 +115,7 @@ export function workspaceUrl(
     revert,
     sheet,
     rollback,
+    framework,
   };
 
   const query = (patch: Record<string, string>) => {
@@ -142,6 +146,7 @@ export function workspaceUrl(
     revert,
     sheet,
     rollback,
+    framework,
     query,
   };
 }

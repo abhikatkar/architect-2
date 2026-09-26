@@ -58,7 +58,14 @@ Dashboard counts: 18 open, 42 resolved, 7 escalated.
 | v14 | Invoice download links | $0.31 | Preview |
 | v15 | Grounding fix from F4 | $0.06 | Preview |
 
-Spend this month: $3.43 of a $5.00 cap (includes versions not listed above).
+Spend this month, both states, because the demo has two:
+
+- **$3.37 of a $5.00 cap** by default. Nine deployed versions, plus five builds that never reached deploy
+  and are charged $0.00 each.
+- **$3.43** once the F4 reliability fix is applied, which creates v15 and adds its $0.06.
+
+Neither number is written down in the fixtures. Both are summed from the version list at render time, so
+this table is a description of what the code computes rather than a second place to keep it. See D36.
 
 ## Commits (Code and Deploy)
 - `a41c9e2` Add escalation reason to dashboard (3 files)
@@ -75,5 +82,8 @@ Spend this month: $3.43 of a $5.00 cap (includes versions not listed above).
 - Platform retry charge: "Retry caused by Architect. Charged $0.00."
 - Stale preview: "This preview is from v13. Refresh preview to see v14."
 - Estimate over cap: "This build may cost up to $2.00, which would pass your $5.00 cap by $0.43. Raise the cap or build anyway."
-- GitHub consent: "Create private repo northwind-helpline, push 42 files, 1 commit. Nothing is written until you confirm."
+- GitHub consent: "Nothing is written to your GitHub account until you confirm." The sheet lists what would
+  be written above that line, counted from the file tree and the change list rather than written here: 42
+  files and 3 commits today. The earlier version of this string said "1 commit", which was wrong and sat
+  directly under the derived line that said otherwise.
 - Marketplace note: "If published, people who use your app spend your credits. Off by default."

@@ -25,6 +25,14 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
     <section className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-baseline gap-2">
         <h2 className="text-title font-semibold">Agents</h2>
+        {/* Screen 11. The framework picker opens from here, as a sheet. */}
+        <Link
+          id="add-agent-trigger"
+          href={query({ sheet: "framework" })}
+          className="order-last ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-body sm:order-none"
+        >
+          Add agent
+        </Link>
         <span className="max-w-[72ch] text-small text-graphite">
           A message starts at Intake and moves left to right. The dashed
           branches leave that line: either agent can send a message to a person

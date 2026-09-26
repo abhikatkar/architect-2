@@ -427,16 +427,20 @@ queues: [billing, technical, account]`,
     cap: 5.0,
   },
 
+  /*
+    Copy that is rendered somewhere. Five keys were removed on 2026-09-27:
+    stageFailed, loopStopped, platformRetry and stalePreview were duplicates of
+    strings the build screen and the preview already render from `failure` and
+    from the version numbers, and estimateOverCap is now arithmetic at the plan
+    gate rather than a sentence with the overage written into it. A consistency
+    invariant now fails if a key here is not read anywhere.
+  */
   copy: {
-    stageFailed:
-      "A page could not load because a package is missing. Retrying once.",
-    loopStopped: "Stopped after 3 identical failures. No further credits used.",
-    platformRetry: "Retry caused by Architect. Charged $0.00.",
-    stalePreview: "This preview is from v13. Refresh preview to see v14.",
-    estimateOverCap:
-      "This build may cost up to $2.00, which would pass your $5.00 cap by $0.43. Raise the cap or build anyway.",
+    // No counts in here. The sheet lists what would be written by counting the
+    // file tree and the change list, and this string used to say "1 commit"
+    // directly under a derived line reading 3.
     githubConsent:
-      "Create private repo northwind-helpline, push 42 files, 1 commit. Nothing is written until you confirm.",
+      "Nothing is written to your GitHub account until you confirm.",
     marketplaceNote:
       "If published, people who use your app spend your credits. Off by default.",
     firstBuildEstimate:

@@ -547,6 +547,76 @@ async function raw(path) {
   );
 }
 
+// 26. Screen 11, the framework picker.
+{
+  const { html: closed } = await get("/demo?tab=agents&pane=canvas");
+  check(
+    "the framework picker is closed until it is asked for",
+    !closed.includes('role="dialog"') && closed.includes("Add agent"),
+    "trigger present, sheet not",
+  );
+
+  const { html } = await get("/demo?tab=agents&pane=canvas&sheet=framework");
+  const text = visibleText(html);
+  check(
+    "all five frameworks are offered",
+    ["Lyzr", "GitAgent", "LangGraph", "CrewAI", "OpenAI Agents SDK"].every((n) =>
+      text.includes(n),
+    ),
+    "the five the brief and gap 4 name",
+  );
+  // Lyzr is the default and manages everything, so the "no" rows only appear on
+  // a framework that has gaps. Asserting them on the default would have been an
+  // assertion that could never pass.
+  const { html: lang } = await get(
+    "/demo?tab=agents&pane=canvas&sheet=framework&framework=langgraph",
+  );
+  const langText = visibleText(lang);
+  check(
+    "the picker says what Architect cannot manage, not only what it can",
+    text.includes("What you keep doing yourself") &&
+      /x no/.test(langText) &&
+      langText.includes("You bring the runtime"),
+    "LangGraph shows the no rows",
+  );
+  check(
+    "which frameworks exist in Architect today is not hidden",
+    text.includes("in Architect today") && text.includes("new in 2.0"),
+    "two today, three new",
+  );
+  check(
+    "picking a framework creates nothing, and says so",
+    text.includes("Demo action") && text.includes("No agent is created"),
+    "D52 applies here too",
+  );
+
+  const { html: crew } = await get(
+    "/demo?tab=agents&pane=canvas&sheet=framework&framework=crewai",
+  );
+  const crewText = visibleText(crew);
+  check(
+    "choosing a framework changes what it says you keep doing",
+    crewText.includes("Architect will not rewrite your crew definitions") &&
+      crewText.includes("3 of 5"),
+    "CrewAI names three things that stay yours",
+  );
+}
+
+// 27. The plan gate warns before a build crosses the cap.
+{
+  const text = visibleText((await get("/demo/plan")).html);
+  check(
+    "the plan gate warns that this build would pass the cap",
+    /would pass your \$5\.00 cap by \$0\.37/.test(text),
+    "$3.37 spent plus up to $2.00 against a $5.00 cap",
+  );
+  check(
+    "and the warning is arithmetic, not a sentence with a number in it",
+    text.includes("already spent") && text.includes("Raise the cap or build anyway"),
+    "derived from three fixtures",
+  );
+}
+
 const failed = results.filter((r) => !r.ok).length;
 for (const r of results) {
   console.log(`  ${r.ok ? "ok  " : "FAIL"} ${r.name.padEnd(52)} ${r.detail}`);

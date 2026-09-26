@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PlanReview } from "@/components/build/plan-review";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
+import { ledgerSpend } from "@/lib/seed/totals";
 import { getProject } from "@/lib/projects";
 import { prefersDetails } from "@/lib/profiles";
 
@@ -20,6 +21,7 @@ export default async function ProjectPlanPage(
       clarifiers={DEMO_PROJECT.clarifiers}
       plan={DEMO_PROJECT.plan}
       cap={DEMO_PROJECT.ledger.cap}
+      spent={ledgerSpend(DEMO_PROJECT)}
       action={`/app/p/${project.id}/build`}
       backHref={`/app/p/${project.id}`}
       preferDetails={preferDetails}

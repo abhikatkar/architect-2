@@ -77,7 +77,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 12:30 | Slice 6, the last P0 slice: GitHub consent, import with a compatibility report, and deploy with promote, rollback, domain, publish and access | 4 h 10 min | Claude Code, Chrome over CDP | The first overlay in the product, server rendered so it opens and closes from the address, with Escape and a focus trap added on top for anyone running JavaScript. Two assertions I wrote first could not fail: one followed a redirect and then asserted the 200 it landed on, the other was a ternary that always returned true. Both rewritten before they counted |
 
-**Day total so far:** 27 h 50 min across 13 commits.
+| 14:45 | Final items: the roadmap doc, screen 11, the copy sweep, both spend totals, and the README review path | 2 h 30 min | Claude Code, Chrome over CDP, archify | Four of the five unused copy strings turned out to be duplicates of strings already rendered, so they were deleted rather than wired. The fifth described a warning that was never built, and this project's own next build does cross the cap, so the warning is now derived. Removing the consent string's counts exposed a contradiction I had shipped: the sheet said 3 commits above a line saying 1 |
+
+**Day total so far:** 30 h 20 min across 14 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

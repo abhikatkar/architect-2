@@ -1,6 +1,7 @@
 import { LayerCanvas } from "@/components/workspace/canvas";
 import { CodeCanvas } from "@/components/code/code-canvas";
 import { DeployCanvas } from "@/components/deploy/deploy-canvas";
+import { FrameworkSheet } from "@/components/agents/framework-sheet";
 import { verifyJevResult } from "@/lib/jev/sign";
 import type { JevResult } from "@/lib/jev";
 import { BuildProgress } from "./build-progress";
@@ -32,6 +33,7 @@ type Props = {
   revert: string;
   sheet: string;
   rollback: string;
+  framework: string;
   basePath: string;
   query: (patch: Record<string, string>) => string;
   /** Signed in: the route that records completion. Demo: null. */
@@ -62,6 +64,7 @@ export function WorkspaceCanvas({
   revert,
   sheet,
   rollback,
+  framework,
   basePath,
   query,
   finishAction,
@@ -113,6 +116,8 @@ export function WorkspaceCanvas({
 
   if (layer === "agents") {
     const selected = project.agents.find((a) => a.id === agent);
+    // `sheet` carries which picker is open and `framework` which one is chosen,
+    // so screen 11 is a link like everything else here.
     return (
       <div className="flex min-w-0 flex-1 flex-col gap-4 lg:flex-row">
         <div className="min-w-0 flex-1">
@@ -124,6 +129,13 @@ export function WorkspaceCanvas({
             query={query}
           />
         </div>
+        {sheet === "framework" ? (
+          <FrameworkSheet
+            selected={framework}
+            closeHref={query({ sheet: "", framework: "" })}
+            hrefFor={(id) => query({ sheet: "framework", framework: id })}
+          />
+        ) : null}
         {selected ? (
           <div className="min-w-0 lg:w-80 lg:flex-none">
             <AgentInspector
