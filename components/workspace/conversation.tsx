@@ -1,5 +1,5 @@
 import type { BuildStage, DemoProject } from "@/lib/seed/types";
-import { previewVersion } from "@/lib/seed/totals";
+import type { AppliedState } from "@/lib/seed/totals";
 
 function money(n: number) {
   return `$${n.toFixed(2)}`;
@@ -47,10 +47,13 @@ function StageList({ stages }: { stages: BuildStage[] }) {
 
 export function Conversation({
   project,
+  applied,
   readOnly,
   building,
 }: {
   project: DemoProject;
+  /** The one derivation, so this rail cannot disagree with the ledger bar. */
+  applied: AppliedState;
   readOnly?: boolean;
   /**
    * True on the build screens. The panel then points at the canvas instead of
@@ -61,7 +64,7 @@ export function Conversation({
   building?: boolean;
 }) {
   const total = project.stages.reduce((sum, s) => sum + s.cost, 0);
-  const preview = previewVersion(project);
+  const preview = applied.previewVersion;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">

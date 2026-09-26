@@ -6,6 +6,7 @@ import { WorkspaceCanvas } from "@/components/build/workspace-canvas";
 import { workspaceUrl } from "@/lib/workspace-url";
 import { currentTheme } from "@/lib/theme";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
+import { appliedState } from "@/lib/seed/totals";
 
 export const metadata: Metadata = {
   title: "Northwind Helpline demo | Architect 2.0",
@@ -23,6 +24,14 @@ export default async function DemoPage(props: PageProps<"/demo">) {
     workspaceUrl(BASE, searchParams, "guided", "app", "canvas");
   const theme = await currentTheme();
 
+  /*
+    Computed once, here, and given to the shell, the conversation rail and the
+    canvas. Applying the reliability fix from the trace and accepting its file
+    in the Code tab are the same change, so they produce one state that every
+    surface reads. Round 4 found three components deriving it three ways.
+  */
+  const applied = appliedState(DEMO_PROJECT, fixApplied, accept, revert);
+
   return (
     <WorkspaceShell
       projectName={DEMO_PROJECT.name}
@@ -30,7 +39,7 @@ export default async function DemoPage(props: PageProps<"/demo">) {
       layer={layer}
       pane={pane}
       project={DEMO_PROJECT}
-      fixApplied={fixApplied}
+      applied={applied}
       theme={theme}
       themeNext={query({})}
       query={query}
@@ -68,6 +77,7 @@ export default async function DemoPage(props: PageProps<"/demo">) {
       }
       conversation={
         <Conversation
+          applied={applied}
           project={DEMO_PROJECT}
           readOnly
           building={build === "running" || build === "failed"}
@@ -82,7 +92,7 @@ export default async function DemoPage(props: PageProps<"/demo">) {
           agent={agent}
           depth={depth}
           why={why}
-          fixApplied={fixApplied}
+          applied={applied}
           // No user on the demo path, so it always starts guided.
           preferDetails={false}
           jev={jev}
@@ -91,8 +101,6 @@ export default async function DemoPage(props: PageProps<"/demo">) {
           file={file}
           diff={diff}
           panel={panel}
-          accept={accept}
-          revert={revert}
           sheet={sheet}
           rollback={rollback}
           framework={framework}

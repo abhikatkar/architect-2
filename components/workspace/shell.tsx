@@ -3,6 +3,7 @@ import { LedgerBar } from "./ledger-bar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LAYERS, LAYER_LABELS, type Layer, type Pane } from "./types";
 import type { DemoProject } from "@/lib/seed/types";
+import type { AppliedState } from "@/lib/seed/totals";
 
 type ShellProps = {
   projectName: string;
@@ -10,7 +11,8 @@ type ShellProps = {
   layer: Layer;
   pane: Pane;
   project: DemoProject;
-  fixApplied?: boolean;
+  /** The one derivation, so the bar cannot disagree with the canvas. */
+  applied: AppliedState;
   /**
    * Builds every tab and pane link, carrying the parameters already in the URL.
    * The shell no longer needs basePath: query() closes over it.
@@ -36,7 +38,21 @@ type ShellProps = {
   before the layer in workspace-canvas, so carrying them would mean clicking
   "Code" and still looking at the run trace or a running build.
 */
-const TAB_PATCH = { pane: "canvas", why: "", build: "" } as const;
+/*
+  Changing tab closes whatever was open and clears what only that tab can show.
+  Without this, clicking Agents with the rollback sheet open left
+  sheet=rollback&rollback=v11 in the address: nothing rendered it, because each
+  sheet lives inside its own layer branch, but the link was shareable and the
+  parameters did nothing. Round 4, finding 5.
+*/
+const TAB_PATCH = {
+  pane: "canvas",
+  why: "",
+  build: "",
+  sheet: "",
+  rollback: "",
+  framework: "",
+} as const;
 
 /**
  * The workspace shell: header with layer tabs, conversation column, canvas, and
@@ -52,7 +68,7 @@ export function WorkspaceShell({
   layer,
   pane,
   project,
-  fixApplied,
+  applied,
   query,
   readOnly,
   theme,
@@ -151,7 +167,7 @@ export function WorkspaceShell({
         ))}
       </nav>
 
-      <LedgerBar project={project} fixApplied={fixApplied} />
+      <LedgerBar project={project} applied={applied} />
     </div>
   );
 }

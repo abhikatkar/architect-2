@@ -1,17 +1,15 @@
 import Link from "next/link";
 import type { DemoProject } from "@/lib/seed/types";
 import { DOMAINS, MEMBERS, PUBLISH, ROLES, SYNC_LOG } from "@/lib/seed/deploy";
-import { changeRequests, codeFiles, CHECKS } from "@/lib/seed/code";
+import { codeFiles, CHECKS } from "@/lib/seed/code";
 import {
-  allDiffIds,
+  type AppliedState,
   appliedPending,
   checksPassed,
   ledgerSpend,
   pendingChanges,
-  previewAfter,
   revertedBy,
   rollbackTargets,
-  spendAfter,
   versionForPending,
 } from "@/lib/seed/totals";
 import { Sheet, SheetTrigger, DemoNote } from "@/components/ui/sheet";
@@ -23,8 +21,12 @@ const money = (n: number) => `$${n.toFixed(2)}`;
  *
  * Everything on this screen is derived. The live version, the preview version,
  * what a rollback would revert, and the month's spend all read from the version
- * list and the accept parameters rather than being written down anywhere. That
+ * list and the one applied state rather than being written down anywhere. That
  * is the rule D36 exists for, and this screen is where it was first broken.
+ * Round 4 broke it again in a subtler way: this panel derived the preview
+ * version from the accept list while the ledger bar derived it from the fix
+ * flag, so the same page showed v15 here and v14 at the foot. Both now read the
+ * state computed once by the page.
  *
  * Three defaults here are answers to what the teardown found, and each says so
  * on screen rather than in a doc: the repo is private, Marketplace is off, and
@@ -32,26 +34,21 @@ const money = (n: number) => `$${n.toFixed(2)}`;
  */
 export function DeployCanvas({
   project,
-  fixApplied,
-  accept,
+  applied,
   sheet,
   rollback,
   query,
 }: {
   project: DemoProject;
-  fixApplied: boolean;
-  accept: string;
+  applied: AppliedState;
   sheet: string;
   rollback: string;
   query: (patch: Record<string, string>) => string;
 }) {
-  const changes = changeRequests(project, fixApplied);
-  const valid = new Set(allDiffIds(changes));
-  const accepted = accept.split(".").filter((id) => valid.has(id));
-
-  const applied = appliedPending(changes, accepted);
-  const preview = previewAfter(project, changes, accepted);
-  const spend = spendAfter(project, changes, accepted);
+  const { changes, accepted } = applied;
+  const landed = appliedPending(changes, accepted);
+  const preview = applied.previewVersion;
+  const spend = applied.spend;
   const live = project.versions.find((v) => v.live);
   const targets = rollbackTargets(project);
   const rollbackTo = targets.find((v) => v.label === rollback);
@@ -77,8 +74,8 @@ export function DeployCanvas({
           <p className="text-caption text-graphite">Preview</p>
           <p className="text-lead font-mono">{preview}</p>
           <p className="mt-1 max-w-[72ch] text-small text-graphite">
-            {applied.length > 0
-              ? `Includes ${applied.length} change ${applied.length === 1 ? "you accepted" : "you accepted"} in the Code tab.`
+            {landed.length > 0
+              ? `Includes ${landed.length} change${landed.length === 1 ? "" : "s"} you accepted, from the Code tab or the trace.`
               : "The newest build. Nobody outside your team sees this."}
           </p>
         </section>
@@ -116,7 +113,7 @@ export function DeployCanvas({
           <h3 className="text-lead font-semibold">Waiting on your review</h3>
           <ul className="mt-2 flex flex-col gap-2">
             {pendingChanges(changes).map((c) => {
-              const isApplied = applied.some((a) => a.id === c.id);
+              const isApplied = landed.some((a) => a.id === c.id);
               const becomes = versionForPending(project, changes, c.id);
               return (
                 <li key={c.id} className="flex flex-wrap items-baseline gap-x-2 text-small">
@@ -172,6 +169,7 @@ export function DeployCanvas({
                 <p className="mt-1 min-w-0 text-small">{v.change}</p>
                 {!v.live ? (
                   <Link
+                    data-return-to={`rollback-${v.label}`}
                     href={query({ sheet: "rollback", rollback: v.label })}
                     className="mt-1 inline-flex min-h-11 items-center text-caption text-blueprint underline"
                   >
@@ -212,6 +210,8 @@ export function DeployCanvas({
                       <span className="text-caption text-graphite">already live</span>
                     ) : (
                       <Link
+                        id={`rollback-${v.label}`}
+                        data-return-to={`rollback-${v.label}`}
                         href={query({ sheet: "rollback", rollback: v.label })}
                         className="text-caption text-blueprint underline"
                       >
@@ -371,6 +371,10 @@ export function DeployCanvas({
           title={`Roll back to ${rollbackTo.label}`}
           note={`${rollbackTo.change}. This would become what people see, in one step.`}
           closeHref={query({ sheet: "", rollback: "" })}
+          /* Its trigger is one of nine table links rather than a single
+             control, so the target is named after the version it rolls back
+             to. Both the phone list and the table carry it. */
+          returnTo={`rollback-${rollbackTo.label}`}
           footer={
             <>
               <span className="inline-flex min-h-11 cursor-default items-center rounded-input bg-blueprint px-4 text-body text-paper">

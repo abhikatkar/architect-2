@@ -38,9 +38,11 @@ because brand verification is optional for a concept like this one and was not r
 nothing beyond the default name, email and picture, and [what it stores is listed in full](app/privacy/page.tsx)
 at [/privacy](https://architect-2-zeta.vercel.app/privacy).
 
-**How honest it is, mechanically:** 55 invariants over the fixtures and 71 assertions against served HTML
-gate every commit. They exist because three review rounds caught contradictions that reading the code had
-missed.
+**How honest it is, mechanically:** 58 invariants over the fixtures and 97 assertions against served HTML
+gate every commit. They exist because four review rounds caught contradictions that reading the code had
+missed. The newest of them reads every number on a page and fails unless all of its surfaces agree with each
+other, which is the one check that was missing when the fourth round found a screen contradicting its own
+footer.
 
 ## How to read this repo
 

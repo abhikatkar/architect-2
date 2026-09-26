@@ -28,6 +28,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
         {/* Screen 11. The framework picker opens from here, as a sheet. */}
         <Link
           id="add-agent-trigger"
+          data-return-to="add-agent-trigger"
           href={query({ sheet: "framework" })}
           className="order-last ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-body sm:order-none"
         >

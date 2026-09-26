@@ -4,6 +4,10 @@ import type {
   DiffRow,
   FileDiff,
 } from "./types";
+import { changeRequests, FIX_CHANGE_ID } // The .ts extension is deliberate: the consistency check imports this module
+// directly under plain Node, which does not resolve extensionless paths. The
+// bundler resolves it either way.
+from "./code.ts";
 
 /**
  * Every total in the product, derived from its parts.
@@ -23,26 +27,23 @@ const round = (n: number) => +n.toFixed(2);
 /**
  * Spend this month, which is exactly the versions that were built.
  *
- * Applying the reliability fix creates one more version, so it adds its cost.
- * Before that it has not been spent and is shown as an estimate instead.
+ * Nothing pending is counted here. A change that has been accepted but not
+ * deployed is added by spendAfter, which is the only place that knows what has
+ * been accepted. This used to take a fixApplied flag of its own, and that flag
+ * was one of the three competing derivations round 4 found.
  */
-export function ledgerSpend(p: DemoProject, fixApplied = false): number {
+export function ledgerSpend(p: DemoProject): number {
   const built = p.versions.reduce((sum, v) => sum + v.cost, 0);
   // Discarded builds are summed rather than skipped. They are $0.00 each, so
   // this adds nothing, and that is the point: the total accounts for all 14
   // numbers, not only the 9 that shipped.
   const discarded = p.discarded.reduce((sum, v) => sum + v.cost, 0);
-  return round(fixApplied ? built + discarded + p.fix.cost : built + discarded);
+  return round(built + discarded);
 }
 
 /** Every version number taken this month, deployed or not. */
 export function buildsAttempted(p: DemoProject): number {
   return p.versions.length + p.discarded.length;
-}
-
-/** The newest version in preview, which the applied fix advances. */
-export function previewVersion(p: DemoProject, fixApplied = false): string {
-  return fixApplied ? p.fix.newVersion : p.ledger.previewVersion;
 }
 
 /** The first build, which is the sum of its stages. */
@@ -209,4 +210,81 @@ export function rollbackTargets(p: DemoProject) {
 export function revertedBy(p: DemoProject, target: string) {
   const targetNumber = Number(target.slice(1));
   return p.versions.filter((v) => Number(v.label.slice(1)) > targetNumber);
+}
+
+/*
+  One derivation for "has the reliability fix landed, and what does that make
+  true", used by every surface that shows a version, a deploy count or a spend.
+
+  There are two ways to apply it. The trace's "Watch the fix being applied"
+  sets fix=applied, and accepting its file in the Code tab sets accept=d6.
+  They are the same change, so they have to mean the same thing. They did not:
+  the Deploy panel read the accept list, the ledger bar read the fix flag, and
+  the conversation rail read neither, so a page could show v15 in one place and
+  v14 in another at the same time. Round 4 found it.
+
+  Everything below is computed from the two parameters together. Nothing reads
+  either one on its own any more.
+*/
+
+export type AppliedState = {
+  /** The change list, built with the derived flag so its labels agree too. */
+  changes: ChangeRequest[];
+  /** Diff ids that count as accepted, including any implied by fix=applied. */
+  accepted: string[];
+  /** Diff ids explicitly reverted, which beat an accept of the same file. */
+  reverted: string[];
+  /** Whether the reliability fix has landed, by either route. */
+  fixApplied: boolean;
+  /** What is in preview once everything accepted is counted. */
+  previewVersion: string;
+  /** Deploys this month, which one more version increases by one. */
+  deploys: number;
+  /** Spend this month, summed from the versions plus anything accepted. */
+  spend: number;
+};
+
+/**
+ * The whole applied state from the three URL parameters that can change it.
+ *
+ * Call this once per request, pass the result down. Nothing downstream reads
+ * fix, accept or revert again, which is what makes the surfaces agree.
+ */
+export function appliedState(
+  p: DemoProject,
+  fixParam: boolean,
+  acceptParam: string,
+  revertParam: string,
+): AppliedState {
+  // The flag changes one label, never a shape, so any list gives the same ids.
+  const ids = new Set(allDiffIds(changeRequests(p)));
+  const list = (param: string) => param.split(".").filter((id) => ids.has(id));
+
+  const reverted = list(revertParam);
+  const fromUrl = list(acceptParam);
+
+  // fix=applied means every file of the fix change is accepted. Accepting them
+  // in the Code tab means the fix is applied. One signal, read both ways.
+  const fixDiffIds =
+    changeRequests(p)
+      .find((c) => c.id === FIX_CHANGE_ID)
+      ?.diffs.map((d) => d.id) ?? [];
+  const accepted = (fixParam ? [...new Set([...fromUrl, ...fixDiffIds])] : fromUrl)
+    // Reverting a file beats accepting it, by either route, so pressing revert
+    // in the Code tab takes the fix back out of preview as well.
+    .filter((id) => !reverted.includes(id));
+
+  const fixApplied = fixDiffIds.length > 0 && fixDiffIds.every((id) => accepted.includes(id));
+  const changes = changeRequests(p, fixApplied);
+  const landed = appliedPending(changes, accepted);
+
+  return {
+    changes,
+    accepted,
+    reverted,
+    fixApplied,
+    previewVersion: previewAfter(p, changes, accepted),
+    deploys: p.versions.length + landed.length,
+    spend: spendAfter(p, changes, accepted),
+  };
 }

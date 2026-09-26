@@ -277,17 +277,30 @@ const LANDED: ChangeRequest[] = [
  * the slider in the inspector are all the same change. Until it is applied it
  * has no version, which is why v15 is absent from the version list.
  */
+export const FIX_CHANGE_ID = "7be0d15";
+
+/**
+ * The one change that has not landed yet: the reliability fix from the trace.
+ *
+ * It stays pending whether or not the fix has been applied. Applying it accepts
+ * its file, and a pending change whose files are all accepted becomes a version
+ * through versionForPending, which is exactly what accepting it in the Code tab
+ * does. Writing a version onto it here instead took it out of pendingChanges,
+ * so the trace route and the Code tab route produced different totals. That was
+ * the round 4 blocker, and this is the half of the fix that lives in the
+ * fixture: one representation, so there is only one thing to derive from.
+ */
 export function pendingFixChange(p: DemoProject, fixApplied = false): ChangeRequest {
   const answer = p.agents.find((a) => a.id === "answer");
   const before = answer?.settings.temperature ?? 0;
   const after = answer?.settings.temperatureAfterFix ?? before;
 
   return {
-    id: "7be0d15",
+    id: FIX_CHANGE_ID,
     request: p.fix.summary,
     message: "Keep answers as specific as the source",
     ago: fixApplied ? "just now" : "not applied yet",
-    version: fixApplied ? p.fix.newVersion : null,
+    version: null,
     cost: p.fix.cost,
     diffs: [
       {

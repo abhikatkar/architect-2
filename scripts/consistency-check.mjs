@@ -25,10 +25,10 @@ import {
   GROUNDING_PASS_THRESHOLD,
 } from "../lib/jev/questions.ts";
 import { JEV_EXAMPLES } from "../lib/jev/examples.ts";
-import { changeRequests, codeFiles, CHECKS } from "../lib/seed/code.ts";
+import { changeRequests, codeFiles, CHECKS, FIX_CHANGE_ID } from "../lib/seed/code.ts";
 import { REAL_CHANGE } from "../lib/seed/real-change.ts";
 import { GROUNDING_QUESTIONS } from "../lib/jev/questions.ts";
-import { addedLines, allDiffIds, changedFileCount } from "../lib/seed/totals.ts";
+import { addedLines, allDiffIds, appliedState, changedFileCount } from "../lib/seed/totals.ts";
 import {
   appliedPending,
   pendingChanges,
@@ -60,6 +60,12 @@ function readdirRecursive(dir) {
 
 const money = (n) => `$${n.toFixed(2)}`;
 const round = (n) => Math.round(n * 100) / 100;
+
+/** The file the reliability fix changes, which is what accepting it accepts. */
+const FIX_DIFF = changeRequests(p)
+  .find((c) => c.id === FIX_CHANGE_ID)
+  .diffs.map((d) => d.id)
+  .join(".");
 const results = [];
 
 function check(name, ok, detail) {
@@ -138,8 +144,8 @@ check(
 
 check(
   "applying the fix adds exactly its own cost",
-  ledgerSpend(p, true) === +(ledgerSpend(p) + p.fix.cost).toFixed(2),
-  `${money(ledgerSpend(p))} to ${money(ledgerSpend(p, true))}`,
+  appliedState(p, true, "", "").spend === +(ledgerSpend(p) + p.fix.cost).toFixed(2),
+  `${money(ledgerSpend(p))} to ${money(appliedState(p, true, "", "").spend)}`,
 );
 
 check(
@@ -312,12 +318,58 @@ check(
   "one parameter moved, one rule added",
 );
 
+/*
+  The fix change is pending in both states, and the version it would become is
+  derived from its position rather than written onto it. Giving it a version
+  when the flag was set took it out of pendingChanges, so the trace route and
+  the Code tab route computed different totals for the same change. Round 4.
+*/
 check(
-  "the fix change carries no version until it is applied",
+  "the fix change stays pending in both states, and its version is derived",
   changeRequests(p, false)[0].version === null &&
-    changeRequests(p, true)[0].version === p.fix.newVersion,
-  `null, then ${p.fix.newVersion}`,
+    changeRequests(p, true)[0].version === null &&
+    versionForPending(p, changeRequests(p), FIX_CHANGE_ID) === p.fix.newVersion,
+  `pending either way, becomes ${p.fix.newVersion} by position`,
 );
+
+/*
+  The blocker itself, as an invariant: there are two ways to apply the fix and
+  they have to mean the same thing. Reverting the same file has to undo it by
+  either route, which is why revert is part of the one derivation too.
+*/
+{
+  const viaTrace = appliedState(p, true, "", "");
+  const viaCode = appliedState(p, false, FIX_DIFF, "");
+  const both = appliedState(p, true, FIX_DIFF, "");
+  const reverted = appliedState(p, true, FIX_DIFF, FIX_DIFF);
+  const sameNumbers = (a, b) =>
+    a.previewVersion === b.previewVersion &&
+    a.deploys === b.deploys &&
+    a.spend === b.spend &&
+    a.fixApplied === b.fixApplied;
+
+  check(
+    "the trace route and the Code tab route are the same change",
+    sameNumbers(viaTrace, viaCode) && sameNumbers(viaTrace, both),
+    `${viaTrace.previewVersion}, ${viaTrace.deploys} deploys, ${money(viaTrace.spend)} by either route`,
+  );
+  check(
+    "applying the fix by either route actually moves every number",
+    viaTrace.fixApplied &&
+      viaTrace.previewVersion === p.fix.newVersion &&
+      viaTrace.deploys === p.versions.length + 1 &&
+      viaTrace.spend === round(ledgerSpend(p) + p.fix.cost),
+    `${p.ledger.previewVersion} to ${viaTrace.previewVersion}, ${money(ledgerSpend(p))} to ${money(viaTrace.spend)}`,
+  );
+  check(
+    "reverting the file takes the fix back out, whichever route applied it",
+    !reverted.fixApplied &&
+      reverted.previewVersion === p.ledger.previewVersion &&
+      reverted.deploys === p.versions.length &&
+      reverted.spend === ledgerSpend(p),
+    `back to ${reverted.previewVersion}, ${reverted.deploys} deploys, ${money(reverted.spend)}`,
+  );
+}
 
 // 21. The one real artifact on the screen still matches the source it came from.
 check(

@@ -85,7 +85,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 17:05 | Corrected 22 wrong dates across the docs, added a link checker, showed who is signed in on /app | 45 min | Claude Code, Chrome over CDP | The link checker found a dead anchor on its first run that had nothing to do with the dates: a reference to D27 written with a truncated slug in slice 6, broken since. 208 of 208 links resolve now |
 
-**Day total so far:** 31 h 55 min across 17 commits.
+| 18:00 | Round 4 verification sweep of production, then the fix pass it produced: one applied state, focus return on Escape, and the assertion that was missing | 2 h 20 min | Claude Code, Chrome over CDP | The sweep found one blocker by checking numbers against each other rather than against expectations: the Deploy panel and the ledger bar disagreed about what was in preview, in opposite directions depending on which route applied the fix. The cause went down into the fixture, where the same change had two shapes. 58 invariants and 97 rendered assertions now, including one that reads every number on a page and fails unless its surfaces agree. Focus after Escape had been claimed in the decision log and never measured: it was landing on BODY on all four sheets, so the claim is now a script, 8 of 8 |
+
+**Day total so far:** 34 h 15 min across 18 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

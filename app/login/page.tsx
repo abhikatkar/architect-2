@@ -1,6 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { safeNext } from "@/lib/site-url";
+
+// Every other page names itself. Without this one, a tab or a bookmark for the
+// sign-in page is indistinguishable from the landing page.
+export const metadata: Metadata = {
+  title: "Sign in | Architect 2.0",
+  description: "Sign in with Google to create a project.",
+};
 
 function firstValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;

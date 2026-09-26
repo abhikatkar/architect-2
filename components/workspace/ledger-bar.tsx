@@ -1,5 +1,5 @@
 import type { DemoProject } from "@/lib/seed/types";
-import { ledgerSpend, previewVersion } from "@/lib/seed/totals";
+import type { AppliedState } from "@/lib/seed/totals";
 
 function money(n: number) {
   return `$${n.toFixed(2)}`;
@@ -11,18 +11,19 @@ function money(n: number) {
  */
 export function LedgerBar({
   project,
-  fixApplied,
+  applied,
 }: {
   project: DemoProject;
-  fixApplied?: boolean;
+  /** The one derivation. Never recompute any of this here. */
+  applied: AppliedState;
 }) {
   const { ledger } = project;
-  // Derived, never stored beside the parts it sums. See D36.
-  const spend = ledgerSpend(project, fixApplied);
-  const preview = previewVersion(project, fixApplied);
+  // Derived once in workspace-canvas and passed in, so this bar cannot
+  // disagree with the panel above it. See D57.
+  const spend = applied.spend;
+  const preview = applied.previewVersion;
   const pct = Math.min(100, Math.round((spend / ledger.cap) * 100));
-  // Applying the fix creates one more version, so the count moves with it.
-  const buildCount = project.versions.length + (fixApplied ? 1 : 0);
+  const buildCount = applied.deploys;
 
   return (
     <footer className="border-t border-rule bg-paper px-4 py-2 sm:px-6">

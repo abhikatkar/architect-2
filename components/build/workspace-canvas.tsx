@@ -1,5 +1,6 @@
 import { LayerCanvas } from "@/components/workspace/canvas";
 import { CodeCanvas } from "@/components/code/code-canvas";
+import type { AppliedState } from "@/lib/seed/totals";
 import { DeployCanvas } from "@/components/deploy/deploy-canvas";
 import { FrameworkSheet } from "@/components/agents/framework-sheet";
 import { verifyJevResult } from "@/lib/jev/sign";
@@ -21,7 +22,8 @@ type Props = {
   agent: string;
   depth: string;
   why: string;
-  fixApplied: boolean;
+  /** The one derivation, computed by the page and shared with the shell. */
+  applied: AppliedState;
   preferDetails: boolean;
   jev: string;
   jevResult: string;
@@ -29,8 +31,6 @@ type Props = {
   file: string;
   diff: string;
   panel: "terminal" | "logs" | "checks";
-  accept: string;
-  revert: string;
   sheet: string;
   rollback: string;
   framework: string;
@@ -52,7 +52,7 @@ export function WorkspaceCanvas({
   agent,
   depth,
   why,
-  fixApplied,
+  applied,
   preferDetails,
   jev,
   jevResult,
@@ -60,8 +60,6 @@ export function WorkspaceCanvas({
   file,
   diff,
   panel,
-  accept,
-  revert,
   sheet,
   rollback,
   framework,
@@ -106,7 +104,7 @@ export function WorkspaceCanvas({
           trace={project.trace}
           fix={project.fix}
           answerAgent={answerAgent}
-          applied={fixApplied}
+          applied={applied.fixApplied}
           preferDetails={preferDetails}
           query={query}
         />
@@ -141,7 +139,7 @@ export function WorkspaceCanvas({
             <AgentInspector
               agent={selected}
               details={depth === "details"}
-              applied={fixApplied}
+              applied={applied.fixApplied}
               preferDetails={preferDetails}
               jevResult={jev === selected.id ? parsedJev : null}
               jevVerified={jevVerified}
@@ -162,9 +160,7 @@ export function WorkspaceCanvas({
         chat={project.previewChat}
         conversations={project.conversations}
         counts={project.counts}
-        previewVersion={
-          fixApplied ? project.fix.newVersion : project.ledger.previewVersion
-        }
+        previewVersion={applied.previewVersion}
         whyHref={query({ why: project.runs[0].id, pane: "canvas" })}
       />
     );
@@ -174,12 +170,10 @@ export function WorkspaceCanvas({
     return (
       <CodeCanvas
         project={project}
-        fixApplied={fixApplied}
+        applied={applied}
         file={file}
         diff={diff}
         panel={panel}
-        accept={accept}
-        revert={revert}
         query={query}
       />
     );
@@ -189,8 +183,7 @@ export function WorkspaceCanvas({
     return (
       <DeployCanvas
         project={project}
-        fixApplied={fixApplied}
-        accept={accept}
+        applied={applied}
         sheet={sheet}
         rollback={rollback}
         query={query}

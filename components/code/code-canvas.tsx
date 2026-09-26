@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ChangeRequest, CodeFile, DemoProject } from "@/lib/seed/types";
-import { changeRequests, codeFiles } from "@/lib/seed/code";
+import { codeFiles } from "@/lib/seed/code";
 import {
+  type AppliedState,
   addedLines,
   allDiffIds,
   changedFileCount,
@@ -23,9 +24,6 @@ import { BottomPanel } from "./bottom-panel";
  * A request carries no verdict of its own. It reads back from its files, so a
  * request can never claim to be accepted while a file inside it is reverted.
  */
-
-const ids = (value: string, valid: Set<string>) =>
-  value.split(".").filter((id) => valid.has(id));
 
 /** Fixture order, never click order, so the same set is always the same URL. */
 const join = (set: Set<string>, all: string[]) =>
@@ -105,33 +103,27 @@ function Verdict({ state }: { state: ReturnType<typeof requestVerdict> | "accept
 
 export function CodeCanvas({
   project,
-  fixApplied,
+  applied,
   file,
   diff,
   panel,
-  accept,
-  revert,
   query,
 }: {
   project: DemoProject;
-  fixApplied: boolean;
+  applied: AppliedState;
   file: string;
   diff: string;
   panel: "terminal" | "logs" | "checks";
-  accept: string;
-  revert: string;
   query: (patch: Record<string, string>) => string;
 }) {
   const files = codeFiles(project);
-  const changes = changeRequests(project, fixApplied);
+  // The page resolved accept, revert and the fix flag into one state, so a file
+  // the trace applied reads as accepted here, and reverting it here takes it
+  // back out of preview everywhere. An id in both lists can only come from a
+  // hand-typed address, and revert wins, so every id has exactly one state.
+  const { changes, reverted } = applied;
+  const acceptedNet = applied.accepted;
   const all = allDiffIds(changes);
-  const valid = new Set(all);
-
-  const accepted = ids(accept, valid);
-  const reverted = ids(revert, valid);
-  // An id in both lists can only come from a hand-typed address. Revert wins,
-  // so every id has exactly one state rather than an undefined one.
-  const acceptedNet = accepted.filter((id) => !reverted.includes(id));
 
   const pathOf = (fileId: string) =>
     files.find((f) => f.id === fileId)?.path ?? fileId;

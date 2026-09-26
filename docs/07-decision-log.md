@@ -796,10 +796,23 @@ Format: date, decision, evidence, alternatives rejected.
   pinned at the bottom". An in-flow panel would have been easier and would have meant correcting the design
   doc a third time for no reason other than convenience.
 - **Works without JavaScript, better with it.** With scripting off it is a real dialog you can read, act on
-  and close, and focus returns to whatever opened it because the close links carry a fragment pointing at
-  the trigger's id. With scripting on, a small client component adds Escape to close, moves focus to the
-  heading on open, and traps Tab inside. That is the same bargain as the theme toggle, and it is now the
-  written rule in [D27](#d27-2026-09-25-where-the-no-javascript-rule-stops-and-what-replaces-it).
+  and close, and clicking Close returns focus to whatever opened it, because the close links carry a fragment
+  pointing at the trigger's id. With scripting on, a small client component adds Escape to close, moves focus
+  to the heading on open, traps Tab inside, and puts focus back on the trigger after Escape. That is the same
+  bargain as the theme toggle, and it is now the written rule in
+  [D27](#d27-2026-09-25-where-the-no-javascript-rule-stops-and-what-replaces-it).
+- **Corrected 2026-09-26.** This entry originally claimed focus returns to the trigger, full stop. That was
+  true of clicking Close and false of pressing Escape: the client router changes the URL without navigating
+  to the fragment, so `document.activeElement` measured as `BODY` on every sheet. The rollback sheet was
+  worse, having no return target at all, because its trigger is one "Roll back" link per version rather than
+  a single control. Both are fixed, and the claim is no longer only written down: it is
+  [scripts/focus-check.mjs](../scripts/focus-check.mjs), which drives the real page, opens each sheet,
+  tabs ten times, presses Escape and reports where focus landed. **8 of 8 pass, four sheets at 1280px and
+  390px.** A rendered assertion covers the half that is in the HTML, that every sheet names a trigger which
+  is present on the page to receive focus.
+- **How the rollback trigger is found.** By `data-return-to` rather than by id, because that link is rendered
+  twice, once in the phone list and once in the table, and only one of the two is visible at a given width.
+  An id has to be unique; the attribute does not, and the client picks whichever copy is visible.
 - **What is still missing without JavaScript**, said plainly rather than left to be found: no Escape key and
   no focus trap. The sheet carries `role="dialog"`, `aria-modal`, a labelled heading and a visible Close, so
   it is usable, but a keyboard user without scripting can tab past it into the page behind.
@@ -874,3 +887,41 @@ Format: date, decision, evidence, alternatives rejected.
 - **Deleting the counts from the consent string exposed a contradiction already shipped:** the sheet listed
   "3 commits", derived from the change list, directly above a fixture sentence reading "1 commit". The
   string carries no digits now, and an invariant fails if one reappears.
+
+### D57. 2026-09-26: One applied state, computed once per request
+- **Decision:** the reliability fix can be applied from the trace or by accepting its file in the Code tab.
+  They are the same change, so there is now exactly one function that turns the URL into what has been
+  applied, `appliedState` in [lib/seed/totals.ts](../lib/seed/totals.ts). The page calls it once and passes
+  the result down. No component reads `fix`, `accept` or `revert` again.
+- **What it replaced.** Three derivations of the same fact. The Deploy panel read the accept list, the ledger
+  bar read the fix flag, and the conversation rail read neither, so one page could state two different
+  truths at the same time:
+
+  | URL | Deploy panel said | Ledger footer said |
+  |---|---|---|
+  | `?tab=deploy&accept=d6` | Preview v15, $3.43 | Preview v14, 9 deploys, $3.37 |
+  | `?tab=deploy&fix=applied` | $3.37 | Preview v15, 10 deploys, $3.43 |
+
+- **The cause was in the fixture, not only the components.** The fix change was given a version number when
+  the flag was set, which took it out of the pending list, so the two routes were not even the same shape:
+  one was "a change that has landed", the other "a pending change that has been accepted". It is now always
+  pending, and the version it becomes is derived from its position, which is what
+  [D49](#d49-2026-09-26-accept-and-revert-live-in-the-address-and-a-request-has-no-verdict-of-its-own)
+  already required of every other verdict on that screen.
+- **Revert is part of the same signal.** Reverting the file in the Code tab now takes the fix back out of
+  preview whichever route applied it, so the two directions cannot disagree either.
+- **Why the old checks missed it.** `consistency-check.mjs` tested `previewAfter` and `spendAfter` in
+  isolation and they were correct. `rendered-check.mjs` asserted that `accept=d6` gives v15 on Deploy, and
+  separately that `fix=applied` gives v15 in the footer. **Neither asserted that one page agrees with
+  itself**, which is the shape of nearly every contradiction the four review rounds found.
+- **So that is the check now.** For five URL states, the default, applied from the trace, accepted in the
+  Code tab, both at once, and accepted then reverted, every surface that states a preview version, a deploy
+  count or a spend is read from the served HTML of three tabs and must agree with the others and with
+  `appliedState`: **15 to 16 readings per state.** It fails if a surface stops reporting at all, so a
+  regression cannot pass by going quiet.
+- **Two dead derivations were deleted** rather than left as tempting alternatives: `previewVersion(p, flag)`
+  and the `fixApplied` argument to `ledgerSpend`. A second way to compute a number is how this happened.
+- **One small mechanical consequence:** `totals.ts` now imports a value from `code.ts`, and both checks load
+  these modules directly under `node --experimental-strip-types`, which does not resolve extensionless paths.
+  So that one import is written `./code.ts`, and `allowImportingTsExtensions` is set in `tsconfig.json`. The
+  alternative was a checker that cannot import what it checks.

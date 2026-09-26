@@ -16,7 +16,8 @@ import { SheetKeys } from "./sheet-keys";
  *
  * Focus returns to whatever opened it without any JavaScript, because the close
  * links carry a fragment pointing at the trigger's id. SheetKeys adds Escape,
- * initial focus and a tab trap on top of that.
+ * initial focus, a tab trap, and the focus return that the fragment cannot do
+ * on an Escape press, since the client router does not navigate to the anchor.
  */
 export function Sheet({
   id,
@@ -89,7 +90,7 @@ export function Sheet({
         </div>
       </div>
 
-      <SheetKeys closeHref={back} dialogId={dialogId} />
+      <SheetKeys closeHref={back} dialogId={dialogId} returnTo={returnTo} />
     </div>
   );
 }
@@ -109,6 +110,7 @@ export function SheetTrigger({
   return (
     <Link
       id={id}
+      data-return-to={id}
       href={href}
       className={`inline-flex min-h-11 items-center rounded-input px-3 text-body ${
         variant === "primary"

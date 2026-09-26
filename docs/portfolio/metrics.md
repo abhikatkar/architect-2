@@ -74,9 +74,11 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Source links verified against the pinned commit | **22**, all in the architecture diagram, re-derived at the final commit | the delivery receipt, `evidence.references` |
 | Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
-| Consistency invariants | **55** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **71** | `scripts/rendered-check.mjs` |
-| Links checked in docs and README | **208**, all resolving, anchors included | `scripts/link-check.mjs` |
+| Consistency invariants | **58** | `scripts/consistency-check.mjs` |
+| Rendered-page assertions | **97** | `scripts/rendered-check.mjs` |
+| Surfaces required to agree on one page | **15 to 16 readings** per URL state, over 5 states and 3 tabs | `scripts/rendered-check.mjs`, section 28 |
+| Sheet focus and keyboard checks | **8 of 8**, four sheets at 1280px and 390px, measured in a browser | `scripts/focus-check.mjs` |
+| Links checked in docs and README | **213**, all resolving, anchors included | `scripts/link-check.mjs` |
 | Screens built | **15 of 15 P0, plus 1 P1** (screen 11, the framework picker) | [screen-inventory.md](../design/screen-inventory.md) |
 | Unused copy strings | **0.** Five were removed as duplicates and an invariant now fails the build if a key is unread | `scripts/consistency-check.mjs` |
 | Files browsable in the Code tab | **42**, the same number the GitHub consent line counts | `lib/seed/code.ts`, asserted equal |

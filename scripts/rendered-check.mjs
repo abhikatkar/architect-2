@@ -16,10 +16,17 @@
 
   Usage, against an already running server:
 
-    node scripts/rendered-check.mjs http://127.0.0.1:3131
+    node --experimental-strip-types scripts/rendered-check.mjs http://127.0.0.1:3131
+
+  The flag is for section 28, which imports the fixtures so it can compare the
+  page against the derivation rather than against numbers typed in here.
 
   Exits non-zero on any failure.
 */
+import { DEMO_PROJECT as project } from "../lib/seed/northwind.ts";
+import { changeRequests, FIX_CHANGE_ID } from "../lib/seed/code.ts";
+import { appliedState } from "../lib/seed/totals.ts";
+
 const base = process.argv[2] ?? "http://127.0.0.1:3131";
 const results = [];
 
@@ -542,7 +549,8 @@ async function raw(path) {
   );
   check(
     "and Deploy says where that version came from",
-    after.includes("you accepted in the Code tab"),
+    after.includes("you accepted, from the Code tab or the trace"),
+    // Both routes, because the trace's apply and this accept are one change.
     "the last hop of F6",
   );
 }
@@ -614,6 +622,178 @@ async function raw(path) {
     "and the warning is arithmetic, not a sentence with a number in it",
     text.includes("already spent") && text.includes("Raise the cap or build anyway"),
     "derived from three fixtures",
+  );
+}
+
+/*
+  28. One page, one set of numbers.
+
+  This is the assertion round 4 found missing. Sections above check that a
+  parameter produces the right number on the screen that owns it, one screen at
+  a time. Nothing checked that the screens agreed with each other, and they did
+  not: accepting the fix in the Code tab moved the Deploy panel to v15 while the
+  ledger bar underneath still read v14, and setting the fix flag did the
+  opposite. Both were "correct" by the old assertions.
+
+  So this reads every surface that states a preview version, a deploy count or a
+  spend, on every tab that shows one, and requires them all to agree with each
+  other and with appliedState. Five states: the default, the fix applied from
+  the trace, the same file accepted in the Code tab, both at once, and accepted
+  then reverted.
+*/
+{
+  const fixDiffs = changeRequests(project)
+    .find((c) => c.id === FIX_CHANGE_ID)
+    .diffs.map((d) => d.id)
+    .join(".");
+
+  const STATES = [
+    { label: "default", fix: false, accept: "", revert: "" },
+    { label: "fix applied from the trace", fix: true, accept: "", revert: "" },
+    { label: "the file accepted in the Code tab", fix: false, accept: fixDiffs, revert: "" },
+    { label: "both routes at once", fix: true, accept: fixDiffs, revert: "" },
+    { label: "applied, then reverted", fix: true, accept: fixDiffs, revert: fixDiffs },
+  ];
+
+  /* Every reading of a shared number on the page, with the surface that said
+     it, so a disagreement names the two surfaces rather than just failing. */
+  const readings = (text, where) => {
+    const found = [];
+    const take = (re, surface, key, cast) => {
+      for (const m of text.matchAll(re)) {
+        found.push({ surface: `${surface} (${where})`, key, value: cast(m[1]) });
+      }
+    };
+    take(/Preview (v\d+)/g, "preview label", "version", String);
+    take(/Preview is now on (v\d+)/g, "conversation rail", "version", String);
+    take(/Deploy (v\d+) to production/g, "deploy control", "version", String);
+    take(/Applied as (v\d+) in preview/g, "why panel", "version", String);
+    take(/(\d+) deploys? this month/g, "ledger bar", "deploys", Number);
+    take(/\$(\d+\.\d\d) of \$5\.00/g, "spend", "spend", Number);
+    return found;
+  };
+
+  for (const state of STATES) {
+    const q =
+      `&${state.fix ? "fix=applied&" : ""}accept=${state.accept}&revert=${state.revert}`;
+    const want = appliedState(project, state.fix, state.accept, state.revert);
+
+    const pages = [
+      ["deploy", `/demo?tab=deploy&pane=canvas${q}`],
+      ["code", `/demo?tab=code&pane=canvas${q}`],
+      ["why", `/demo?tab=agents&why=${project.runs[0].id}&pane=canvas${q}`],
+    ];
+
+    const all = [];
+    for (const [where, path] of pages) {
+      all.push(...readings(visibleText((await get(path)).html), where));
+    }
+
+    // A vanished surface must fail rather than pass by saying nothing. Three
+    // tabs give at least the ledger's version, count and spend on each.
+    const counts = {
+      version: all.filter((r) => r.key === "version").length,
+      deploys: all.filter((r) => r.key === "deploys").length,
+      spend: all.filter((r) => r.key === "spend").length,
+    };
+    check(
+      `every surface is still reporting its numbers, ${state.label}`,
+      counts.version >= 6 && counts.deploys === 3 && counts.spend >= 4,
+      `${counts.version} version, ${counts.deploys} deploy count, ${counts.spend} spend readings`,
+    );
+
+    const expected = {
+      version: want.previewVersion,
+      deploys: want.deploys,
+      spend: want.spend,
+    };
+    const wrong = all.filter((r) => r.value !== expected[r.key]);
+    check(
+      `one preview version, one deploy count, one spend, ${state.label}`,
+      wrong.length === 0,
+      wrong.length === 0
+        ? `${expected.version}, ${expected.deploys} deploys, $${expected.spend.toFixed(2)}, agreed by ${all.length} readings`
+        : wrong
+            .map((r) => `${r.surface} said ${r.value}, not ${expected[r.key]}`)
+            .join("; "),
+    );
+
+    // The two verdict surfaces have to tell the same story as the numbers.
+    const codeText = visibleText((await get(`/demo?tab=code&pane=canvas${q}`)).html);
+    const whyText = visibleText(
+      (await get(`/demo?tab=agents&why=${project.runs[0].id}&pane=canvas${q}`)).html,
+    );
+    check(
+      `the Code tab and the trace agree on whether the fix landed, ${state.label}`,
+      codeText.includes("ok accepted") === want.fixApplied &&
+        /Applied as v\d+ in preview/.test(whyText) === want.fixApplied,
+      want.fixApplied
+        ? "accepted in the Code tab, applied in the trace"
+        : "open in the Code tab, not applied in the trace",
+    );
+  }
+}
+
+/*
+  29. Closing a sheet has somewhere to put focus, and leaves nothing behind.
+
+  The focus behaviour itself is measured in a browser by scripts/focus-check.mjs,
+  because activeElement is not in the HTML. What is in the HTML is the half that
+  makes it possible: a close link that names its trigger, and a trigger with that
+  name on the page. The rollback sheet had neither, and D51 claimed otherwise.
+*/
+{
+  const SHEETS = [
+    ["promote", "/demo?tab=deploy&pane=canvas&sheet=promote", "promote-trigger"],
+    ["github", "/demo?tab=deploy&pane=canvas&sheet=github", "github-trigger"],
+    ["rollback", "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11", "rollback-v11"],
+    ["framework", "/demo?tab=agents&pane=canvas&sheet=framework", "add-agent-trigger"],
+  ];
+
+  for (const [name, path, trigger] of SHEETS) {
+    const { html } = await get(path);
+    check(
+      `the ${name} sheet closes to its own trigger`,
+      html.includes('role="dialog"') && html.includes(`#${trigger}"`),
+      `close links carry #${trigger}`,
+    );
+    const { html: closed } = await get(path.replace(/&sheet=[^&]*/, ""));
+    check(
+      `and that trigger is on the page to receive focus`,
+      closed.includes(`data-return-to="${trigger}"`),
+      `data-return-to="${trigger}" present with the sheet shut`,
+    );
+  }
+
+  // Both copies of the rollback link, because only one is visible at a time and
+  // the client picks the visible one.
+  const { html: deploy } = await get("/demo?tab=deploy&pane=canvas");
+  const rollbackTargets = (deploy.match(/data-return-to="rollback-v\d+"/g) ?? []).length;
+  check(
+    "each rollback link names itself, in the phone list and the table",
+    rollbackTargets === 16,
+    `${rollbackTargets} return targets for 8 versions, twice over`,
+  );
+
+  // Changing tab closes whatever was open rather than carrying it along.
+  const openSheet = await get(
+    "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11",
+  );
+  const tabLinks = (openSheet.html.match(/href="\/demo\?[^"]*tab=agents[^"]*"/g) ?? []);
+  check(
+    "switching tab drops the sheet parameters",
+    tabLinks.length > 0 && tabLinks.every((h) => !h.includes("sheet=") && !h.includes("rollback=")),
+    `${tabLinks.length} links to Agents, none carrying a sheet`,
+  );
+}
+
+// 30. Every page names itself, including the one that is only a sign-in form.
+{
+  const { html } = await get("/login");
+  check(
+    "the sign-in page has a title of its own",
+    /<title>Sign in \| Architect 2\.0<\/title>/.test(html),
+    "not the root layout's title",
   );
 }
 

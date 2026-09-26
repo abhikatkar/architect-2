@@ -64,6 +64,10 @@ Spend this month, both states, because the demo has two:
   and are charged $0.00 each.
 - **$3.43** once the F4 reliability fix is applied, which creates v15 and adds its $0.06.
 
+There are two ways to apply that fix, from the trace and by accepting its file in the Code tab, and they are
+one change: either produces $3.43, v15 in preview and 10 deploys, and reverting the file produces $3.37, v14
+and 9 again. See [D57](../07-decision-log.md#d57-2026-09-26-one-applied-state-computed-once-per-request).
+
 Neither number is written down in the fixtures. Both are summed from the version list at render time, so
 this table is a description of what the code computes rather than a second place to keep it. See D36.
 
