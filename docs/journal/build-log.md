@@ -65,7 +65,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 22:20 | Three generated diagrams: system architecture with source links and trust boundaries, the agent workflow, and the Jev call sequence | 1 h 20 min | Claude Code, archify | 23 source links verified against the pinned commit. Caught two things only by opening the delivered images: the Real and Simulated markings were in a field that does not render, and the first workflow was too tall to contain at 1440x900 |
 
-**Day total so far:** 11 h 20 min across 6 commits.
+| 23:05 | Fixed the stale model names in the agent config files, published the measured Jev numbers, retested the deployment | 35 min | Claude Code, curl against production | The three decision agents no longer claim to run on a language model. The deployment still rejects its key after a second re-entry, and the retest nearly fooled me: with recorded.ts now populated, a failed call returns real answers, so the outcome field is the only thing that tells the truth |
+
+**Day total so far:** 11 h 55 min across 7 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

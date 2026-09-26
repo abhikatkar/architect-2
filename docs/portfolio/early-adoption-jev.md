@@ -44,17 +44,54 @@ Measured by us, on our own calls, and published in [metrics.md](metrics.md):
 Both latency and cost are small-sample figures from one machine in one region on one day. They are not a
 benchmark and are not comparable to the vendor's evaluations below.
 
-**Status as of 26 Sep 2026: live and answering.** 22 calls returned decisions, median 430 ms, about
-$0.000017 per call. The run that produced those numbers is reproducible: `scripts/jev-latency.mjs`.
+**Status as of 26 Sep 2026: live and answering.** The run that produced these is reproducible:
+`node --experimental-strip-types scripts/jev-latency.mjs`.
 
-Two things the live responses settled that the docs alone could not:
+| Measured | Value | How |
+|---|---|---|
+| Calls that returned a decision | 22, none failed | 15 latency run, 3 capture, 3 through the running app, 1 through the deployment |
+| Median latency | **430 ms**, range 389 ms to 919 ms | wall clock around `evaluate`, 15 call run |
+| Median excluding the first call | 421 ms. The first call of a run was 777 ms and carries connection setup | same run |
+| Input tokens per call | 482 intake, 363 grounding checker, 371 escalation router, identical on every repeat | provider `usage.inputTokens` |
+| Output tokens | 690 over 15 calls, billed at $0 | provider `usage.outputTokens` |
+| **Cost per call** | **$0.000017** at the mean of 405 tokens, about **58,700 calls per dollar** | 405 times $0.000000042, the Gateway's published price |
+| Cost of the whole measurement run | $0.00026 | same arithmetic |
 
-1. **A boolean question really does return no confidence.** In one run, the two choice and score agents
-   returned a populated `providerMetadata.typesafe.confidence` and the boolean agent returned `{}`. The
-   Grounding Checker shows a probability because that is all there is, not as a matter of interpretation.
-2. **Low confidence occurs on ordinary input.** The urgency score on the sample message came back at 42%
-   confidence while the topic in the same call came back at 100%, so the interface's "this one would go to
-   a person" path fired without being contrived.
+Latency is a small sample from one machine in one region and should be read as an observation. Cost is not:
+the schema and the state are fixed, so token counts do not vary between repeats and the per call figure is
+arithmetic on two exact numbers.
+
+### The low confidence case, observed rather than constructed
+
+On the sample message, one call returned both of these at once:
+
+| Question | Type | Answer | Confidence |
+|---|---|---|---|
+| `topic` | choice | `billing_credits` | **100%** |
+| `urgency` | score | `0.72` | **42%** |
+
+Below 60% the interface stops showing a number alone and says "Jev was not clearly decided here, so this one
+would go to a person rather than through automatically." So a single call produced one answer that routes
+itself onward and one that routes itself to a human, which is the behaviour the threshold exists for. It was
+not arranged: it is what the sample input returns.
+
+For contrast, given "My invoice charged me twice this morning and I need the money back today", the same
+agent moved to `billing_refunds` at 95% and scored urgency 2.95 of 3, the rubric level that reads "money has
+left their account".
+
+### A boolean question really does return no confidence
+
+The other thing the live responses settled that the docs alone could not. In one run, reading the same field
+with the same code:
+
+| Agent | Question type | `providerMetadata.typesafe.confidence` |
+|---|---|---|
+| Intake | choice and score | `{"topic":1,"urgency":0.43}` |
+| Escalation Router | choice | `{"queue":1}` |
+| Grounding Checker | **boolean** | **`{}`**, empty |
+
+The boolean answer carried `probability: 0.71` and no confidence at all. The Grounding Checker shows a
+probability because that is all there is, not as a matter of interpretation.
 
 **The AI SDK does not return a latency.** No timing field is documented on the evaluate result, so every
 latency here is wall-clock measured on our side, which includes network time to the Gateway. That is what

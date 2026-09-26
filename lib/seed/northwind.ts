@@ -27,8 +27,7 @@ export const DEMO_PROJECT: DemoProject = {
       at: { x: 8, y: 50 },
       settings: { temperature: 0.2 },
       configFile: `name: Intake
-model: claude-sonnet-4-6
-temperature: 0.2
+model: typesafe-ai/jev
 outputs:
   topic: string
   urgency: low | normal | high`,
@@ -74,8 +73,7 @@ rules:
       at: { x: 66, y: 50 },
       settings: { temperature: 0.1 },
       configFile: `name: Grounding Checker
-model: claude-sonnet-4-6
-temperature: 0.1
+model: typesafe-ai/jev
 returns:
   grounded: boolean
   reason: string`,
@@ -95,8 +93,7 @@ returns:
       at: { x: 66, y: 88 },
       settings: { temperature: 0.2 },
       configFile: `name: Escalation Router
-model: claude-sonnet-4-6
-temperature: 0.2
+model: typesafe-ai/jev
 queues: [billing, technical, account]`,
       versions: [
         { label: "v1", change: "Created with the first build" },
