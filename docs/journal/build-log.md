@@ -61,7 +61,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 19:10 | Live verification attempt with the key on the deployment. Proved both guardrails, recorded the launch dates, chased the two build warnings | 1 h 10 min | Claude Code, Supabase MCP, curl against production | **The model still has not answered.** A third real call returned the same Gateway refusal: a credit card is required. Proved the rate limit and the daily cap instead, by moving the counter rather than faking a trigger, then deleted all 310 synthetic rows. Found only one of the two build warnings reproducible: a faithful `npm ci` plus `next build` from the committed tree gives exactly one |
 
-**Day total so far:** 8 h 55 min across 4 commits.
+| 21:05 | Jev live at last: captured real results for all three agents, measured latency, tokens and cost, verified the UI end to end and flipped it to Functional | 1 h 05 min | Claude Code, curl against a local production server, Supabase MCP | 22 live calls, median 430 ms, $0.000017 per call. The 401 turned out to be both `.env.local` values pasted wrapped in angle brackets. Confirmed the boolean returns no confidence by observation rather than from the docs. Caught a real copy defect while reading the rendered HTML: "Confidence 42% . Jev was not decided", a space before the period |
+
+**Day total so far:** 10 h across 5 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

@@ -71,28 +71,76 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 Ours, measured by us. The AI SDK returns no latency, so every figure here is wall-clock measured in our own
 code around the `evaluate` call and includes network time to the Gateway.
 
-| Metric | Value | Sample |
+| Metric | Value | Source |
 |---|---|---|
-| Successful live decisions | **0.** The Gateway returns "AI Gateway requires a valid credit card on file to service requests" | 3 attempts, 2026-09-25 and 2026-09-26 |
-| Calls attempted against the live Gateway | 3, all from the production deployment | one machine, one IP, `ap-south-1` Supabase, Vercel default region |
-| Round trip to that error | 393 ms, 311 ms, 165 ms | the same 3 attempts |
-| Median latency of a decision | **Not measured.** The three figures above are times to an error, not to a decision, so no latency figure is published | n/a |
-| Rate limit, proven | 10 live calls per IP per hour, [D38](../07-decision-log.md) | see the proof below |
+| Live calls that returned a decision | **22.** 15 from `scripts/jev-latency.mjs`, 3 from `scripts/capture-jev.mjs`, 3 through the running app, 1 through the deployed demo | the scripts' output and the rendered pages |
+| Median latency | **430 ms**, over the 15 calls of the latency run, range 389 ms to 919 ms | wall clock measured around the `evaluate` call |
+| Median excluding the first call | **421 ms.** The first call of a run was 777 ms and carries connection setup | same |
+| Input tokens per call | 482 intake, 363 grounding checker, 371 escalation router. Identical on every repeat of the same input | provider `usage.inputTokens` |
+| Output tokens | 690 across 15 calls, billed at $0 | provider `usage.outputTokens` |
+| **Cost per call** | **$0.000017** at the mean of 405 input tokens, so about **58,700 calls per dollar** | 405 tokens times $0.000000042, the Gateway's own price |
+| Total spend to produce this table | **$0.00026** for 15 calls | same arithmetic |
+| Rate limit, proven | 10 live calls per IP per hour | see the proof below |
 | Daily cap, proven | 300 live calls per day | see the proof below |
 
-**Sample size, stated plainly: three requests from one machine on one IP over two days.** That is not a
-measurement of anything. It is recorded because it is what actually happened.
+**Sample: 22 calls from one machine in one region on one day, 2026-09-26, and the median is over 15 of
+them.** That is an observation, not a benchmark, and it is not comparable to the vendor's evaluations. The
+latency includes network time from a machine in India to the Gateway, so it is an upper bound on what a
+colocated caller would see.
 
-What those three calls did prove: the key is live on the deployment, the request reaches the Gateway, the
-error path surfaces the real provider message rather than a generic one, and the call log wrote three rows
-as `anon` through the definer function with a latency and a salted IP hash and no user content.
+**Failures are not hidden in that count.** Before the account had a card, 3 calls failed with "AI Gateway
+requires a valid credit card on file to service requests". After the card was added, calls from this machine
+succeed, but the deployed demo began returning "Invalid API key or token": its copy of the key is bad, which
+is a deployment setting and not the integration. One call through the deployment succeeded before that
+redeploy, which is the 1 counted above. Every figure in this table comes from a call that returned a
+decision.
+
+Cost is the one figure here that is not a small sample. Input token counts were identical on every repeat of
+the same input, because the question schema and the state are fixed, so the per call cost is arithmetic on
+two exact numbers rather than an average over noise.
+
+### The boolean question returns no confidence, confirmed against a real response
+
+This was previously taken from the docs. It is now observed. In the same run, with the same code reading the
+same field:
+
+| Agent | Question type | `providerMetadata.typesafe.confidence` |
+|---|---|---|
+| intake | choice and score | `{"topic":1,"urgency":0.43}` |
+| escalation-router | choice | `{"queue":1}` |
+| grounding-checker | **boolean** | **`{}`**, empty |
+
+The boolean answer carried `probability: 0.71` and no confidence at all. The interface therefore shows
+"Probability the statement is true: 71%. Jev does not return a confidence for yes-or-no questions", which is
+now a description of the response rather than of the documentation.
+
+The low confidence path also fired on its own, without being contrived: on the sample message the urgency
+score came back at 0.72 with a confidence of 42%, and the screen said "Jev was not clearly decided here, so
+this one would go to a person rather than through automatically." The same agent returned 100% on the topic
+in the same call, so one answer routed itself to a human while the other did not.
+
+### The key does not reach the browser
+
+Checked after a production build, with a positive control so the check can fail:
+
+| Searched for | In `.next/static`, which is what the browser gets |
+|---|---|
+| The `AI_GATEWAY_API_KEY` value | absent |
+| The `JEV_IP_SALT` value | absent |
+| Either variable name | absent |
+| The string `function`, the control | found, so the search works |
+
+No client component imports `lib/jev`, which is `import "server-only"` at its first line. One honest detail:
+the key value does appear in `.next/cache/turbopack` on the machine that ran the build. That directory is a
+local build cache, it is covered by `.gitignore`, no file under `.next` is tracked, and only `.next/static`
+is ever served.
 
 ### Guardrails, proven rather than assumed
 
-Both limits are enforced before the Gateway is called, so they could be proven while the model itself was
-still refusing. `jev_call_counts` counts only rows with `outcome = 'live'`, so a failed call does not spend
-anyone's quota, which also means failures could not be used to trip the limit. The counter state was set
-directly in the table instead, then removed:
+Both limits are enforced before the Gateway is called, so they were provable even while the model was still
+refusing. `jev_call_counts` counts only rows with `outcome = 'live'`, so a failed call does not spend
+anyone's quota, which also meant the failures above could not be used to trip the limit. The counter state
+was set directly in the table instead, then removed:
 
 | Limit | Counter state set | Request made | Result |
 |---|---|---|---|
@@ -101,14 +149,8 @@ directly in the table instead, then removed:
 
 Those 310 rows were synthetic, inserted only to move a counter, and every one carried `latency_ms = null`
 so that no published median could ever be drawn from them. All 310 were deleted afterwards, along with the
-two log rows the two test requests themselves produced. The table now holds exactly the three real rows
-above and nothing else. The method and why it is recorded this way: [D39](../07-decision-log.md).
-
-### Still unproven
-
-**A boolean question returns no confidence.** The code keeps `probability` and `confidence` separate and the
-UI labels each as what it is, but that behaviour rests on the AI SDK docs, not on a response we have seen.
-It cannot be checked until a live call succeeds, so it is listed here rather than claimed.
+two log rows the two test requests themselves produced. The method and why it is recorded this way:
+[D39](../07-decision-log.md).
 
 Verified from the Gateway's own models endpoint, `https://ai-gateway.vercel.sh/v1/models`, which needs no
 authentication, read 2026-09-26. A primary source rather than a published claim:

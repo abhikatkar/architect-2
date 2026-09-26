@@ -557,3 +557,26 @@ Format: date, decision, evidence, alternatives rejected.
   build wrapper, which is outside this tree.
 - **Rejected:** `npm install --no-warnings` or pinning a transitive dependency to hide the notice. The notice
   is true and it is the only signal that this pin needs revisiting once `eslint-plugin-react` supports 10.
+
+### D41. 2026-09-26: Jev is live, and what the real responses changed
+- **Decision:** the three decision agents are now Functional in the README. 22 live calls returned decisions.
+- **Evidence:** median 430 ms over the 15 call run of `scripts/jev-latency.mjs`, range 389 ms to 919 ms, the
+  first call of a run carrying connection setup. Input tokens are fixed per agent, 482, 363 and 371, because
+  the schema and the state are fixed, so cost is exact arithmetic rather than an average: $0.000017 per call
+  at the mean, about 58,700 calls per dollar. Producing that table cost $0.00026.
+- **What the responses settled, which the docs could not:** in one run the choice and score agents returned a
+  populated `providerMetadata.typesafe.confidence` and the boolean agent returned `{}`. The claim that a
+  boolean carries no confidence is now an observation. The interface already said so, and now it is checked.
+- **A low confidence case appeared on its own.** The sample message scored urgency at 0.72 with 42%
+  confidence while topic came back at 100% in the same call, so one answer in a single call routes itself to
+  a person and the other does not. That is a better demonstration than anything contrived, and it is the
+  reason the threshold is shown in words rather than as a number alone.
+- **The classification is not a formality.** Given "My invoice charged me twice this morning and I need the
+  money back today", intake moved from the sample's `billing_credits` to `billing_refunds` at 95% and scored
+  urgency 2.95 of 3, the rubric level that reads "money has left their account".
+- **Recorded in `scripts/jev-latency.mjs` rather than pasted.** The published latency and cost come from a
+  script in the repo, so a reader can re-run it and get their own numbers instead of trusting these.
+- **Two failure modes were hit and are documented, not hidden:** before a card was on the account the Gateway
+  refused with "requires a valid credit card on file", and both `.env.local` values had been pasted wrapped
+  in angle brackets, which the Gateway reports as `401 authentication_error`. The deployment still carries a
+  bad copy of the key and is called out in the README rather than papered over.

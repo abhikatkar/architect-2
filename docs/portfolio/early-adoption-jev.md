@@ -39,17 +39,22 @@ Measured by us, on our own calls, and published in [metrics.md](metrics.md):
 
 - **Median wall-clock latency** of a live call, measured in our own code around the `evaluate` call.
 - **Call count**, from the `jev_calls` table.
+- **Cost per call**, from the provider's own token counts multiplied by the Gateway's published price.
 
-Both are small-sample figures from one machine in one region on one day. They are not a benchmark and are
-not comparable to the vendor's evaluations below.
+Both latency and cost are small-sample figures from one machine in one region on one day. They are not a
+benchmark and are not comparable to the vendor's evaluations below.
 
-**Status as of 26 Sep 2026: no successful live call yet.** The key is configured on the deployment and the
-request does reach the Gateway, which returns:
+**Status as of 26 Sep 2026: live and answering.** 22 calls returned decisions, median 430 ms, about
+$0.000017 per call. The run that produced those numbers is reproducible: `scripts/jev-latency.mjs`.
 
-> AI Gateway requires a valid credit card on file to service requests.
+Two things the live responses settled that the docs alone could not:
 
-So the integration is wired end to end and the failure path is exercised, but the model has not answered.
-Latency figures below are for the round trip to that error, not for a decision.
+1. **A boolean question really does return no confidence.** In one run, the two choice and score agents
+   returned a populated `providerMetadata.typesafe.confidence` and the boolean agent returned `{}`. The
+   Grounding Checker shows a probability because that is all there is, not as a matter of interpretation.
+2. **Low confidence occurs on ordinary input.** The urgency score on the sample message came back at 42%
+   confidence while the topic in the same call came back at 100%, so the interface's "this one would go to
+   a person" path fired without being contrived.
 
 **The AI SDK does not return a latency.** No timing field is documented on the evaluate result, so every
 latency here is wall-clock measured on our side, which includes network time to the Gateway. That is what
@@ -94,7 +99,8 @@ That is $0.042 per million input tokens, with output free.
 ## Limitations
 
 - **Early access to a new model.** Jev became available on 16 September 2026 and this integration is ten
-  days later. There is no long-run reliability history to draw on.
+  days later. There is no long-run reliability history to draw on. Our own sample is 22 calls on one day,
+  which says nothing about reliability over weeks.
 - **The API is experimental.** `experimental_evaluate` is prefixed that way deliberately, and the AI SDK
   docs state it "and the evaluation model specification are experimental and may change in patch releases".
   It requires AI SDK 7.0.105 or later; this repo pins 7.0.114.
@@ -105,7 +111,8 @@ That is $0.042 per million input tokens, with output free.
 - **Confidence is not available for boolean questions.** The docs state Jev returns
   `providerMetadata.typesafe.confidence` for choice and score only, and that a boolean's `probability` is
   the probability the statement is true and "not a confidence in either outcome". The Grounding Checker
-  therefore shows a probability, not a confidence, and the interface says which it is.
+  therefore shows a probability, not a confidence, and the interface says which it is. Confirmed against
+  real responses on 26 Sep 2026, not taken on the documentation's word: see [metrics.md](metrics.md).
 - **Calibration is not promised.** The docs treat overconfident answers as a calibration concern rather than
   an API error, so a high probability is not a guarantee of correctness.
 
