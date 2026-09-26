@@ -272,7 +272,7 @@ export function BuildProgress({
             <button
               type="button"
               onClick={replay}
-              className="min-h-11 rounded-input border border-rule px-3 text-body"
+              className="min-h-11 rounded-input border border-rule-strong px-3 text-body"
             >
               Replay build
             </button>
@@ -294,7 +294,7 @@ export function BuildProgress({
         >
           <button
             type="submit"
-            className="min-h-11 rounded-input border border-rule px-3 text-body"
+            className="min-h-11 rounded-input border border-rule-strong px-3 text-body"
           >
             Finish build
           </button>

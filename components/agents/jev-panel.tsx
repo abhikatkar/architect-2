@@ -121,7 +121,7 @@ export function JevPanel({
           rows={2}
           maxLength={500}
           placeholder={spec.sampleState[spec.inputField]}
-          className="w-full resize-none rounded-input border border-rule bg-paper p-2 text-small placeholder:text-graphite"
+          className="w-full resize-none rounded-input border border-rule-strong bg-paper p-2 text-small placeholder:text-graphite"
         />
         <div className="flex flex-wrap items-center gap-2">
           <button

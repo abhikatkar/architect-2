@@ -76,7 +76,7 @@ export function Sheet({
           </div>
           <Link
             href={back}
-            className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+            className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
           >
             Close
           </Link>
@@ -115,7 +115,7 @@ export function SheetTrigger({
       className={`inline-flex min-h-11 items-center rounded-input px-3 text-body ${
         variant === "primary"
           ? "bg-blueprint text-paper"
-          : "border border-rule text-ink"
+          : "border border-rule-strong text-ink"
       }`}
     >
       {children}

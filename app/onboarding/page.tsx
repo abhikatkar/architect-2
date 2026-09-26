@@ -57,7 +57,7 @@ export default async function OnboardingPage(props: PageProps<"/onboarding">) {
             <input type="hidden" name="next" value={next} />
             <button
               type="submit"
-              className="flex w-full min-w-0 flex-col gap-1 rounded-panel border border-rule p-4 text-left"
+              className="flex w-full min-w-0 flex-col gap-1 rounded-panel border border-rule-strong p-4 text-left"
             >
               <span className="text-lead font-medium">{c.title}</span>
               <span className="max-w-[72ch] text-small text-graphite">{c.blurb}</span>
@@ -73,7 +73,7 @@ export default async function OnboardingPage(props: PageProps<"/onboarding">) {
           <input type="hidden" name="next" value={next} />
           <button
             type="submit"
-            className="min-h-11 rounded-input border border-rule px-4 text-body text-graphite"
+            className="min-h-11 rounded-input border border-rule-strong px-4 text-body text-graphite"
           >
             Skip for now
           </button>

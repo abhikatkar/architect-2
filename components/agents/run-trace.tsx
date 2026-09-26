@@ -69,7 +69,7 @@ export function RunTraceView({
         </div>
         <Link
           href={query({ why: "", fix: "" })}
-          className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+          className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
         >
           Close
         </Link>
@@ -153,7 +153,7 @@ export function RunTraceView({
             </p>
             <Link
               href={query({ fix: "" })}
-              className="inline-flex min-h-11 items-center self-start rounded-input border border-rule px-3 text-body"
+              className="inline-flex min-h-11 items-center self-start rounded-input border border-rule-strong px-3 text-body"
             >
               Revert to {fix.previousVersion}
             </Link>

@@ -30,7 +30,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
           id="add-agent-trigger"
           data-return-to="add-agent-trigger"
           href={query({ sheet: "framework" })}
-          className="order-last ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-body sm:order-none"
+          className="order-last ml-auto inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-body sm:order-none"
         >
           Add agent
         </Link>
@@ -49,7 +49,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
               href={`${query({ agent: a.id, why: "", pane: "canvas" })}#agent-inspector`}
               aria-current={a.id === selected ? "true" : undefined}
               className={`flex min-h-11 flex-col justify-center rounded-panel border p-3 ${
-                a.id === selected ? "border-blueprint" : "border-rule"
+                a.id === selected ? "border-blueprint" : "border-rule-strong"
               }`}
             >
               <span className="text-body font-medium">{a.name}</span>
@@ -126,7 +126,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
             href={`${query({ agent: a.id, why: "", pane: "canvas" })}#agent-inspector`}
             aria-current={a.id === selected ? "true" : undefined}
             className={`absolute w-[22%] min-w-[150px] -translate-y-1/2 rounded-panel border bg-paper p-2 ${
-              a.id === selected ? "border-blueprint" : "border-rule"
+              a.id === selected ? "border-blueprint" : "border-rule-strong"
             }`}
             style={{ left: `${a.at.x}%`, top: `${a.at.y}%` }}
           >
@@ -145,7 +145,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
             <li key={r.id}>
               <Link
                 href={query({ why: r.id, agent: "", pane: "canvas" })}
-                className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 rounded-input border border-rule px-3 py-2"
+                className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 rounded-input border border-rule-strong px-3 py-2"
               >
                 <span className="min-w-0 flex-1 truncate text-body">{r.question}</span>
                 <span

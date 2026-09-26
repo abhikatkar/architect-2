@@ -90,7 +90,9 @@ export function ThemeToggle({
       method="post"
       /* How the inline capture handler in the layout finds this form. */
       data-theme-form
-      className="flex items-center gap-0.5 rounded-input border border-rule p-0.5"
+      /* rule-strong, not rule: this outline is what groups the three buttons
+         into one control, so it is a control boundary rather than a divider. */
+      className="flex items-center gap-0.5 rounded-input border border-rule-strong p-0.5"
       /* Reached only if the inline handler is not there, since it prevents
          this submit. Kept so the fast path does not depend on one script tag. */
       onSubmit={(event) => {

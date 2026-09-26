@@ -16,16 +16,16 @@
   -->
   <style>
     .plate { fill: #f5f7f6; }
-    .grid  { stroke: #d9dfe3; }
-    .line  { stroke: #1d4ed8; }
-    .node  { fill: #1d4ed8; }
-    .hub   { fill: #f5f7f6; stroke: #1d4ed8; }
+    .grid  { stroke: #dce2ec; }
+    .line  { stroke: #2451e6; }
+    .node  { fill: #2451e6; }
+    .hub   { fill: #f5f7f6; stroke: #2451e6; }
     @media (prefers-color-scheme: dark) {
       .plate { fill: #0e1a2b; }
-      .grid  { stroke: #22324a; }
-      .line  { stroke: #7fa6ff; }
-      .node  { fill: #7fa6ff; }
-      .hub   { fill: #0e1a2b; stroke: #7fa6ff; }
+      .grid  { stroke: #23354e; }
+      .line  { stroke: #6e9bff; }
+      .node  { fill: #6e9bff; }
+      .hub   { fill: #0e1a2b; stroke: #6e9bff; }
     }
   </style>
 

@@ -13,24 +13,39 @@ Checked against today's Architect and the 5 tested tools, and against generic ge
 | Token | Light | Dark | Meaning (and only this meaning) |
 |---|---|---|---|
 | `paper` | #F5F7F6 | #0E1A2B | Canvas. Dark mode is blueprint navy, not black |
-| `ink` | #16202E | #E8EEF6 | Primary text |
-| `graphite` | #586474 | #9AA8BA | Secondary text |
-| `rule` | #D9DFE3 | #22324A | Borders and dividers |
-| `blueprint` | #1D4ED8 | #7FA6FF | Primary action, selection, the blueprint drawing |
+| `ink` | #0B1F4D | #E8EEF6 | Primary text |
+| `graphite` | #4F5F7C | #9FB0C8 | Secondary text |
+| `rule` | #DCE2EC | #23354E | Hairline dividers and panel edges. Decorative |
+| `rule-strong` | #7D89A1 | #5C6E8C | The outline of a control, at 3:1. Never a divider |
+| `blueprint` | #2451E6 | #6E9BFF | Primary action, selection, the blueprint drawing |
 | `cost` | #A16207 | #E3B35C | Money only: estimates, meters, charges |
 | `live` | #15803D | #5CCB8A | What is live in production, passing checks |
 | `fault` | #B42318 | #FF8A7A | Errors and stopped loops |
 
 Rules: `cost` never appears on anything that is not money. `live` never means "success" in general, only "this is what users see". Status is never color alone; it always has an icon and a word.
 
+`ink` is a deep navy rather than a near-black, and `blueprint` a more vivid blue, so the two carry the same family and the page reads as drawn in one ink at two strengths. Both are measured, not asserted: `scripts/contrast-check.mjs` composites every rendered text pair in both themes and fails the commit below AA.
+
+Two border tokens, because a border does two different jobs. `rule` divides things you read and is decorative, so WCAG exempts it. `rule-strong` is the outline of something you can click, where the outline is what says "control", and it holds 3:1 against what is behind it (WCAG 1.4.11). One token could not be both without making every hairline in the workspace heavy.
+
 ## Type
-- **Instrument Sans** (Google Fonts) for all interface text. One family, weights 400, 500, 600.
+- **Urbanist** (Google Fonts, SIL OFL) for display and headings, weights 600 and 700, from 20 px up.
+- **Instrument Sans** (Google Fonts, SIL OFL) for all interface text, weights 400, 500, 600, and for headings below 20 px. Both faces were rendered side by side at 15, 18, 20 and 24 px before this rule was written: at 15 px Urbanist sets narrower, with a smaller x-height and counters in a, e and g that close up. At 20 px and above it is clearly the better display face.
 - **JetBrains Mono** only where the text is literally what the machine sees: code, config files, logs, diffs, terminal. Mono means "raw". The guided layer never uses it; the details layer does. The font itself tells the user which depth they are in.
-- Scale (px): 12, 13, 14 (body), 16, 20, 26, 34. Line height 1.5 for body, 1.2 for headings. Sentence case everywhere. Max line length 72 characters.
+- Sentence case everywhere. Max line length 72 characters.
+
+One scale, two tiers. A token belongs to one tier or the other, which is what stops a landing page from quietly picking up a 13 px caption.
+
+| Tier | Where | Sizes (px) | Line height |
+|---|---|---|---|
+| Marketing | Landing, sign in, onboarding, privacy, terms, the diagrams index | `note` 16, `lead` 18, `subhead` 20, `heading` 32, `display` 48, `hero` 36 to 60 | 1.5 body, about 1.15 headings, 1.05 hero |
+| Workspace | The demo and the signed-in workspace | `caption` 13, `small` 14, `body` 15, `lead` 18, `title` 24, `heading` 32 | 1.5 body, 1.15 headings |
+
+The hero is `clamp(2.25rem, 1.2rem + 3.6vw, 3.75rem)`: 36 px on a phone, 56 px at 1024, 60 px from about 1130 up. The marketing floor of 16 px is asserted on the rendered page by `scripts/contrast-check.mjs`.
 
 ## Shape and depth
-- Radius follows hierarchy: 4 px for inputs and chips, 8 px for panels, 12 px for modals and sheets. Never one radius for everything.
-- Panels sit on hairline `rule` borders with no shadow. Only overlays (menus, modals) get elevation.
+- Radius follows hierarchy: 8 px for inputs and chips, 12 px for panels, 16 px for cards, sheets and modals, and a pill for primary calls to action on marketing surfaces. Never one radius for everything. `card` and `overlay` are the same 16 px on purpose: a card and a sheet are the same object at two depths, so they read as the same shape.
+- One elevation token, `shadow-soft`. Marketing cards and every overlay. Workspace panels stay flat on a hairline `rule` border, because a workspace with shadows on every panel reads as clutter at the density the workspace runs at.
 - Spacing on a 4 px base: 4, 8, 12, 16, 24, 32, 48.
 - The blueprint grid (a faint 24 px grid in `blueprint` at 6% opacity) appears only on the Plan and Agents canvases.
 
@@ -112,5 +127,7 @@ One orchestrated moment: during a build, stages resolve in sequence and the ledg
 ## Accessibility floor
 WCAG AA contrast in both themes, visible focus ring in `blueprint`, full keyboard navigation, status never conveyed by color alone.
 
+Measured rather than asserted. `scripts/contrast-check.mjs` walks 16 surfaces in both themes, composites the real background behind every run of text, and applies the threshold that text's own size and weight earn: 3:1 for large text, 4.5:1 otherwise. It also holds control outlines at 3:1 and the focus ring at 3:1. It runs before every commit.
+
 ## Tailwind mapping
-Tokens map one to one to CSS variables on `:root` and `[data-theme="dark"]`, exposed in `tailwind.config` as `colors.paper`, `colors.ink`, `colors.graphite`, `colors.rule`, `colors.blueprint`, `colors.cost`, `colors.live`, `colors.fault`, with `fontFamily.sans` = Instrument Sans and `fontFamily.mono` = JetBrains Mono.
+Tokens map one to one to CSS variables on `:root` and `[data-theme="dark"]`, exposed in `tailwind.config` as `colors.paper`, `colors.ink`, `colors.graphite`, `colors.rule`, `colors.ruleStrong`, `colors.blueprint`, `colors.cost`, `colors.live`, `colors.fault`, with `fontFamily.display` = Urbanist, `fontFamily.sans` = Instrument Sans and `fontFamily.mono` = JetBrains Mono.

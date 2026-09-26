@@ -1274,7 +1274,7 @@ async function raw(path) {
     "the icon is a real SVG with a dark variant inside it",
     icon.status === 200 &&
       svg.includes("prefers-color-scheme: dark") &&
-      svg.includes("#1d4ed8"),
+      svg.includes("#2451e6"),
     "blueprint light and dark, in one file",
   );
   const og = await fetch(`${base}/opengraph-image.png`);

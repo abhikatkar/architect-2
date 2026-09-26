@@ -116,7 +116,7 @@ export function Conversation({
           rows={2}
           disabled={readOnly}
           placeholder={readOnly ? "Sign in to make changes" : "Ask for a change..."}
-          className="w-full resize-none rounded-panel border border-rule bg-paper p-3 text-body placeholder:text-graphite disabled:opacity-60"
+          className="w-full resize-none rounded-panel border border-rule-strong bg-paper p-3 text-body placeholder:text-graphite disabled:opacity-60"
         />
         <div className="flex items-center justify-between gap-2">
           <span className="text-caption text-graphite">

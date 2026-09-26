@@ -43,7 +43,7 @@ export function DemoButton({
         className={`inline-flex min-h-11 cursor-not-allowed items-center rounded-input px-4 text-body ${
           variant === "primary"
             ? "bg-blueprint text-paper"
-            : "border border-rule text-ink"
+            : "border border-rule-strong text-ink"
         }`}
       >
         {children}
@@ -81,7 +81,7 @@ export function DemoSwitch({
         aria-checked={on}
         aria-disabled="true"
         aria-describedby={noteId}
-        className="inline-flex min-h-11 cursor-not-allowed items-center gap-2 rounded-input border border-rule px-3 text-small"
+        className="inline-flex min-h-11 cursor-not-allowed items-center gap-2 rounded-input border border-rule-strong px-3 text-small"
       >
         <span className="rounded-input border border-rule px-2 py-0.5 text-caption">
           {on ? "on" : "off"}

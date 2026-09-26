@@ -77,7 +77,7 @@ export default async function LandingPage() {
             </Link>
             <Link
               href="/login"
-              className="inline-flex min-h-11 items-center rounded-input border border-rule px-5 text-lead"
+              className="inline-flex min-h-11 items-center rounded-input border border-rule-strong px-5 text-lead"
             >
               Sign in
             </Link>
@@ -118,7 +118,7 @@ export default async function LandingPage() {
           </p>
           <a
             href={REPO}
-            className="mt-3 inline-flex min-h-11 items-center rounded-input border border-rule px-4 text-body text-blueprint"
+            className="mt-3 inline-flex min-h-11 items-center rounded-input border border-rule-strong px-4 text-body text-blueprint"
           >
             Read the process on GitHub
           </a>

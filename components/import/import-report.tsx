@@ -107,7 +107,7 @@ export function ImportReport({
                   href={`${basePath}?repo=${encodeURIComponent(e.repo)}`}
                   aria-current={active ? "page" : undefined}
                   className={`flex min-h-11 min-w-0 flex-wrap items-center gap-x-3 gap-y-1 rounded-input border p-3 ${
-                    active ? "border-blueprint" : "border-rule"
+                    active ? "border-blueprint" : "border-rule-strong"
                   }`}
                 >
                   <span className="font-mono text-small">{e.repo}</span>

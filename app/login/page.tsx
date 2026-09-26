@@ -67,7 +67,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
           <span className="text-body text-graphite">Just looking?</span>
           <Link
             href="/demo"
-            className="inline-flex min-h-11 items-center rounded-input border border-rule px-4 text-body"
+            className="inline-flex min-h-11 items-center rounded-input border border-rule-strong px-4 text-body"
           >
             Try the demo, no account needed
           </Link>

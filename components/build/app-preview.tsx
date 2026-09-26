@@ -96,7 +96,7 @@ export function AppPreview({
           </span>
           <button
             type="button"
-            className="min-h-11 rounded-input border border-rule px-3 text-body"
+            className="min-h-11 rounded-input border border-rule-strong px-3 text-body"
           >
             Refresh preview
           </button>
