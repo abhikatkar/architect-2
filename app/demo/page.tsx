@@ -18,7 +18,7 @@ const BASE = "/demo";
 export default async function DemoPage(props: PageProps<"/demo">) {
   const searchParams = await props.searchParams;
   const {
-    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, query,
+    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, file, diff, panel, accept, revert, query,
   } =
     workspaceUrl(BASE, searchParams, "guided", "app", "canvas");
   const theme = await currentTheme();
@@ -33,7 +33,7 @@ export default async function DemoPage(props: PageProps<"/demo">) {
       fixApplied={fixApplied}
       theme={theme}
       themeNext={query({})}
-      basePath="/demo"
+      query={query}
       readOnly
       banner={
         <div className="border-b border-rule bg-blueprint/10 px-4 py-2 sm:px-6">
@@ -85,6 +85,11 @@ export default async function DemoPage(props: PageProps<"/demo">) {
           jev={jev}
           jevResult={jevResult}
           jevSig={jevSig}
+          file={file}
+          diff={diff}
+          panel={panel}
+          accept={accept}
+          revert={revert}
           basePath={BASE}
           query={query}
           // The demo never writes to the database (D29).

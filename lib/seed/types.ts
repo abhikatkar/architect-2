@@ -105,11 +105,6 @@ export type Version = {
   estimate?: { low: number; high: number };
 };
 
-export type Commit = {
-  sha: string;
-  message: string;
-  files: number;
-};
 
 export type ImportExample = {
   repo: string;
@@ -182,6 +177,73 @@ export type Ledger = {
   cap: number;
 };
 
+/** One file in the generated app. The tree is derived from the paths (D36). */
+export type CodeFile = {
+  /** Slug used as the URL token, so it stays short and stable. */
+  id: string;
+  path: string;
+  language: "tsx" | "ts" | "sql" | "yaml" | "md";
+  /**
+   * The file as it stands. Absent means the path exists in the repo but the
+   * demo does not carry its contents, which the file view says rather than
+   * showing an empty editor.
+   */
+  body?: string;
+};
+
+/** One side of one printed diff row. */
+export type DiffSide = { line: number; text: string };
+
+/**
+ * One printed row, already paired.
+ *
+ * Pairing lives in the data, not in either renderer, which is what lets the
+ * unified and side by side views both be a plain map over the same array and
+ * never disagree. A pure addition or deletion is the variant with one side null.
+ */
+export type DiffRow =
+  | { kind: "same"; old: DiffSide; new: DiffSide }
+  | { kind: "mod"; old: DiffSide; new: DiffSide }
+  | { kind: "add"; old: null; new: DiffSide }
+  | { kind: "del"; old: DiffSide; new: null };
+
+/** One changed file inside a request. Added and removed counts are derived. */
+export type FileDiff = {
+  /** Slug. The accept and revert token in the URL. Unique across the project. */
+  id: string;
+  fileId: string;
+  status: "added" | "modified";
+  rows: DiffRow[];
+};
+
+/** Changes are grouped by the request that caused them, not by file. */
+export type ChangeRequest = {
+  /** The commit sha once it lands. */
+  id: string;
+  /** The words the person typed. This is what groups the files. */
+  request: string;
+  message: string;
+  ago: string;
+  /** Absent until the change is applied, like v15. */
+  version: string | null;
+  diffs: FileDiff[];
+};
+
+export type TerminalLine = { stream: "in" | "out"; text: string };
+export type LogLine = {
+  at: string;
+  level: "info" | "warn" | "error";
+  source: string;
+  text: string;
+};
+/** Reads like CI. State always carries a word, never colour alone (D20). */
+export type CheckResult = {
+  name: string;
+  state: "pass" | "fail";
+  detail: string;
+  ms: number;
+};
+
 export type DemoProject = {
   slug: string;
   name: string;
@@ -203,7 +265,6 @@ export type DemoProject = {
   /** Numbers taken by builds that never deployed. Each charged $0.00. */
   discarded: { label: string; reason: string; cost: number }[];
   versions: Version[];
-  commits: Commit[];
   imports: ImportExample[];
   stages: BuildStage[];
   clarifiers: Clarifier[];

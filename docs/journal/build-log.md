@@ -73,7 +73,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 06:40 | Polish pass 3: the grounding bar corrected against six labeled drafts, four demo bugs, an instant theme toggle, and the diagrams brought back in sync | 3 h 20 min | Claude Code, Chrome over CDP, archify | The second worked example did its job immediately: a faithful draft scored 0.82 and our own 0.90 bar rejected it, so the bar was wrong, not the model. Six labeled drafts now hold it in place. Theme switch measured at 12 ms against the 4 to 6 seconds the review saw |
 
-**Day total so far:** 19 h 50 min across 11 commits.
+| 09:15 | Slice 5, the Code tab: file tree, read-only file view, diffs grouped by request, accept and revert in the address, terminal, logs and checks | 3 h 50 min | Claude Code, Chrome over CDP | Found a bug in existing code first: tab links were hand built and dropped every carried parameter, so clicking any tab silently reverted an applied fix. Proved it, fixed it, asserted it. The phone layout put 42 file rows above the thing you came to review until CSS order moved them |
+
+**Day total so far:** 23 h 40 min across 12 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

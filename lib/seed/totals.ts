@@ -1,4 +1,9 @@
-import type { DemoProject } from "./types";
+import type {
+  ChangeRequest,
+  DemoProject,
+  DiffRow,
+  FileDiff,
+} from "./types";
 
 /**
  * Every total in the product, derived from its parts.
@@ -66,4 +71,47 @@ export function spendThrough(p: DemoProject, index: number): number {
 /** Total conversations, which is the status counts added up. */
 export function conversationTotal(p: DemoProject): number {
   return p.counts.open + p.counts.resolved + p.counts.escalated;
+}
+
+/* Code tab. Nothing below is stored in the fixture: it is all counted. */
+
+/** Files a request touched. The fixture never carries a file count. */
+export function changedFileCount(change: ChangeRequest): number {
+  return change.diffs.length;
+}
+
+export function addedLines(diff: FileDiff): number {
+  return diff.rows.filter((r: DiffRow) => r.kind === "add" || r.kind === "mod").length;
+}
+
+export function removedLines(diff: FileDiff): number {
+  return diff.rows.filter((r: DiffRow) => r.kind === "del" || r.kind === "mod").length;
+}
+
+/** Every diff id in the project, in fixture order, which is the URL order. */
+export function allDiffIds(changes: ChangeRequest[]): string[] {
+  return changes.flatMap((c) => c.diffs.map((d) => d.id));
+}
+
+/**
+ * A request has no verdict of its own. It reads back from its files, so a
+ * request can never say "accepted" while a file inside it says "reverted".
+ */
+export function requestVerdict(
+  change: ChangeRequest,
+  accepted: string[],
+  reverted: string[],
+): "accepted" | "reverted" | "mixed" | "open" {
+  const ids = change.diffs.map((d) => d.id);
+  const a = ids.filter((id) => accepted.includes(id)).length;
+  const r = ids.filter((id) => reverted.includes(id)).length;
+  if (a === ids.length) return "accepted";
+  if (r === ids.length) return "reverted";
+  if (a + r === 0) return "open";
+  return "mixed";
+}
+
+/** Checks pass count, counted rather than written down. */
+export function checksPassed(checks: { state: "pass" | "fail" }[]): number {
+  return checks.filter((c) => c.state === "pass").length;
 }

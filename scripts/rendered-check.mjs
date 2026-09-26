@@ -276,6 +276,126 @@ async function get(path) {
   );
 }
 
+// 14. The Code tab: tree, read-only file view, and the editor honesty line.
+{
+  const { html } = await get("/demo?tab=code&pane=canvas");
+  const text = visibleText(html);
+  check(
+    "the code tab lists the whole file tree, read only",
+    text.includes("42 files, read only"),
+    "42 paths",
+  );
+  check(
+    "the Edit control says what it would do and that this demo does not",
+    text.includes("In the full product this opens an editor. This demo is read-only."),
+    "editor honesty line",
+  );
+  check(
+    "changes are grouped by the request that caused them",
+    text.includes("Asked for: Show me why each conversation was escalated"),
+    "request wording above the files",
+  );
+  check(
+    "accept and revert say they are demo actions",
+    text.includes("the verdict travels in the page address"),
+    "demo label beside the controls",
+  );
+}
+
+// 15. A file opens in mono and shows the agent's own config, not a copy of it.
+{
+  const { html } = await get("/demo?tab=code&pane=canvas&file=agents-answer-yaml");
+  const text = visibleText(html);
+  check(
+    "a file opens read only in mono",
+    text.includes("model: claude-sonnet-4-6") && html.includes("font-mono"),
+    "agents/answer.yaml body",
+  );
+}
+
+// 16. A diff renders both ways from one array, and says which lines moved.
+{
+  const { html } = await get("/demo?tab=code&pane=canvas&diff=d6");
+  const text = visibleText(html);
+  check(
+    "the diff shows the parameter moving",
+    text.includes("temperature: 0.4") && text.includes("temperature: 0.2"),
+    "0.4 to 0.2, derived from the agent",
+  );
+  check(
+    "side by side at laptop width, unified below it",
+    html.includes("lg:table") && html.includes("lg:hidden"),
+    "one array, two renderings",
+  );
+  check(
+    "diff cells align to the top so wrapped lines keep their rhythm",
+    html.includes("align-top") && html.includes("[overflow-wrap:anywhere]"),
+    "align-top and wrapping, not sideways scroll",
+  );
+}
+
+// 17. Verdicts are URL state, and a request reads back from its files.
+{
+  const { html } = await get("/demo?tab=code&pane=canvas&accept=d6");
+  const text = visibleText(html);
+  check(
+    "an accepted file reports back as accepted",
+    text.includes("ok accepted"),
+    "accept=d6",
+  );
+  const { html: mixed } = await get("/demo?tab=code&pane=canvas&accept=d1&revert=d2");
+  check(
+    "a part accepted request says so rather than claiming either",
+    visibleText(mixed).includes("part accepted"),
+    "derived from its files, never stored",
+  );
+  const { html: junk } = await get("/demo?tab=code&pane=canvas&accept=nonsense");
+  check(
+    "an id that is not in the fixture is dropped, not rendered",
+    !visibleText(junk).includes("nonsense"),
+    "hand typed ids are validated",
+  );
+}
+
+// 18. The bottom panel, and the one real artifact on the screen.
+{
+  const { html } = await get("/demo?tab=code&pane=canvas&panel=checks");
+  const text = visibleText(html);
+  check(
+    "checks read like CI, with a word beside the colour",
+    /ok pass\s+Type check/.test(text) && text.includes("Preview health"),
+    "state carries a word",
+  );
+  check(
+    "the real change is labeled real and linked to the commit",
+    text.includes("Real change, from this repository") &&
+      html.includes("/commit/b8ba98a700fc94f6f868c78b5d98b12c52b5f527"),
+    "b8ba98a, generated from git",
+  );
+  const { html: phone } = await get("/demo?tab=code&pane=canvas");
+  check(
+    "the terminal is absent on a phone and says why",
+    phone.includes("The terminal is not shown on a phone"),
+    "D22, stated rather than silent",
+  );
+}
+
+// 19. Carried state survives a tab click, which it did not before this slice.
+{
+  const { html } = await get("/demo?tab=agents&pane=canvas&fix=applied");
+  check(
+    "tab links carry the applied fix instead of silently dropping it",
+    html.includes("tab=code") && /href="\/demo\?tab=code[^"]*fix=applied/.test(html),
+    "fix survives a tab click",
+  );
+  const { html: why } = await get("/demo?tab=agents&pane=canvas&why=r-104&fix=applied");
+  check(
+    "but the run trace is cleared, so a tab click really changes tab",
+    !/href="\/demo\?tab=code[^"]*why=/.test(why),
+    "why is dropped on purpose",
+  );
+}
+
 const failed = results.filter((r) => !r.ok).length;
 for (const r of results) {
   console.log(`  ${r.ok ? "ok  " : "FAIL"} ${r.name.padEnd(52)} ${r.detail}`);

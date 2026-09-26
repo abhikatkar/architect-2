@@ -20,6 +20,15 @@ const CARRIED = [
   "jev",
   "jevResult",
   "jevSig",
+  // Code tab. `accept` and `revert` are dot separated id lists, because
+  // URLSearchParams leaves only * - . and _ unescaped and a comma would cost
+  // three characters each. Ids are validated against the fixture, so a
+  // hand-typed one is dropped rather than rendered.
+  "file",
+  "diff",
+  "panel",
+  "accept",
+  "revert",
 ] as const;
 
 type Search = Record<string, string | string[] | undefined>;
@@ -69,6 +78,13 @@ export function workspaceUrl(
   const jev = first(searchParams.jev) ?? "";
   const jevResult = first(searchParams.jevResult) ?? "";
   const jevSig = first(searchParams.jevSig) ?? "";
+  const file = first(searchParams.file) ?? "";
+  const diff = first(searchParams.diff) ?? "";
+  const rawPanel = first(searchParams.panel);
+  const panel: "terminal" | "logs" | "checks" =
+    rawPanel === "logs" || rawPanel === "checks" ? rawPanel : "terminal";
+  const accept = first(searchParams.accept) ?? "";
+  const revert = first(searchParams.revert) ?? "";
 
   const current: Record<string, string> = {
     tab: layer,
@@ -82,6 +98,12 @@ export function workspaceUrl(
     jev,
     jevResult,
     jevSig,
+    file,
+    diff,
+    // The default stays out of the URL, the same way depth and device do.
+    panel: panel === "terminal" ? "" : panel,
+    accept,
+    revert,
   };
 
   const query = (patch: Record<string, string>) => {
@@ -105,6 +127,11 @@ export function workspaceUrl(
     jev,
     jevResult,
     jevSig,
+    file,
+    diff,
+    panel,
+    accept,
+    revert,
     query,
   };
 }

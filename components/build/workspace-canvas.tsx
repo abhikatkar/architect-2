@@ -1,4 +1,5 @@
 import { LayerCanvas } from "@/components/workspace/canvas";
+import { CodeCanvas } from "@/components/code/code-canvas";
 import { verifyJevResult } from "@/lib/jev/sign";
 import type { JevResult } from "@/lib/jev";
 import { BuildProgress } from "./build-progress";
@@ -23,6 +24,11 @@ type Props = {
   jev: string;
   jevResult: string;
   jevSig: string;
+  file: string;
+  diff: string;
+  panel: "terminal" | "logs" | "checks";
+  accept: string;
+  revert: string;
   basePath: string;
   query: (patch: Record<string, string>) => string;
   /** Signed in: the route that records completion. Demo: null. */
@@ -46,6 +52,11 @@ export function WorkspaceCanvas({
   jev,
   jevResult,
   jevSig,
+  file,
+  diff,
+  panel,
+  accept,
+  revert,
   basePath,
   query,
   finishAction,
@@ -138,6 +149,21 @@ export function WorkspaceCanvas({
           fixApplied ? project.fix.newVersion : project.ledger.previewVersion
         }
         whyHref={query({ why: project.runs[0].id, pane: "canvas" })}
+      />
+    );
+  }
+
+  if (layer === "code") {
+    return (
+      <CodeCanvas
+        project={project}
+        fixApplied={fixApplied}
+        file={file}
+        diff={diff}
+        panel={panel}
+        accept={accept}
+        revert={revert}
+        query={query}
       />
     );
   }

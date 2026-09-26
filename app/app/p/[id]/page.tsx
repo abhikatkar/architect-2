@@ -23,7 +23,7 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
 
   const basePath = `/app/p/${project.id}`;
   const {
-    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, query,
+    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, file, diff, panel, accept, revert, query,
   } =
     workspaceUrl(basePath, searchParams, preferDetails ? "details" : "guided");
 
@@ -37,7 +37,7 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
       fixApplied={fixApplied}
       theme={theme}
       themeNext={query({})}
-      basePath={basePath}
+      query={query}
       banner={
         project.status === "draft" && build === "none" ? (
           <div className="border-b border-rule bg-blueprint/10 px-4 py-2 sm:px-6">
@@ -70,6 +70,11 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
           jev={jev}
           jevResult={jevResult}
           jevSig={jevSig}
+          file={file}
+          diff={diff}
+          panel={panel}
+          accept={accept}
+          revert={revert}
           basePath={basePath}
           query={query}
           finishAction={`${basePath}/built`}

@@ -11,8 +11,11 @@ type ShellProps = {
   pane: Pane;
   project: DemoProject;
   fixApplied?: boolean;
-  /** Base path for tab and pane links, e.g. "/demo" or "/app/p/abc". */
-  basePath: string;
+  /**
+   * Builds every tab and pane link, carrying the parameters already in the URL.
+   * The shell no longer needs basePath: query() closes over it.
+   */
+  query: (patch: Record<string, string>) => string;
   readOnly?: boolean;
   theme: "light" | "dark" | "system";
   themeNext: string;
@@ -21,9 +24,19 @@ type ShellProps = {
   canvas: React.ReactNode;
 };
 
-function href(basePath: string, layer: Layer, pane: Pane) {
-  return `${basePath}?tab=${layer}&pane=${pane}`;
-}
+/*
+  Tab and pane links go through query(), not a hand-built string.
+
+  They used to be `?tab=X&pane=Y`, which silently dropped every other carried
+  parameter. With the fix applied, clicking any tab reverted it: the footer went
+  from "Preview v15, 10 deploys" back to v14 and 9, with nothing said. The same
+  bug would have thrown away every accept and revert on the Code tab.
+
+  Two parameters are cleared on purpose rather than carried. Both are checked
+  before the layer in workspace-canvas, so carrying them would mean clicking
+  "Code" and still looking at the run trace or a running build.
+*/
+const TAB_PATCH = { pane: "canvas", why: "", build: "" } as const;
 
 /**
  * The workspace shell: header with layer tabs, conversation column, canvas, and
@@ -40,7 +53,7 @@ export function WorkspaceShell({
   pane,
   project,
   fixApplied,
-  basePath,
+  query,
   readOnly,
   theme,
   themeNext,
@@ -82,7 +95,7 @@ export function WorkspaceShell({
               return (
                 <li key={l}>
                   <Link
-                    href={href(basePath, l, "canvas")}
+                    href={query({ ...TAB_PATCH, tab: l })}
                     aria-current={active ? "page" : undefined}
                     className={`inline-flex min-h-11 items-center rounded-input px-2 text-body sm:px-3 ${
                       active
@@ -127,7 +140,7 @@ export function WorkspaceShell({
         {(["chat", "canvas"] as const).map((p) => (
           <Link
             key={p}
-            href={href(basePath, layer, p)}
+            href={query({ pane: p })}
             aria-current={pane === p ? "page" : undefined}
             className={`flex min-h-11 items-center justify-center text-body ${
               pane === p ? "text-blueprint" : "text-graphite"

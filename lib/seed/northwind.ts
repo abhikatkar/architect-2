@@ -195,7 +195,7 @@ queues: [billing, technical, account]`,
       customer: "Lena K.",
       question: "When will my credit be applied?",
       status: "escalated",
-      outcome: "Escalated. The embellishment bug, fixed in v15",
+      outcome: "Escalated. The embellishment bug the suggested fix addresses",
     },
     {
       id: "c-4",
@@ -303,11 +303,6 @@ queues: [billing, technical, account]`,
     { label: "v13", reason: "Discarded: the escalation queue was not configured", cost: 0 },
   ],
 
-  commits: [
-    { sha: "a41c9e2", message: "Add escalation reason to dashboard", files: 3 },
-    { sha: "7be0d15", message: "Keep answers as specific as the source", files: 1 },
-    { sha: "c93f7a0", message: "Invoice download links in answers", files: 2 },
-  ],
 
   imports: [
     {

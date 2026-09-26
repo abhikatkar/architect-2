@@ -25,6 +25,10 @@ import {
   GROUNDING_PASS_THRESHOLD,
 } from "../lib/jev/questions.ts";
 import { JEV_EXAMPLES } from "../lib/jev/examples.ts";
+import { changeRequests, codeFiles, CHECKS } from "../lib/seed/code.ts";
+import { REAL_CHANGE } from "../lib/seed/real-change.ts";
+import { GROUNDING_QUESTIONS } from "../lib/jev/questions.ts";
+import { addedLines, allDiffIds, changedFileCount } from "../lib/seed/totals.ts";
 import {
   ledgerSpend,
   conversationTotal,
@@ -235,6 +239,80 @@ check(
   "the failure state does not name a rollback version",
   !("rollbackTo" in p.failure),
   "the first build has nothing behind it",
+);
+
+// 19. The Code tab. Nothing here is stored that could be counted instead.
+const files = codeFiles(p);
+const changes = changeRequests(p);
+const diffIds = allDiffIds(changes);
+const filePaths = new Set(files.map((f) => f.path));
+const fileIds = new Set(files.map((f) => f.id));
+
+check(
+  "every changed file exists in the file tree",
+  changes.every((c) => c.diffs.every((d) => fileIds.has(d.fileId))),
+  `${diffIds.length} diffs across ${changes.length} requests`,
+);
+
+check(
+  "no change stores a file count beside the files it lists",
+  changes.every((c) => !("files" in c) && changedFileCount(c) === c.diffs.length),
+  changes.map((c) => `${c.message.slice(0, 18)}: ${changedFileCount(c)}`).join(", "),
+);
+
+check(
+  "every diff id is unique and url safe",
+  new Set(diffIds).size === diffIds.length && diffIds.every((id) => /^[a-z0-9-]+$/.test(id)),
+  `${diffIds.length} ids, dot separated in the address`,
+);
+
+check(
+  "the github consent line counts the files a reviewer can browse",
+  Number((p.copy.githubConsent.match(/push (\d+) files/) ?? [])[1]) === files.length,
+  `${files.length} files in the tree`,
+);
+
+// 20. The pending fix is the same change in all three places it appears.
+const pending = changes.find((c) => c.id === "7be0d15");
+const answer = p.agents.find((a) => a.id === "answer");
+const tempRow = pending?.diffs[0].rows.find((r) => r.kind === "mod");
+
+check(
+  "the code tab's fix diff is derived from the agent's own settings",
+  tempRow?.old.text === `temperature: ${answer.settings.temperature}` &&
+    tempRow?.new.text === `temperature: ${answer.settings.temperatureAfterFix}`,
+  `${tempRow?.old.text} to ${tempRow?.new.text}`,
+);
+
+check(
+  "the code tab and the run trace describe the same change",
+  p.trace.diff.includes(
+    `temperature: ${answer.settings.temperature} -> ${answer.settings.temperatureAfterFix}`,
+  ) && addedLines(pending.diffs[0]) === 2,
+  "one parameter moved, one rule added",
+);
+
+check(
+  "the fix change carries no version until it is applied",
+  changeRequests(p, false)[0].version === null &&
+    changeRequests(p, true)[0].version === p.fix.newVersion,
+  `null, then ${p.fix.newVersion}`,
+);
+
+// 21. The one real artifact on the screen still matches the source it came from.
+check(
+  "the captured real change still matches the live grounding criteria",
+  REAL_CHANGE.afterInstructions.includes(
+    GROUNDING_QUESTIONS.grounded.instructions.slice(0, 60),
+  ),
+  `${REAL_CHANGE.shortSha}, regenerate with scripts/capture-real-change.mjs`,
+);
+
+check(
+  "checks report a state and a word, and pass counts are derived",
+  CHECKS.every((c) => c.state === "pass" || c.state === "fail") &&
+    CHECKS.every((c) => c.ms > 0),
+  `${CHECKS.filter((c) => c.state === "pass").length} of ${CHECKS.length} pass`,
 );
 
 const failedCount = results.filter((r) => !r.ok).length;

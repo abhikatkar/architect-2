@@ -120,22 +120,6 @@ export function LayerCanvas({
     );
   }
 
-  if (layer === "code") {
-    return (
-      <Panel title="Code" note="Every change the agent made, grouped per request. Read only in this demo: the file tree and diffs arrive with the code slice.">
-        <ul className="flex flex-col gap-2">
-          {project.commits.map((c) => (
-            <li key={c.sha} className="flex flex-wrap items-baseline gap-2 text-small">
-              <span className="font-mono text-graphite">{c.sha}</span>
-              <span className="min-w-0 flex-1">{c.message}</span>
-              <span className="text-caption text-graphite">{c.files} files</span>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-    );
-  }
-
   return (
     <Panel title="Deploy" note="What is live, and what is waiting in preview.">
       <Scroller>

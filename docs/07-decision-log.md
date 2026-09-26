@@ -234,6 +234,10 @@ Format: date, decision, evidence, alternatives rejected.
   wanted a browser download when the machine already has Chrome.
 
 ### D22. 2026-09-25: The Code tab is read-only on phones
+> **Narrowed by [D48](#d48-2026-09-27-the-code-tab-is-read-only-at-every-width-and-says-so) on 2026-09-27.**
+> The phone rule below stands. The clause promising a full editor from 640 px up does not: the Code tab is
+> read-only at every width in this submission, and the Edit control says so.
+
 - **Decision:** the Code tab offers the full editor, diff and terminal from 640 px up. Below that it is
   deliberately read-only: browse files, read diffs, accept or revert changes.
 - **Evidence:** editing code on a phone keyboard is a poor experience in every tool that offers it. Shipping a
@@ -606,7 +610,14 @@ Format: date, decision, evidence, alternatives rejected.
   status table exists to prevent.
 
 ### D43. 2026-09-26: A grounding check ships only when it is confident, and the bar is an error budget
-- **Decision:** a grounding result is sent to a customer unread only at P(grounded) >= **0.90**. Below that it
+> **Superseded by [D46](#d46-2026-09-27-the-090-grounding-bar-was-wrong-and-six-real-drafts-showed-it) on
+> 2026-09-27.** The principle below holds: a grounding answer needs a bar, and 0.5 is not one. The number
+> does not. 0.90 was derived from an error budget that assumed a calibrated probability, and six labeled
+> drafts showed a fully faithful draft only reaches 0.83, so the bar rejected correct answers. The bar is
+> **0.60**. This entry is kept unedited because the reasoning it records is what went wrong.
+
+- **Decision, as made on 2026-09-26 and since corrected:** a grounding result is sent to a customer unread
+  only at P(grounded) >= **0.90**. Below that it
   goes to a person. The bar is a product decision, not the model's: Jev reads a boolean at 0.5, which for an
   answer that reaches a customer with nobody looking is a coin flip, not a bar.
 - **How 0.90 was chosen, before looking at any result:** at a bar of p, roughly (1 - p) of shipped answers
@@ -722,3 +733,50 @@ Format: date, decision, evidence, alternatives rejected.
 - **Checked, not asserted:** invariants cover that every number from 1 to the highest is accounted for with
   no gaps, that no number is both deployed and discarded, that every discarded build costs exactly $0.00 and
   carries a reason, and that the published total equals deployed plus discarded.
+
+### D48. 2026-09-27: The Code tab is read-only at every width, and says so
+- **Decision:** the Code tab browses files, reads diffs and accepts or reverts changes. It does not edit, at
+  any width. An **Edit** control sits where an editor would open and reads "In the full product this opens an
+  editor. This demo is read-only."
+- **Why the promise moved rather than the product.** D22 and the design system promised a full editor from
+  640 px up. Two things make that unbuildable here and neither is a matter of effort: the generated code is
+  simulated (D16), so there is nothing an editor would edit, and a working editor is a client component,
+  which D25 and D27 refuse. The product has exactly one client component and it is spent on the build
+  screen.
+- **Why not a disabled editor.** A textarea that silently discards what you type is the same class of
+  failure as the sign-in button that did nothing before hydration (D19), and D22 already names it: the phone
+  view says it is read-only rather than leaving the user guessing. That reasoning does not change with the
+  screen width.
+- **The docs moved to match**, as they did in D31: `design/design-system.md` corrected, D22 narrowed. This
+  is the second time building something forced a change back into the design doc, and it stays the right
+  direction of travel.
+- **Rejected:** shipping the editor as the one exception to D25, which would pull the whole workspace shell
+  into the client bundle to type into a file that does not exist.
+
+### D49. 2026-09-27: Accept and revert live in the address, and a request has no verdict of its own
+- **Decision:** a verdict is per file, held in two dot separated id lists in the URL, and a request's verdict
+  is **derived** from its files: all accepted, all reverted, part accepted, or not decided yet.
+- **Why derived.** A stored request verdict can disagree with the files under it, and the last three reviews
+  were mostly about exactly that class of disagreement. If it is counted rather than written down, a request
+  cannot claim to be accepted while a file inside it is reverted. Same rule as D36.
+- **Why the address.** It keeps the screen a server component, makes a review state shareable as a link, and
+  works before hydration. Ids are validated against the fixture, so a hand typed one is dropped rather than
+  rendered, and an id in both lists resolves to reverted so every id has exactly one state.
+- **Dot separated, not comma.** `URLSearchParams` leaves only `*`, `-`, `.` and `_` unescaped; a comma costs
+  three characters each. The list is written in fixture order rather than click order, so the same set of
+  decisions is always the same URL and can be asserted exactly.
+- **Honesty requirement:** both controls carry the words "demo action" and say the verdict is not saved,
+  beside the control rather than in a footnote.
+
+### D50. 2026-09-27: One real change sits beside the simulated ones, generated from git
+- **Decision:** the Code tab shows simulated changes for the demo app, and exactly one real one: commit
+  `b8ba98a` from this repository, the change that tightened the grounding criteria after a live call
+  disagreed with the demo. It is captured by `scripts/capture-real-change.mjs` from `git show`, never typed.
+- **Why it earns its place.** The screen's whole claim is "every change as a reviewable diff". Showing one
+  change a reader can open on GitHub and check against the repo turns that from a description into evidence,
+  and it costs one script.
+- **How it cannot drift.** A consistency invariant asserts the captured "after" line still matches the live
+  `GROUNDING_QUESTIONS` text. Editing the criteria without regenerating fails the build rather than shipping
+  a diff that no longer describes the code.
+- **Kept apart from the simulated ones:** its own panel, its own label, its own live check result, and never
+  a row in the same list. A reader should never have to work out which numbers are real.
