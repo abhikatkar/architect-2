@@ -69,7 +69,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 02:10 | Fix pass 2 from the round 2 review: the Grounding Checker contradiction, signed results, nine demo fixes, and the diagrams | 4 h 15 min | Claude Code, Chrome over CDP, Supabase MCP, archify | The contradiction was our criteria, not the model: 0.71 to 0.14 on the same input once the question named timing words. Added a rendered-page check after finding the App preview default had been "fixed" twice while a dead function did nothing. Reproduced the diagram toolbar overlap at 1491x812 and recorded the trade rather than taking the labels back down |
 
-**Day total so far:** 16 h 10 min across 9 commits.
+| 05:20 | Verified the signed results on production once JEV_RESULT_SECRET was set | 20 min | Claude Code, curl against production, Supabase MCP | All 3 agents live and signed. Four tamper cases on production all read "Unverified result". The run tripped our own rate limit half way through, which is the guardrail working on a real visitor rather than on a test fixture |
+
+**Day total so far:** 16 h 30 min across 10 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

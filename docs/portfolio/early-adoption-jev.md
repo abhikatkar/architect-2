@@ -44,7 +44,8 @@ Measured by us, on our own calls, and published in [metrics.md](metrics.md):
 Both latency and cost are small-sample figures from one machine in one region on one day. They are not a
 benchmark and are not comparable to the vendor's evaluations below.
 
-**Status as of 26 Sep 2026: live and answering.** The run that produced these is reproducible:
+**Status as of 26 Sep 2026: live and answering, on the deployment as well as locally.** All three agents
+return `outcome: live` with a valid signature on `architect-2-zeta.vercel.app` and render "Live result". The run that produced these is reproducible:
 `node --experimental-strip-types scripts/jev-latency.mjs`.
 
 | Measured | Value | How |

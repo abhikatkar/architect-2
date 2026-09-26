@@ -146,6 +146,35 @@ the key value does appear in `.next/cache/turbopack` on the machine that ran the
 local build cache, it is covered by `.gitignore`, no file under `.next` is tracked, and only `.next/static`
 is ever served.
 
+### Signed results, checked on the deployment and not only locally
+
+Every Jev result travels back in the URL, so it is signed with HMAC-SHA256 using a server-only secret
+([D44](../07-decision-log.md)). Checked against production on 2026-09-26, after `JEV_RESULT_SECRET` was set:
+
+| Agent | Outcome | Latency | Signature | Rendered label |
+|---|---|---|---|---|
+| Intake | `live` | 368 ms | 32 chars | **Live result** |
+| Grounding Checker | `live` | 463 ms | 32 chars | **Live result** |
+| Escalation Router | `live` | 192 ms | 32 chars | **Live result** |
+
+Then the same live intake URL, tampered with four ways, all against production:
+
+| What was changed | Rendered label |
+|---|---|
+| Nothing | **Live result** |
+| `jevSig` removed | Unverified result |
+| The answer rewritten from `billing_credits` to `billing_refunds`, signature kept | Unverified result |
+| One character of the signature changed | Unverified result |
+
+The tampered values are still displayed. They are simply never called live, which is the point: the page
+reports what the URL says and tells you whether this server produced it.
+
+Two things the verification itself demonstrated, neither of them arranged. The Grounding Checker returned
+`grounded: No` at P = 0.14 on the deployment, matching the trace instead of contradicting it. And the run
+tripped the demo's own rate limit part way through: after 10 live calls from one IP inside an hour, the next
+two came back as `rate_limited` with a recorded result from 2026-09-26, which is the guardrail working on a
+real visitor, who in this case was us.
+
 ### Guardrails, proven rather than assumed
 
 Both limits are enforced before the Gateway is called, so they were provable even while the model was still
