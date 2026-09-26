@@ -1074,11 +1074,14 @@ Format: date, decision, evidence, alternatives rejected.
 - **Two border tokens, because a border does two jobs.** `rule` divides things you read and stays a
   hairline. `rule-strong` is the outline of something you can click, where that outline is what says
   "control", and it holds 3:1 (WCAG 1.4.11). Making one token do both would either fail the controls or
-  turn every divider in the workspace into a heavy line. 34 control borders moved across.
+  turn every divider in the workspace into a heavy line. 35 control borders moved across, of which 31 still
+  carry it: the four on the marketing pages went one further, to a full-strength ink outline, because a
+  pill call to action reads better with a crisp edge than a grey one.
 - **AA is measured, not claimed.** [scripts/contrast-check.mjs](../scripts/contrast-check.mjs) walks 16
   surfaces in both themes, composites the real background behind every run of text through whatever
-  translucent layers sit between, and applies the threshold that text's size and weight earn. **2242 pairs
-  measured, tightest 3.27:1 against a 3:1 boundary requirement.** Without it the refresh would have shipped
+  translucent layers sit between, and applies the threshold that text's size and weight earn. **2272 pairs
+  measured, tightest 3.27:1 against a 3:1 boundary requirement.** It failed 24 of its 32 page checks on its
+  first run, every one of them a control border at 1.21:1. Without it the refresh would have shipped
   on the claim that the new navy "looks like it passes", which is the same class of claim the focus check
   was written to replace
   ([D51](#d51-2026-09-26-sheets-are-server-rendered-overlays-with-keyboard-help-on-top)).

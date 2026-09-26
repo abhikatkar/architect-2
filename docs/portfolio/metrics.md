@@ -75,12 +75,13 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
 | Consistency invariants | **91** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **150** | `scripts/rendered-check.mjs` |
-| Interactive elements checked for the right cursor | **137**, over 7 pages, 0 wrong | `scripts/cursor-check.mjs` |
+| Rendered-page assertions | **156** | `scripts/rendered-check.mjs` |
+| Interactive elements checked for the right cursor | **140**, over 7 pages, 0 wrong | `scripts/cursor-check.mjs` |
 | Surfaces required to agree on one page | **17 to 18 readings** per URL state, over 5 states and 3 tabs, plus the version rows added up from the HTML | `scripts/rendered-check.mjs`, section 28 |
 | Theme switch, earliest possible click | **10 ms** on production and 16 ms locally, 5 of 5 each, against **1470 to 1522 ms** for the same click before this fix | `scripts/theme-check.mjs`, throttled to 400 ms latency |
 | Sheet focus and keyboard checks | **8 of 8**, four sheets at 1280px and 390px, measured in a browser | `scripts/focus-check.mjs` |
-| Links checked in docs and README | **213**, all resolving, anchors included | `scripts/link-check.mjs` |
+| Links checked in docs and README | **235**, all resolving, anchors included | `scripts/link-check.mjs` |
+| Colour pairs measured for WCAG AA | **2272**, over 16 surfaces in both themes, 0 below their threshold. Tightest **3.27:1** against a 3:1 control boundary requirement | `scripts/contrast-check.mjs` |
 | Screens built | **15 of 15 P0, plus 1 P1** (screen 11, the framework picker) | [screen-inventory.md](../design/screen-inventory.md) |
 | Unused copy strings | **0.** Five were removed as duplicates and an invariant now fails the build if a key is unread | `scripts/consistency-check.mjs` |
 | Files browsable in the Code tab | **42**, the same number the GitHub consent line counts | `lib/seed/code.ts`, asserted equal |
