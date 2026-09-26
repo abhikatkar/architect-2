@@ -991,8 +991,9 @@ Format: date, decision, evidence, alternatives rejected.
   Round 4 called the first click after a load ignored, 4 times in 5. Neither was a dead control:
   [scripts/theme-check.mjs](../scripts/theme-check.mjs) clicks Dark as soon as it is painted, on a throttled
   connection, and timed the change at **1470 to 1522 ms on production, 5 of 5 over a 400 ms bar**. The click
-  was falling through to the form post and waiting for a round trip. After the fix, the same measurement is
-  **5 of 5 within 16 ms**, including a click while `readyState` was still `loading`.
+  was falling through to the form post and waiting for a round trip. After the fix, the same script against
+  the same deployment reports **5 of 5 within 10 ms**, and locally **5 of 5 within 16 ms** including a click
+  taken while `readyState` was still `loading`.
 - **Why the document and not the component.** Hydration is exactly the window that was broken, so a fix that
   waits for hydration fixes nothing. The script is nine lines and does the same three things the component
   does.
