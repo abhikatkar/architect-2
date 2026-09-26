@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { LEGAL_CONTACT, LEGAL_UPDATED } from "@/lib/legal";
 import {
   DAILY_CALL_CAP,
   RATE_LIMIT_PER_IP_PER_HOUR,
@@ -11,8 +12,6 @@ export const metadata: Metadata = {
     "A product concept built for a hiring assignment, provided as is.",
 };
 
-const UPDATED = "27 September 2026";
-const CONTACT = "katkarabhi91@gmail.com";
 
 /** Short on purpose. There is no service here to write long terms about. */
 export default function TermsPage() {
@@ -22,7 +21,7 @@ export default function TermsPage() {
         <p className="text-caption text-graphite">Architect 2.0</p>
         <h1 className="text-title font-semibold">Terms</h1>
         <p className="max-w-[72ch] text-body text-graphite">
-          Last updated {UPDATED}.
+          Last updated {LEGAL_UPDATED}.
         </p>
       </header>
 
@@ -81,8 +80,8 @@ export default function TermsPage() {
             privacy page
           </Link>{" "}
           sets out in detail. Ask at{" "}
-          <a href={`mailto:${CONTACT}`} className="text-blueprint underline">
-            {CONTACT}
+          <a href={`mailto:${LEGAL_CONTACT}`} className="text-blueprint underline">
+            {LEGAL_CONTACT}
           </a>{" "}
           and it will be deleted.
         </p>

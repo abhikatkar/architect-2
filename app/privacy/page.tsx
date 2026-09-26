@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { LEGAL_CONTACT, LEGAL_UPDATED } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Privacy | Architect 2.0",
@@ -7,8 +8,6 @@ export const metadata: Metadata = {
     "Exactly what this concept stores, who processes it, and how to have it deleted.",
 };
 
-const UPDATED = "27 September 2026";
-const CONTACT = "katkarabhi91@gmail.com";
 
 /**
  * The privacy page.
@@ -26,7 +25,7 @@ export default function PrivacyPage() {
         <p className="text-caption text-graphite">Architect 2.0</p>
         <h1 className="text-title font-semibold">Privacy</h1>
         <p className="max-w-[72ch] text-body text-graphite">
-          Last updated {UPDATED}.
+          Last updated {LEGAL_UPDATED}.
         </p>
         <p className="max-w-[72ch] text-body">
           This is a product concept built as a hiring assignment, not a
@@ -179,8 +178,8 @@ export default function PrivacyPage() {
         <h2 className="text-lead font-semibold">Deleting your data</h2>
         <p className="mt-1 max-w-[72ch] text-body">
           Email{" "}
-          <a href={`mailto:${CONTACT}`} className="text-blueprint underline">
-            {CONTACT}
+          <a href={`mailto:${LEGAL_CONTACT}`} className="text-blueprint underline">
+            {LEGAL_CONTACT}
           </a>{" "}
           and ask. Your account and every row belonging to it will be deleted,
           and the project rows go with the account automatically, because they

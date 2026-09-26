@@ -81,7 +81,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 16:10 | Privacy and terms pages, written from the schema rather than a template, so the OAuth app can be published | 40 min | Claude Code, Chrome over CDP | Writing it from the code caught two things the brief's own summary had glossed: no OAuth scopes are requested beyond the defaults, and the projects table stores the prompt you type, so "no content is stored" would have been false if left unqualified |
 
-**Day total so far:** 31 h across 15 commits.
+| 16:40 | Corrected the date on the two legal pages and moved it into one constant | 10 min | Claude Code | Both pages said 27 September and today is the 26th. The same wrong date is on 13 decision log entries, flagged rather than changed, because their headings are linked by anchor |
+
+**Day total so far:** 31 h 10 min across 16 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.
