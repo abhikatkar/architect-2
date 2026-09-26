@@ -37,31 +37,48 @@ if (!process.env.AI_GATEWAY_API_KEY) {
 const perAgent = Number(process.argv[2] ?? 5);
 const rows = [];
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/*
+  The Gateway advertises a small per-window request limit for this model
+  (x-ratelimit-limit-requests: 5, reset about 15s) and its upstream provider
+  returns 503 under load. Calls are spaced and retried so a measurement run is
+  not lost to a transient upstream. Only the successful attempt is timed: a
+  retry wait is not latency.
+*/
+
 for (const id of JEV_AGENT_IDS) {
   const spec = JEV_AGENTS[id];
   for (let n = 0; n < perAgent; n++) {
-    const started = Date.now();
-    try {
-      const result = await evaluate({
-        model: JEV_MODEL,
-        state: spec.sampleState,
-        questions: spec.questions,
-      });
-      rows.push({
-        agent: id,
-        ok: true,
-        latencyMs: Date.now() - started,
-        inputTokens: result.usage?.inputTokens ?? null,
-        outputTokens: result.usage?.outputTokens ?? null,
-      });
-    } catch (cause) {
-      rows.push({
-        agent: id,
-        ok: false,
-        latencyMs: Date.now() - started,
-        error: cause instanceof Error ? cause.message.split("\n")[0] : "failed",
-      });
+    let done = false;
+    for (let attempt = 1; attempt <= 4 && !done; attempt++) {
+      const started = Date.now();
+      try {
+        const result = await evaluate({
+          model: JEV_MODEL,
+          state: spec.sampleState,
+          questions: spec.questions,
+        });
+        rows.push({
+          agent: id,
+          ok: true,
+          latencyMs: Date.now() - started,
+          inputTokens: result.usage?.inputTokens ?? null,
+          outputTokens: result.usage?.outputTokens ?? null,
+        });
+        done = true;
+      } catch (cause) {
+        const message =
+          cause instanceof Error ? cause.message.split("\n")[0] : "failed";
+        if (attempt === 4) {
+          rows.push({ agent: id, ok: false, latencyMs: null, error: message });
+          done = true;
+        } else {
+          await sleep(16000 * attempt);
+        }
+      }
     }
+    await sleep(4000);
   }
 }
 

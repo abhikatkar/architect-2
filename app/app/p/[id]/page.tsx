@@ -23,7 +23,7 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
 
   const basePath = `/app/p/${project.id}`;
   const {
-    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, query,
+    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, query,
   } =
     workspaceUrl(basePath, searchParams, preferDetails ? "details" : "guided");
 
@@ -69,6 +69,7 @@ export default async function ProjectPage(props: PageProps<"/app/p/[id]">) {
           preferDetails={preferDetails}
           jev={jev}
           jevResult={jevResult}
+          jevSig={jevSig}
           basePath={basePath}
           query={query}
           finishAction={`${basePath}/built`}

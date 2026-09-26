@@ -32,15 +32,42 @@ if (!process.env.AI_GATEWAY_API_KEY) {
 const today = new Date().toISOString().slice(0, 10);
 const captured = {};
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/*
+  The Gateway advertises a small per-window request limit for this model
+  (x-ratelimit-limit-requests: 5, reset about 15s) and the upstream provider
+  returns 503 under load. Three calls fired back to back hit both. Space them
+  out and retry, so a capture is not lost to a transient upstream.
+*/
+async function evaluateWithRetry(spec, id, attempts = 5) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      // Timed around the successful attempt only. A retry wait is not latency,
+      // and folding it in would publish a number the model never took.
+      const started = Date.now();
+      const result = await evaluate({
+        model: JEV_MODEL,
+        state: spec.sampleState,
+        questions: spec.questions,
+      });
+      return { result, latencyMs: Date.now() - started };
+    } catch (cause) {
+      const message = String(cause?.message ?? cause).split("\n")[0];
+      if (attempt === attempts) throw cause;
+      const wait = 15000 * attempt;
+      console.log(`  ${id}: attempt ${attempt} failed (${message}), waiting ${wait / 1000}s`);
+      await sleep(wait);
+    }
+  }
+}
+
+let first = true;
 for (const id of JEV_AGENT_IDS) {
   const spec = JEV_AGENTS[id];
-  const started = Date.now();
-  const result = await evaluate({
-    model: JEV_MODEL,
-    state: spec.sampleState,
-    questions: spec.questions,
-  });
-  const latencyMs = Date.now() - started;
+  if (!first) await sleep(16000);
+  first = false;
+  const { result, latencyMs } = await evaluateWithRetry(spec, id);
 
   const confidence = result.providerMetadata?.typesafe?.confidence;
 

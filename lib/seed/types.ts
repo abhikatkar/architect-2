@@ -167,7 +167,6 @@ export type BuildFailure = {
   platformCharge: string;
   /** Raw log for the details layer. */
   detail: string;
-  rollbackTo: string;
   retryEstimate: { low: number; high: number };
 };
 
@@ -175,7 +174,6 @@ export type Ledger = {
   previewVersion: string;
   productionVersion: string | null;
   /** How the finished demo describes its own age, not "3 min ago". */
-  builtAgo: string;
   /**
    * The cap only. Spend is never stored: it is summed from `versions` by
    * lib/seed/totals.ts, because a hand-written total is exactly what drifted

@@ -35,7 +35,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
         {agents.map((a) => (
           <li key={a.id}>
             <Link
-              href={query({ agent: a.id, why: "", pane: "canvas" })}
+              href={`${query({ agent: a.id, why: "", pane: "canvas" })}#agent-inspector`}
               aria-current={a.id === selected ? "true" : undefined}
               className={`flex min-h-11 flex-col justify-center rounded-panel border p-3 ${
                 a.id === selected ? "border-blueprint" : "border-rule"
@@ -104,7 +104,7 @@ export function AgentCanvas({ agents, edges, runs, selected, query }: Props) {
         {agents.map((a) => (
           <Link
             key={a.id}
-            href={query({ agent: a.id, why: "", pane: "canvas" })}
+            href={`${query({ agent: a.id, why: "", pane: "canvas" })}#agent-inspector`}
             aria-current={a.id === selected ? "true" : undefined}
             className={`absolute w-[22%] min-w-[150px] -translate-y-1/2 rounded-panel border bg-paper p-2 ${
               a.id === selected ? "border-blueprint" : "border-rule"

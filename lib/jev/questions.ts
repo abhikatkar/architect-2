@@ -29,6 +29,21 @@ export type JevAnswer = {
   probability: number | null;
 };
 
+/**
+ * The bar a grounding check must clear before an answer is sent to a customer
+ * without a person reading it first.
+ *
+ * Derived from an error budget, not from any one result: at a bar of p, roughly
+ * (1 - p) of shipped answers carry a claim the source does not support. We are
+ * willing to ship fewer than 1 in 10 such answers, so the bar is 0.90. A coin
+ * flip at 0.50 is not a bar at all. See D43.
+ */
+export const GROUNDING_PASS_THRESHOLD = 0.9;
+
+/** One line a cold reader can understand, shown next to "Decision model". */
+export const JEV_PLAIN_EXPLAINER =
+  "Jev is a model that chooses from a list instead of writing text. It returns one of the answers you define and how sure it is, so there is no sentence to parse and no way to invent an option.";
+
 /** The three agents that make typed decisions. The Answer agent is not one. */
 export const JEV_AGENT_IDS = [
   "intake",
@@ -70,11 +85,11 @@ export const GROUNDING_QUESTIONS = {
   grounded: {
     type: "boolean",
     instructions:
-      "Is every claim in the draft answer supported by the source article?",
+      "Does the source article state every detail the draft claims, including timing words such as 'at the start of', 'within', or 'immediately'?",
     criteria: {
-      true: "Every statement in the draft appears in the source article, with no added specifics.",
+      true: "Every detail in the draft is stated in the source. Wording may differ, but the draft adds no timing, amount, condition or qualifier that the source does not state.",
       false:
-        "The draft adds detail the source does not state, or contradicts it.",
+        "The draft states a timing, amount, condition or qualifier the source does not state, or contradicts the source. Being more precise than the source is not being supported by it.",
     },
   },
 } as const;
@@ -100,6 +115,19 @@ type AgentSpec = {
   sampleState: Record<string, string>;
   /** Which answer key carries the headline result. */
   primary: string;
+  /**
+   * Which sampleState field the visitor's own text replaces. Every other field
+   * is fixed and is shown beside the box, so a result can be checked against
+   * what it was actually run on.
+   */
+  inputField: string;
+  /** Human labels for the state fields, so the inspector can show them. */
+  stateLabels: Record<string, string>;
+  /**
+   * Boolean answers only. At or above this the answer ships, below it the
+   * answer goes to a person. Recorded in D43.
+   */
+  passThreshold?: number;
 };
 
 export const JEV_AGENTS: Record<JevAgentId, AgentSpec> = {
@@ -109,6 +137,8 @@ export const JEV_AGENTS: Record<JevAgentId, AgentSpec> = {
     questions: INTAKE_QUESTIONS,
     sampleState: { message: "When will my credit be applied?" },
     primary: "topic",
+    inputField: "message",
+    stateLabels: { message: "Customer message" },
   },
   "grounding-checker": {
     label: "Grounding Checker",
@@ -119,6 +149,12 @@ export const JEV_AGENTS: Record<JevAgentId, AgentSpec> = {
       source: "Account credits apply at the next billing cycle.",
     },
     primary: "grounded",
+    inputField: "draft",
+    stateLabels: {
+      draft: "Draft answer, checked",
+      source: "Source article, fixed",
+    },
+    passThreshold: GROUNDING_PASS_THRESHOLD,
   },
   "escalation-router": {
     label: "Escalation Router",
@@ -129,5 +165,10 @@ export const JEV_AGENTS: Record<JevAgentId, AgentSpec> = {
       reason: "unsupported_detail",
     },
     primary: "queue",
+    inputField: "message",
+    stateLabels: {
+      message: "Escalated message",
+      reason: "Why it was escalated, fixed",
+    },
   },
 };

@@ -49,17 +49,21 @@ benchmark and are not comparable to the vendor's evaluations below.
 
 | Measured | Value | How |
 |---|---|---|
-| Calls that returned a decision | 22, none failed | 15 latency run, 3 capture, 3 through the running app, 1 through the deployment |
-| Median latency | **430 ms**, range 389 ms to 919 ms | wall clock around `evaluate`, 15 call run |
-| Median excluding the first call | 421 ms. The first call of a run was 777 ms and carries connection setup | same run |
-| Input tokens per call | 482 intake, 363 grounding checker, 371 escalation router, identical on every repeat | provider `usage.inputTokens` |
-| Output tokens | 690 over 15 calls, billed at $0 | provider `usage.outputTokens` |
-| **Cost per call** | **$0.000017** at the mean of 405 tokens, about **58,700 calls per dollar** | 405 times $0.000000042, the Gateway's published price |
-| Cost of the whole measurement run | $0.00026 | same arithmetic |
+| Median latency | **556 ms**, range 464 ms to 778 ms | 9 calls, 3 per agent, all successful |
+| Median excluding the first call | 529 ms. A run's first call carries connection setup | same run |
+| Input tokens per call | 482 intake, 422 grounding checker, 371 escalation router, identical on every repeat | provider `usage.inputTokens` |
+| **Cost per call** | **$0.0000179** at the mean of 425 tokens, about **56,000 calls per dollar** | 425 times $0.000000042, the Gateway's published price |
 
-Latency is a small sample from one machine in one region and should be read as an observation. Cost is not:
-the schema and the state are fixed, so token counts do not vary between repeats and the per call figure is
-arithmetic on two exact numbers.
+**Latency moved between runs and we are not going to average that away.** An earlier run of 15 calls, fired
+back to back, gave a median of 430 ms. This run of 9, spaced out, gave 556 ms. In between, the Gateway
+started returning 503s from its upstream provider and advertising a 5 request window
+(`x-ratelimit-limit-requests: 5`), so the scripts now space and retry. Both figures are real and neither is
+a benchmark: this is one machine in one region against a service under varying load.
+
+Cost is the figure that does not drift. The schema and the state are fixed, so token counts are identical on
+every repeat, and the per call cost is arithmetic on two exact numbers. Note it rose from $0.000017 to
+$0.0000179 when the grounding criteria were tightened: a longer question is a bigger prompt, 363 tokens to
+422. That is the price of asking the question properly, and it is about two hundredths of a cent.
 
 ### The low confidence case, observed rather than constructed
 
@@ -72,12 +76,48 @@ On the sample message, one call returned both of these at once:
 
 Below 60% the interface stops showing a number alone and says "Jev was not clearly decided here, so this one
 would go to a person rather than through automatically." So a single call produced one answer that routes
-itself onward and one that routes itself to a human, which is the behaviour the threshold exists for. It was
+itself onward and one that routes itself to a human, which is the behavior the threshold exists for. It was
 not arranged: it is what the sample input returns.
 
 For contrast, given "My invoice charged me twice this morning and I need the money back today", the same
 agent moved to `billing_refunds` at 95% and scored urgency 2.95 of 3, the rubric level that reads "money has
 left their account".
+
+### When the live model disagreed with our own demo
+
+The round 2 review tried the first thing a technical reader tries: it ran the Grounding Checker on its own
+sample. That sample is the sentence the "Why did it do that?" panel calls ungrounded. The live model
+answered **grounded: Yes at 69%**. The demo contradicted itself in the one place built to show honesty.
+
+The interesting part is that the model was not wrong. It was answering the question we asked:
+
+> Is every claim in the draft answer supported by the source article?
+
+The draft says "your credit will be applied **at the start of** your next billing cycle" and the source says
+"account credits apply at the next billing cycle". As a paraphrase that is defensible, and 0.69 is a fair
+reading of a loose question. The bug was ours: we wanted "does the source state every detail, including the
+timing", and we did not ask that.
+
+Asked the question we meant, naming timing words explicitly, the same model on the same input answers
+differently. Five runs each, nothing else changed:
+
+| Criteria | P(grounded) over 5 runs | Median | What the demo shows |
+|---|---|---|---|
+| Before, "is every claim supported" | 0.69, 0.71, 0.71, 0.73, 0.74 | **0.71** | "Yes", contradicting the trace |
+| After, timing words named | 0.13, 0.14, 0.14, 0.14, 0.15 | **0.14** | "No", agreeing with the trace |
+
+Two changes came out of it, and the second matters more than the first:
+
+1. **The source article is now shown** beside the input, with every fixed field labeled. A grounding result
+   that does not show what it was checked against cannot be checked by the reader either.
+2. **A grounding answer ships only at P(grounded) >= 0.90**, and below that it goes to a person. The bar is
+   an error budget, not a tuned number: at a bar of p, roughly (1 - p) of shipped answers carry an
+   unsupported claim, and we will ship fewer than 1 in 10. Jev reads a boolean at 0.5, which is a coin flip
+   rather than a bar. Full reasoning in [D43](../07-decision-log.md).
+
+The honest lesson for anyone adopting a decision model: **the criteria are the program.** A vague criterion
+does not fail loudly, it returns a confident number for a question you did not mean to ask. The fix was not
+a better model or a higher temperature. It was writing down what we actually wanted checked.
 
 ### A boolean question really does return no confidence
 
@@ -95,7 +135,7 @@ probability because that is all there is, not as a matter of interpretation.
 
 **The AI SDK does not return a latency.** No timing field is documented on the evaluate result, so every
 latency here is wall-clock measured on our side, which includes network time to the Gateway. That is what
-we publish and it is labelled as such.
+we publish and it is labeled as such.
 
 ## What TypeSafe AI claims, and what we did not verify
 

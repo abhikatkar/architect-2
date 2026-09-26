@@ -107,7 +107,7 @@ Bolt and Rocket are excluded from the table. Neither got past the signup wall
    space where the build should have been, alongside a support-bot popup.
 4. **Import resolves the repo, then offers no way to import it.** The modal found the repo and its branches and
    had no import button.
-5. **Spent with nothing to show.** 1.88 credits gone, no output. Backend surface is a connector catalogue
+5. **Spent with nothing to show.** 1.88 credits gone, no output. Backend surface is a connector catalog
    ([emergent-connectors-manage.jpg](research/screenshots/emergent-connectors-manage.jpg)).
 
 ### v0

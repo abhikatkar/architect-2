@@ -17,7 +17,7 @@ export type RecordedResult = {
 export const RECORDED: Record<JevAgentId, RecordedResult> = {
   "intake": {
     "capturedOn": "2026-09-26",
-    "latencyMs": 1438,
+    "latencyMs": 533,
     "answers": [
       {
         "key": "topic",
@@ -29,28 +29,28 @@ export const RECORDED: Record<JevAgentId, RecordedResult> = {
       {
         "key": "urgency",
         "type": "score",
-        "display": "0.65",
-        "confidence": 0.43,
+        "display": "0.68",
+        "confidence": 0.42,
         "probability": null
       }
     ]
   },
   "grounding-checker": {
     "capturedOn": "2026-09-26",
-    "latencyMs": 587,
+    "latencyMs": 677,
     "answers": [
       {
         "key": "grounded",
         "type": "boolean",
-        "display": "Yes",
+        "display": "No",
         "confidence": null,
-        "probability": 0.71
+        "probability": 0.14
       }
     ]
   },
   "escalation-router": {
     "capturedOn": "2026-09-26",
-    "latencyMs": 443,
+    "latencyMs": 598,
     "answers": [
       {
         "key": "queue",

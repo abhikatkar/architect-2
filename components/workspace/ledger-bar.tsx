@@ -21,6 +21,8 @@ export function LedgerBar({
   const spend = ledgerSpend(project, fixApplied);
   const preview = previewVersion(project, fixApplied);
   const pct = Math.min(100, Math.round((spend / ledger.cap) * 100));
+  // Applying the fix creates one more version, so the count moves with it.
+  const buildCount = project.versions.length + (fixApplied ? 1 : 0);
 
   return (
     <footer className="border-t border-rule bg-paper px-4 py-2 sm:px-6">
@@ -46,9 +48,13 @@ export function LedgerBar({
           )}
         </span>
 
-        <span className="text-graphite">{ledger.builtAgo}</span>
+        {/* Derived from the rows on Deploy. A hand-written "10" against 9 rows
+            is exactly the kind of small lie a reviewer checks. */}
+        <span className="text-graphite">
+          {buildCount} {buildCount === 1 ? "build" : "builds"} this month
+        </span>
 
-        {/* Spend is cost-coloured because it is money. Nothing else may be. */}
+        {/* Spend is cost-colored because it is money. Nothing else may be. */}
         <span className="ml-auto inline-flex items-center gap-2">
           <span
             className="hidden h-1.5 w-24 overflow-hidden rounded-input bg-rule sm:block"

@@ -74,7 +74,7 @@ function ThemePanel({ theme }: { theme: "light" | "dark" }) {
         ))}
       </ul>
 
-      {/* Status is never colour alone: each one carries an icon and a word. */}
+      {/* Status is never color alone: each one carries an icon and a word. */}
       <div className="flex flex-wrap gap-2">
         <span className="text-caption rounded-input border border-live px-2 py-1 text-live">
           ok Live v12
@@ -104,7 +104,7 @@ export default function TokensPage() {
       </header>
 
       <Section
-        title="Colour"
+        title="Color"
         note="Eight tokens, each with exactly one meaning. cost never appears on anything that is not money. live never means success in general, only that this is what users see."
       >
         <div className="grid gap-4 lg:grid-cols-2">

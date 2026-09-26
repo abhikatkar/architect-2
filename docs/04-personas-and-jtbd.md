@@ -12,7 +12,7 @@ These are evidence-built archetypes, not interviewed users. Every trait below tr
 
 | Moment | What happened | Source |
 |---|---|---|
-| Waiting | Build labelled "usually 4 to 6 min" took 42 min to a working preview, with a tips carousel and a game instead of progress | Teardown |
+| Waiting | Build labeled "usually 4 to 6 min" took 42 min to a working preview, with a tips carousel and a game instead of progress | Teardown |
 | Paying | One build cost $3.33, about 45% of the balance, with no estimate before and a delayed balance update after | Teardown |
 | Trusting | When an agent misbehaves, diagnosing it took me about 8 technical steps (reading verification reasoning, isolating retrieval, finding the model parameter panel, lowering temperature from 0.4 to 0.2). A non-technical builder cannot do this | GroundTruth Part 5 |
 | Shipping | "Publish to Marketplace" is on by default and spends the builder's credits; admin access can only be set through an environment variable | Teardown |

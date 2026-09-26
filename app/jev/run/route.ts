@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { runJevAgent } from "@/lib/jev";
+import { signJevResult } from "@/lib/jev/sign";
 import { isJevAgent } from "@/lib/jev/questions";
 import { safeNext, siteUrl } from "@/lib/site-url";
 
@@ -36,9 +37,13 @@ export async function POST(request: NextRequest) {
 
   const result = await runJevAgent(agentId, customInput, ip);
 
+  const json = JSON.stringify(result);
+
   const url = new URL(`${base}${next}`);
   url.searchParams.set("jev", agentId);
-  url.searchParams.set("jevResult", encodeURIComponent(JSON.stringify(result)));
+  url.searchParams.set("jevResult", encodeURIComponent(json));
+  // Signed, so a hand-written URL cannot render as a live result. See lib/jev/sign.ts.
+  url.searchParams.set("jevSig", signJevResult(agentId, json));
 
   return NextResponse.redirect(url.toString(), { status: 303 });
 }

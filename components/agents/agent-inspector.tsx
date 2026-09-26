@@ -57,6 +57,8 @@ type Props = {
   preferDetails?: boolean;
   /** The result of a live Jev run, when one was just made for this agent. */
   jevResult?: JevResult | null;
+  /** Whether that result carried a valid signature. Unsigned is never "live". */
+  jevVerified?: boolean;
   /** Where the test form returns to. */
   formNext?: string;
   query: (patch: Record<string, string>) => string;
@@ -68,6 +70,7 @@ export function AgentInspector({
   applied,
   preferDetails,
   jevResult,
+  jevVerified,
   formNext,
   query,
 }: Props) {
@@ -79,8 +82,9 @@ export function AgentInspector({
 
   return (
     <aside
+      id="agent-inspector"
       aria-label={`${agent.name} inspector`}
-      className="flex min-w-0 flex-col gap-4 rounded-panel border border-rule p-4"
+      className="flex min-w-0 scroll-mt-24 flex-col gap-4 rounded-panel border border-rule p-4"
     >
       <div className="flex flex-wrap items-start gap-2">
         <div className="min-w-0">
@@ -147,6 +151,7 @@ export function AgentInspector({
             <JevPanel
               agentId={agent.id as Parameters<typeof JevPanel>[0]["agentId"]}
               result={jevResult ?? null}
+              verified={jevVerified ?? false}
               formNext={formNext ?? "/demo?tab=agents"}
               preferDetails={preferDetails}
             />

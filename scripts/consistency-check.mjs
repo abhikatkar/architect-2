@@ -17,6 +17,7 @@
   catches the case where a stored figure drifts from its parts anyway.
 */
 import { DEMO_PROJECT as p } from "../lib/seed/northwind.ts";
+import { JEV_AGENT_IDS, JEV_MODEL } from "../lib/jev/questions.ts";
 import {
   ledgerSpend,
   conversationTotal,
@@ -67,7 +68,6 @@ check(
 
 // 2. Every version referenced anywhere actually exists.
 for (const [where, label] of [
-  ["failure.rollbackTo", p.failure.rollbackTo],
   ["ledger.previewVersion", p.ledger.previewVersion],
   ["ledger.productionVersion", p.ledger.productionVersion],
   ["fix.previousVersion", p.fix.previousVersion],
@@ -120,6 +120,47 @@ check(
   Number(p.ledger.previewVersion.slice(1)) >
     Number(String(p.ledger.productionVersion).slice(1)),
   `preview ${p.ledger.previewVersion}, live ${p.ledger.productionVersion}`,
+);
+
+// 16. An agent's config file names the model it actually calls.
+//
+// This drifted unnoticed for a whole slice: the three decision agents called
+// Jev while the config file shown beside them still read a language model, and
+// only a cold reader opening the Code tab would have caught it.
+const jevAgents = p.agents.filter((a) => JEV_AGENT_IDS.includes(a.id));
+const languageAgents = p.agents.filter((a) => !JEV_AGENT_IDS.includes(a.id));
+
+check(
+  "every decision agent's config file names the decision model",
+  jevAgents.length === JEV_AGENT_IDS.length &&
+    jevAgents.every((a) => a.configFile.includes(`model: ${JEV_MODEL}`)),
+  `${jevAgents.length} agents on ${JEV_MODEL}`,
+);
+
+check(
+  "no language-model agent claims to run on the decision model",
+  languageAgents.every((a) => !a.configFile.includes(JEV_MODEL)),
+  `${languageAgents.map((a) => a.name).join(", ")} on a language model`,
+);
+
+check(
+  "no decision agent's config file sets a temperature",
+  jevAgents.every((a) => !a.configFile.includes("temperature")),
+  "a decision model has no temperature to set",
+);
+
+// 17. The build count in the footer is derived, not written down.
+check(
+  "the build count is not a stored string",
+  !("builtAgo" in p.ledger),
+  `${p.versions.length} versions, counted at render time`,
+);
+
+// 18. Nothing offers a rollback target that the first build cannot have.
+check(
+  "the failure state does not name a rollback version",
+  !("rollbackTo" in p.failure),
+  "the first build has nothing behind it",
 );
 
 const failedCount = results.filter((r) => !r.ok).length;

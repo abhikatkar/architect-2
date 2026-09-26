@@ -14,6 +14,7 @@ const CARRIED = [
   "fix",
   "jev",
   "jevResult",
+  "jevSig",
 ] as const;
 
 type Search = Record<string, string | string[] | undefined>;
@@ -55,11 +56,12 @@ export function workspaceUrl(
   const fixApplied = first(searchParams.fix) === "applied";
   const jev = first(searchParams.jev) ?? "";
   const jevResult = first(searchParams.jevResult) ?? "";
+  const jevSig = first(searchParams.jevSig) ?? "";
 
   const current: Record<string, string> = {
     tab: layer,
     pane,
-    device,
+    device: device === "auto" ? "" : device,
     build: build === "none" ? "" : build,
     agent,
     depth,
@@ -67,6 +69,7 @@ export function workspaceUrl(
     fix: fixApplied ? "applied" : "",
     jev,
     jevResult,
+    jevSig,
   };
 
   const query = (patch: Record<string, string>) => {
@@ -89,6 +92,7 @@ export function workspaceUrl(
     fixApplied,
     jev,
     jevResult,
+    jevSig,
     query,
   };
 }

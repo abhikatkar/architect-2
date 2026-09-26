@@ -110,6 +110,10 @@ queues: [billing, technical, account]`,
     { from: "intake", to: "answer" },
     { from: "answer", to: "grounding-checker" },
     { from: "grounding-checker", to: "escalation-router", label: "if not grounded" },
+    // Intake sends its own low confidence answers to a person too. The graph
+    // showed only the Grounding Checker's route, so the demo's 60% rule had no
+    // path on screen. Round 2 review.
+    { from: "intake", to: "escalation-router", label: "if not clearly decided" },
   ],
 
   // Entry point 2 for the trace. The escalation is the one F4 opens.
@@ -401,7 +405,6 @@ queues: [billing, technical, account]`,
   attempt 1 of 3, identical signature
   attempt 2 of 3, identical signature
   attempt 3 of 3, identical signature -> stopped`,
-    rollbackTo: "v3",
     retryEstimate: { low: 0.2, high: 0.4 },
   },
 
@@ -409,7 +412,6 @@ queues: [billing, technical, account]`,
     previewVersion: "v14",
     productionVersion: "v12",
     // A finished demo, not a build that just ran three minutes ago.
-    builtAgo: "10 builds this month",
     cap: 5.0,
   },
 

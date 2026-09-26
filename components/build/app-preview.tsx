@@ -1,27 +1,39 @@
 import Link from "next/link";
 import type { ChatTurn, Conversation, ConversationStatus } from "@/lib/seed/types";
 
-export const DEVICES = ["phone", "tablet", "desktop"] as const;
+/**
+ * "auto" is the default and means "match the screen you are on".
+ *
+ * A server component cannot measure the viewport, and this product works with
+ * no JavaScript, so the previous attempt at "phone under 640px" could only
+ * have been a lie: it was a function whose docblock promised width detection,
+ * whose body did nothing, and which nothing ever called. Two rounds of review
+ * reported the bug it was supposed to have fixed.
+ *
+ * Auto is CSS instead of detection: phone width below 640px, full width above,
+ * with no measurement and no JavaScript. The explicit options still override.
+ */
+export const DEVICES = ["auto", "phone", "tablet", "desktop"] as const;
 export type Device = (typeof DEVICES)[number];
 
 export function parseDevice(value: string | string[] | undefined): Device {
   const v = Array.isArray(value) ? value[0] : value;
-  return DEVICES.includes(v as Device) ? (v as Device) : "desktop";
+  return DEVICES.includes(v as Device) ? (v as Device) : "auto";
 }
 
 const FRAME_WIDTH: Record<Device, string> = {
+  auto: "max-w-[390px] sm:max-w-full",
   phone: "max-w-[390px]",
   tablet: "max-w-[768px]",
   desktop: "max-w-full",
 };
 
-/**
- * Under 640px the frame starts on Phone. Showing a desktop frame inside a
- * phone was the mismatch the review caught, and the toggle still overrides it.
- */
-export function defaultDevice(explicit: string | string[] | undefined): Device {
-  return parseDevice(explicit);
-}
+const DEVICE_LABEL: Record<Device, string> = {
+  auto: "Auto",
+  phone: "Phone",
+  tablet: "Tablet",
+  desktop: "Desktop",
+};
 
 type Props = {
   device: Device;
@@ -67,11 +79,11 @@ export function AppPreview({
               key={d}
               href={deviceHref(d)}
               aria-current={d === device ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center rounded-input px-3 text-caption capitalize ${
+              className={`inline-flex min-h-11 items-center rounded-input px-3 text-caption ${
                 d === device ? "bg-blueprint text-paper" : "text-graphite"
               }`}
             >
-              {d}
+              {DEVICE_LABEL[d]}
             </Link>
           ))}
         </nav>

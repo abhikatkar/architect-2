@@ -1,4 +1,6 @@
 import { LayerCanvas } from "@/components/workspace/canvas";
+import { verifyJevResult } from "@/lib/jev/sign";
+import type { JevResult } from "@/lib/jev";
 import { BuildProgress } from "./build-progress";
 import { AppPreview, type Device } from "./app-preview";
 import { AgentCanvas } from "@/components/agents/agent-canvas";
@@ -20,6 +22,7 @@ type Props = {
   preferDetails: boolean;
   jev: string;
   jevResult: string;
+  jevSig: string;
   basePath: string;
   query: (patch: Record<string, string>) => string;
   /** Signed in: the route that records completion. Demo: null. */
@@ -42,18 +45,24 @@ export function WorkspaceCanvas({
   preferDetails,
   jev,
   jevResult,
+  jevSig,
   basePath,
   query,
   finishAction,
 }: Props) {
   // The result travels in the URL, so a run is linkable like every other view.
-  let parsedJev = null;
+  // It is also signed, because a query parameter is something anyone can type:
+  // an unsigned or edited result is shown as unverified, never as live.
+  let parsedJev: JevResult | null = null;
+  let jevVerified = false;
   if (jevResult) {
+    const json = decodeURIComponent(jevResult);
     try {
-      parsedJev = JSON.parse(decodeURIComponent(jevResult));
+      parsedJev = JSON.parse(json) as JevResult;
     } catch {
       parsedJev = null;
     }
+    if (parsedJev) jevVerified = verifyJevResult(jev, json, jevSig);
   }
   if (build === "running" || build === "failed") {
     return (
@@ -107,6 +116,7 @@ export function WorkspaceCanvas({
               applied={fixApplied}
               preferDetails={preferDetails}
               jevResult={jev === selected.id ? parsedJev : null}
+              jevVerified={jevVerified}
               formNext={`${basePath}?tab=agents&pane=canvas&agent=${selected.id}`}
               query={query}
             />

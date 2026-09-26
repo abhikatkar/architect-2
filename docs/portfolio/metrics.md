@@ -84,18 +84,17 @@ code around the `evaluate` call and includes network time to the Gateway.
 
 | Metric | Value | Source |
 |---|---|---|
-| Live calls that returned a decision | **22.** 15 from `scripts/jev-latency.mjs`, 3 from `scripts/capture-jev.mjs`, 3 through the running app, 1 through the deployed demo | the scripts' output and the rendered pages |
-| Median latency | **430 ms**, over the 15 calls of the latency run, range 389 ms to 919 ms | wall clock measured around the `evaluate` call |
-| Median excluding the first call | **421 ms.** The first call of a run was 777 ms and carries connection setup | same |
-| Input tokens per call | 482 intake, 363 grounding checker, 371 escalation router. Identical on every repeat of the same input | provider `usage.inputTokens` |
-| Output tokens | 690 across 15 calls, billed at $0 | provider `usage.outputTokens` |
-| **Cost per call** | **$0.000017** at the mean of 405 input tokens, so about **58,700 calls per dollar** | 405 tokens times $0.000000042, the Gateway's own price |
-| Total spend to produce this table | **$0.00026** for 15 calls | same arithmetic |
+| Median latency | **556 ms**, range 464 ms to 778 ms, over 9 calls | wall clock measured around the `evaluate` call |
+| Median excluding the first call | **529 ms.** A run's first call carries connection setup | same |
+| Earlier run, for contrast | **430 ms** over 15 calls fired back to back, before the Gateway began returning 503s and advertising a 5 request window | same, kept rather than averaged away |
+| Input tokens per call | 482 intake, 422 grounding checker, 371 escalation router. Identical on every repeat of the same input | provider `usage.inputTokens` |
+| **Cost per call** | **$0.0000179** at the mean of 425 input tokens, so about **56,000 calls per dollar** | 425 tokens times $0.000000042, the Gateway's own price |
+| Cost change from tightening the grounding criteria | $0.000017 to $0.0000179, because the question grew from 363 to 422 tokens | same arithmetic |
 | Rate limit, proven | 10 live calls per IP per hour | see the proof below |
 | Daily cap, proven | 300 live calls per day | see the proof below |
 
-**Sample: 22 calls from one machine in one region on one day, 2026-09-26, and the median is over 15 of
-them.** That is an observation, not a benchmark, and it is not comparable to the vendor's evaluations. The
+**Sample: 9 calls from one machine in one region, and every latency figure here is an observation rather
+than a benchmark.** That is an observation, not a benchmark, and it is not comparable to the vendor's evaluations. The
 latency includes network time from a machine in India to the Gateway, so it is an upper bound on what a
 colocated caller would see.
 
@@ -191,7 +190,7 @@ elsewhere and appears on none of the three Vercel pages read on 2026-09-26, so i
 
 Full write-up, including limitations: [early-adoption-jev.md](early-adoption-jev.md).
 
-## Verified behaviour
+## Verified behavior
 
 Route guard, signed out, no Supabase credentials configured. Measured against a local dev server on a
 free port, 2026-09-24.
@@ -338,7 +337,7 @@ Responsive check on `/dev/tokens`, measured with Chrome device metrics via
 | 1920 | 1920 | 1920 | 0 |
 
 The token table extends to 536 px at the 375 px viewport, inside its own scroll container. That is the
-designed behaviour: tables scroll sideways, the page never does.
+designed behavior: tables scroll sideways, the page never does.
 
 ## Pending
 

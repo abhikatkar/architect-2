@@ -30,7 +30,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Evidence:** [02-voice-of-customer.md](02-voice-of-customer.md) carried three numbers marked "(unverified)":
   a Replit bill amount, Emergent credit pricing, and Stack Overflow survey percentages. A number that cannot be
   traced to an original source is a liability in a hiring deliverable, and the finding it supports survives
-  without it. The behaviour those numbers illustrate is well attested on its own.
+  without it. The behavior those numbers illustrate is well attested on its own.
 - **Rejected:** Keeping them behind the "(unverified)" label. The label does not travel. Once a figure is in the
   doc it gets quoted into strategy and product copy, and the caveat is lost.
 - **Reversible:** Any figure may be restored once checked against its original source.
@@ -201,14 +201,14 @@ Format: date, decision, evidence, alternatives rejected.
 
 ### D20. 2026-09-25: The design language is blueprint, and mono means raw
 - **Decision:** the product reads as a blueprint. A precise drawing anyone can take in at a glance, with detail
-  available when you lean in. Eight colour tokens, each with exactly one meaning, and dark mode is blueprint
+  available when you lean in. Eight color tokens, each with exactly one meaning, and dark mode is blueprint
   navy rather than black. Instrument Sans carries the whole interface. JetBrains Mono appears only where the
   text is literally what the machine sees: code, config, logs, diffs, terminal.
 - **Why mono carries meaning:** the dual-mode rule in [D14](#d14-2026-09-25-one-product-depth-on-demand-with-no-technical-mode-switch)
   needs the user to know which depth they are in without reading a label. Making the typeface the signal means
   the guided and details layers are distinguishable at a glance, with no chrome and no mode indicator.
 - **Also decided:** `cost` is used for money and nothing else, `live` means "this is what users see" and never
-  "success" in general, and status is never colour alone, so it always carries an icon and a word. That last
+  "success" in general, and status is never color alone, so it always carries an icon and a word. That last
   rule is the accessibility floor and the reason the token set stays this small.
 - **Rejected:** the category default of a near-black canvas with a neon accent, gradient washes, uniform
   rounded cards with one soft shadow, and monospace as decoration. All five tested tools and generic generated
@@ -398,7 +398,7 @@ Format: date, decision, evidence, alternatives rejected.
   ([03-architect-today.md](03-architect-today.md)). The success condition F4 states is that a non-technical
   builder fixes a real reliability issue without knowing the word "temperature", so the word's absence is a
   requirement, not a style preference.
-- **Three signals on the marked phrase, never colour alone:** the `fault` colour, an underline, and a "Not in
+- **Three signals on the marked phrase, never color alone:** the `fault` color, an underline, and a "Not in
   source" label. The design system requires that everywhere, and it matters most on the one phrase the whole
   screen exists to point at.
 - **Verified in the served markup, on visible text:** with `<details>` and `<script>` stripped, the canvas,
@@ -409,7 +409,7 @@ Format: date, decision, evidence, alternatives rejected.
 
 ### D34. 2026-09-25: "Try the demo" is the primary action on the landing page, ahead of sign in
 - **Decision:** the landing page leads with the demo. Sign in is the secondary control, and the demo is
-  labelled as needing no account.
+  labeled as needing no account.
 - **Evidence:** a reviewer assessing this submission has no reason to create an account, and
   [D29](#d29-2026-09-25-the-guest-demo-reaches-every-screen-the-signed-in-path-does) made the demo complete
   enough to carry the whole product. Putting sign in first would put a wall in front of the work being
@@ -453,7 +453,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Evidence:** a cold review of the deployed demo found the deploy screen listing five versions costing
   $2.43 directly above a footer reading $3.43. Both numbers were written by hand, in different files, and
   nothing made them agree. It also found a rollback offered to v3 when v3 was not in the list, and a stage
-  labelled "Charged $0.00" still adding $0.62 to a total. In a submission whose whole thesis is that a
+  labeled "Charged $0.00" still adding $0.62 to a total. In a submission whose whole thesis is that a
   builder should be able to see and trust what the machine did, totals that contradict each other on screen
   are the most expensive possible defect: a reviewer who catches one stops believing the rest, including
   everything that was correct.
@@ -494,12 +494,12 @@ Format: date, decision, evidence, alternatives rejected.
 - **Honesty requirement:** confidence is shown only where the provider returns one. The docs state Jev
   returns `providerMetadata.typesafe.confidence` for choice and score but not boolean, and that a boolean's
   `probability` is P(true) and "not a confidence in either outcome". The Grounding Checker therefore shows
-  a probability, labelled as one. Latency is wall-clock measured by us, because the API returns none, and
+  a probability, labeled as one. Latency is wall-clock measured by us, because the API returns none, and
   the interface says so.
 
 ### D38. 2026-09-26: A documented cost ceiling, enforced without a privileged key
 - **Decision:** 10 live Jev calls per IP per hour, and 300 per day in total. Past either, the demo serves a
-  stored result labelled with the date it was captured, and never a fabricated one.
+  stored result labeled with the date it was captured, and never a fabricated one.
 - **Why these numbers:** 10 per hour is enough for a reviewer to try every agent several times with their
   own input, and low enough that one visitor cannot drain the budget. 300 a day bounds the worst case
   across all visitors. At $0.042 per million input tokens these calls cost a fraction of a cent, so the
@@ -589,7 +589,7 @@ Format: date, decision, evidence, alternatives rejected.
   links. Every link is verified against the blob at that commit when the diagram is built, so a stale line
   number fails the build rather than pointing a reader at the wrong code. A diagram that cannot be traced
   back to the code is decoration.
-- **Every node is labelled Real or Simulated.** Eleven are real. One, `lib/seed`, is simulated, and it is
+- **Every node is labeled Real or Simulated.** Eleven are real. One, `lib/seed`, is simulated, and it is
   the one that feeds every build, preview, deploy and agent run in the product. Saying so on the diagram
   costs nothing and is the same rule the README status table follows.
 - **The `tag` field was the first attempt and it did not render**, so the marking moved into the sublabel,
@@ -604,3 +604,48 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** hand-drawn images, which drift the moment the code changes and cannot be verified. Also
   rejected: marking the whole product Real because most of it is, which would be the exact dishonesty the
   status table exists to prevent.
+
+### D43. 2026-09-26: A grounding check ships only when it is confident, and the bar is an error budget
+- **Decision:** a grounding result is sent to a customer unread only at P(grounded) >= **0.90**. Below that it
+  goes to a person. The bar is a product decision, not the model's: Jev reads a boolean at 0.5, which for an
+  answer that reaches a customer with nobody looking is a coin flip, not a bar.
+- **How 0.90 was chosen, before looking at any result:** at a bar of p, roughly (1 - p) of shipped answers
+  carry a claim the source does not support. We are willing to ship fewer than 1 in 10 such answers. That is
+  the whole derivation. For the record, a 1 in 5 budget (0.80) gives the same outcome on the demo's sample,
+  and only a bar below about 0.67 would have changed it, so the conclusion does not balance on the number.
+- **The round 2 review found the contradiction this fixes.** The Grounding Checker's own sample is the
+  sentence the "Why did it do that?" panel calls ungrounded, and a live call answered "grounded: Yes" at 69%.
+  A reviewer trying the first thing in the demo got the opposite of the story.
+- **The criteria were the actual bug, not the model.** The old question asked "Is every claim in the draft
+  supported by the source article?", and "at the start of your next billing cycle" against a source saying
+  "at the next billing cycle" is a defensible paraphrase. Asked the question we actually meant, naming timing
+  words, the same model on the same input answered very differently. Measured, five runs each:
+
+  | | Probability grounded | Verdict |
+  |---|---|---|
+  | Before, loose criteria | 0.69 to 0.74, median 0.71 | Yes, and it contradicted the demo |
+  | After, timing words named | 0.13 to 0.15, median 0.14 | No, and it agrees with the demo |
+
+- **The source article is now shown** beside the input, with every fixed field labeled, because a grounding
+  result that does not show what it was checked against cannot be checked by the reader either. The visitor's
+  text replaces one declared field (`inputField`) and the source stays fixed.
+- **Rejected:** editing the sample sentence until the model agreed with the script. That would have hidden a
+  real finding, which is that a loosely worded criterion gets a loosely reasoned answer. Also rejected:
+  keeping the 0.5 default, which is what produced the contradiction.
+
+### D44. 2026-09-27: The Jev result in the URL is signed, so it cannot be forged
+- **Decision:** the result carried back in the query string is signed with HMAC-SHA256 using a server-only
+  `JEV_RESULT_SECRET`. A result with a missing, edited or transplanted signature renders as **"Unverified
+  result"** and never as "Live result".
+- **Why:** the result travels in the URL so a run is linkable and works before hydration (D19, D25). That
+  also means anyone can type one. Without a signature a hand-written address could display a fabricated
+  "Live result", which is precisely the claim this repo spends its effort refusing to make.
+- **The agent id is inside the signed payload**, so a genuine result cannot be moved onto another agent.
+- **Fails closed.** With no secret configured, nothing verifies and every result is unverified. A missing
+  secret must not quietly become "trust everything".
+- **Proven, not assumed.** Five cases checked against a running server: a genuine result reads "Live result";
+  the signature removed reads "Unverified result"; the probability rewritten from 0.13 to 0.99 with the
+  original signature reads "Unverified result"; the same payload moved onto another agent reads "Unverified
+  result"; and the tampered values are still displayed, just never called live.
+- **Rejected:** only documenting the hole, which was the original plan. A reviewer who can forge "Live
+  result" in one URL edit has found a real hole in an honesty claim, whoever wrote the URL.

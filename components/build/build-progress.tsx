@@ -218,12 +218,12 @@ export function BuildProgress({
               Try a different approach, {money(failure.retryEstimate.low)} to{" "}
               {money(failure.retryEstimate.high)}
             </button>
-            <button
-              type="button"
-              className="min-h-11 rounded-input border border-rule px-3 text-body"
-            >
-              Roll back to {failure.rollbackTo}
-            </button>
+            {/* No rollback offer on a first build: there is nothing behind it
+                to roll back to. The round 2 review caught "Roll back to v3"
+                being offered on v1. */}
+            <span className="inline-flex min-h-11 items-center text-caption text-graphite">
+              Nothing to roll back to. This is the first build.
+            </span>
           </div>
           <details open={preferDetails} className="min-w-0 rounded-panel border border-rule">
             <summary className="flex min-h-11 cursor-pointer items-center px-3 text-body">

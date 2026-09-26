@@ -53,7 +53,7 @@ export function WorkspaceShell({
       {banner}
 
       <header className="border-b border-rule">
-        <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 sm:px-6">
           <div className="min-w-0">
             <h1 className="truncate text-lead font-semibold">{projectName}</h1>
             {subtitle ? (
@@ -63,7 +63,7 @@ export function WorkspaceShell({
 
           <div className="ml-auto flex items-center gap-2">
             {readOnly ? (
-              <span className="rounded-input border border-rule px-2 py-1 text-caption text-graphite">
+              <span className="whitespace-nowrap rounded-input border border-rule px-2 py-1 text-caption text-graphite">
                 Read only
               </span>
             ) : null}

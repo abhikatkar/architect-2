@@ -61,7 +61,7 @@ export function hashIp(ip: string) {
 function recordedResult(agentId: JevAgentId, outcome: JevOutcome, note: string): JevResult {
   const recorded = RECORDED[agentId];
   // No captured result yet means we say so. Inventing a plausible answer and
-  // labelling it "recorded" would be a claim about a call that never ran.
+  // labeling it "recorded" would be a claim about a call that never ran.
   if (!hasRecorded(agentId)) {
     return {
       outcome,
@@ -109,7 +109,7 @@ async function logCall(
 }
 
 /** Turns one provider answer into something the UI can render honestly. */
-function normalise(
+function normalize(
   key: string,
   answer: Record<string, unknown>,
   confidence: Record<string, number> | undefined,
@@ -183,11 +183,11 @@ export async function runJevAgent(
   }
 
   const trimmed = (customInput ?? "").trim().slice(0, MAX_CUSTOM_INPUT);
-  // A custom input replaces the first field of the sample state, so the shape
-  // the questions expect is preserved.
-  const stateKey = Object.keys(spec.sampleState)[0];
+  // A custom input replaces exactly one declared field. Every other field, the
+  // source article for instance, stays fixed and is shown in the inspector, so
+  // a result can be checked against what it was actually run on.
   const state: Record<string, string> = trimmed
-    ? { ...spec.sampleState, [stateKey]: trimmed }
+    ? { ...spec.sampleState, [spec.inputField]: trimmed }
     : spec.sampleState;
 
   const started = Date.now();
@@ -208,7 +208,7 @@ export async function runJevAgent(
 
     const answers = Object.entries(
       result.answers as unknown as Record<string, Record<string, unknown>>,
-    ).map(([key, answer]) => normalise(key, answer, confidence));
+    ).map(([key, answer]) => normalize(key, answer, confidence));
 
     await logCall(agentId, "live", latencyMs, ipHash);
 

@@ -9,7 +9,7 @@ function money(n: number) {
 /**
  * Marks the words the source does not support.
  *
- * Three signals, never colour alone: the fault colour, an underline, and a
+ * Three signals, never color alone: the fault color, an underline, and a
  * "Not in source" label. The design system requires that everywhere, and this
  * is the one phrase the entire screen exists to point at.
  */
@@ -111,7 +111,7 @@ export function RunTraceView({
         <p className="max-w-[72ch] text-small text-graphite">
           Those words are not in the article, so the Grounding Checker refused
           the answer and passed the question to a person. That is the safe
-          behaviour, and it is why the customer waited.
+          behavior, and it is why the customer waited.
         </p>
       </div>
 
@@ -164,10 +164,11 @@ export function RunTraceView({
               href={query({ fix: "applied" })}
               className="inline-flex min-h-11 items-center rounded-input bg-blueprint px-4 text-body text-paper"
             >
-              Apply fix and re-test
+              Watch the fix being applied
             </Link>
             <span className="text-caption text-graphite">
-              Creates {fix.newVersion} in preview, costs{" "}
+              Demo action. In the real product this button reads &quot;Apply fix
+              and re-test&quot; and creates {fix.newVersion} in preview, costing{" "}
               <span className="font-mono text-cost">{money(fix.cost)}</span>. Nothing
               changes until you press this.
             </span>

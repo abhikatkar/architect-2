@@ -1,4 +1,5 @@
 import type { BuildStage, DemoProject } from "@/lib/seed/types";
+import { previewVersion } from "@/lib/seed/totals";
 
 function money(n: number) {
   return `$${n.toFixed(2)}`;
@@ -60,6 +61,7 @@ export function Conversation({
   building?: boolean;
 }) {
   const total = project.stages.reduce((sum, s) => sum + s.cost, 0);
+  const preview = previewVersion(project);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -71,7 +73,7 @@ export function Conversation({
 
         {building ? (
           <div className="rounded-panel border border-rule p-3">
-            <p className="text-caption text-graphite">Build v1</p>
+            <p className="text-caption text-graphite">First build, v1</p>
             <p className="mt-1 text-body">
               Five stages, about six and a half minutes of real build time,
               estimated at $1.20 to $2.00 before it started.
@@ -79,7 +81,11 @@ export function Conversation({
           </div>
         ) : (
         <div className="rounded-panel border border-rule p-3">
-          <p className="mb-2 text-caption text-graphite">Build v1</p>
+          {/* Named, so it cannot be mistaken for the version in preview. The
+              rail is the history of the first build; the footer is current. */}
+          <p className="mb-2 text-caption text-graphite">
+            First build, v1. Preview is now on {preview}.
+          </p>
           <StageList stages={project.stages} />
           <p className="mt-3 border-t border-rule pt-2 text-caption text-graphite">
             Built in {duration(project.stages.reduce((s, x) => s + x.elapsedSeconds, 0))} for{" "}
