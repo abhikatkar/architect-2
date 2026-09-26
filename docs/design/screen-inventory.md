@@ -21,9 +21,9 @@ Priority: **P0** must ship for submission, **P1** should ship, **P2** shown only
 | 11 | New agent: framework picker (Lyzr, GitAgent, LangGraph, CrewAI, OpenAI Agents SDK) | Modal | B | Own it | Agent section | Simulated | P1 |
 | 12 | Code: file tree, read-only file view, diff per change, accept and revert, terminal, logs, checks | Workspace, Code tab | B | Steer it | Beyond list | Simulated, except one real change from this repo | P0 |
 | 13 | Data: collections, users and roles (admin invite UI), secrets and env vars, integrations and MCP | Workspace, Data tab | Both | Ship safely | Beyond list | Simulated | P1 |
-| 14 | GitHub connect: explicit consent, new or existing repo, visibility, two-way sync, nothing written until confirmed | Modal | Both | Own it | GitHub integration | Simulated | P0 |
-| 15 | Import repo: pick repo, branch, subfolder, then compatibility report (detected framework, support level, what changes, estimate) | `/app/import` | B | Own it | Beyond list | Simulated | P0 |
-| 16 | Deploy: preview and production environments, version list with what is live, promote, rollback, domain, publish settings (Marketplace off by default) | Workspace, Deploy tab | Both | Ship safely | Deploying the app | Simulated | P0 |
+| 14 | GitHub connect: explicit consent, new or existing repo, private by default, two-way sync, what will be written counted from the tree, nothing written until confirmed | Sheet, from Deploy | Both | Own it | GitHub integration | Simulated | P0 |
+| 15 | Import repo: pick repo, branch, subfolder, then compatibility report (detected framework, support level, what changes, estimate) | `/app/import`, `/demo/import` | B | Own it | Beyond list | Simulated | P0 |
+| 16 | Deploy: preview and production environments, version list with what is live, promote sheet with checks, domain, publish (Marketplace off by default) and access with admin invites, rollback to versions that exist | Workspace, Deploy tab | Both | Ship safely | Deploying the app | Simulated | P0 |
 | 17 | Usage: per-project and per-phase cost, estimate vs actual, spend cap | `/app/usage` | Both | See it | Beyond list | Simulated | P1 |
 | 18 | Settings: profile, default depth, bring-your-own keys, API and CLI tokens, team | `/app/settings` | Both | Own it | Beyond list | Simulated | P1 |
 | 19 | AI Consultant: interview that suggests what to build (kept from today) | `/app/consultant` | A | See it | Beyond list | Simulated | P2 |

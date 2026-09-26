@@ -74,8 +74,9 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Source links verified against the pinned commit | **22**, all in the architecture diagram | the delivery receipt, `evidence.references` |
 | Smallest node text at a 1440px desktop | **7.7px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
-| Consistency invariants | **34** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **42** | `scripts/rendered-check.mjs` |
+| Consistency invariants | **47** | `scripts/consistency-check.mjs` |
+| Rendered-page assertions | **63** | `scripts/rendered-check.mjs` |
+| P0 screens built | **15 of 15**, slice 6 completes them | [screen-inventory.md](../design/screen-inventory.md) |
 | Files browsable in the Code tab | **42**, the same number the GitHub consent line counts | `lib/seed/code.ts`, asserted equal |
 | Real changes shown beside the simulated ones | **1**, commit `b8ba98a`, generated from git | `scripts/capture-real-change.mjs` |
 | Pinned revision | `a2ea7a2` | [D42](../07-decision-log.md) |

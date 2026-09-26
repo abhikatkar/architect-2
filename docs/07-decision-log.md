@@ -332,6 +332,12 @@ Format: date, decision, evidence, alternatives rejected.
   writer, and everything else is derived from elapsed time. The linter caught two violations of this in the
   first version, and the fix made the component simpler rather than more complex.
 
+- **Extended 2026-09-27 by [D51](#d51-2026-09-27-sheets-are-server-rendered-overlays-with-keyboard-help-on-top).**
+  The rule is not "no client JavaScript", it is **works without JavaScript, better with it**. The theme
+  toggle already worked this way: the form still posts with scripting off, and the client version only makes
+  it instant. Sheets follow the same shape. A client component may be added when the feature is complete
+  without it and the script only improves it, and may not be added when it is the only way the feature works.
+
 ### D28. 2026-09-25: Simulated builds write real status values
 - **Decision:** starting a build sets `projects.status` to `building`, finishing sets it to `built`. The
   simulation is fake; the status is a real row.
@@ -780,3 +786,60 @@ Format: date, decision, evidence, alternatives rejected.
   a diff that no longer describes the code.
 - **Kept apart from the simulated ones:** its own panel, its own label, its own live check result, and never
   a row in the same list. A reader should never have to work out which numbers are real.
+
+### D51. 2026-09-27: Sheets are server-rendered overlays, with keyboard help on top
+- **Decision:** a consent or confirm sheet is an overlay that exists only when its query parameter is
+  present. The backdrop and Close are links that remove the parameter, so it opens, closes and shares as a
+  link, and the whole thing renders on the server.
+- **Why an overlay at all.** The design system names these three screens specifically: "Modals (GitHub
+  consent, deploy, framework picker) become full-height bottom sheets on phone, with the confirm action
+  pinned at the bottom". An in-flow panel would have been easier and would have meant correcting the design
+  doc a third time for no reason other than convenience.
+- **Works without JavaScript, better with it.** With scripting off it is a real dialog you can read, act on
+  and close, and focus returns to whatever opened it because the close links carry a fragment pointing at
+  the trigger's id. With scripting on, a small client component adds Escape to close, moves focus to the
+  heading on open, and traps Tab inside. That is the same bargain as the theme toggle, and it is now the
+  written rule in [D27](#d27-2026-09-25-where-the-no-javascript-rule-stops).
+- **What is still missing without JavaScript**, said plainly rather than left to be found: no Escape key and
+  no focus trap. The sheet carries `role="dialog"`, `aria-modal`, a labelled heading and a visible Close, so
+  it is usable, but a keyboard user without scripting can tab past it into the page behind.
+- **Rejected:** a client component that owns whether the sheet is open, which would put the workspace shell
+  in the browser bundle to decide something a query parameter already decides.
+
+### D52. 2026-09-27: Nothing is written before its confirm, and the screen proves it
+- **Decision:** every action that would write outside Architect states exactly what it would write, counted
+  from real data, and does nothing until its confirm. This is the answer to the finding that a GitHub repo
+  was created and set to auto-sync without anyone pressing Push.
+- **Counted, not typed.** The consent sheet says "push 42 files, create 3 commits" by counting the file tree
+  and the change list on the Code tab. The old copy had "42 files, 1 commit" written into a string, and the
+  commit half was wrong: there are three.
+- **Asserted as a negative.** A rendered check visits every sheet and the import screen and fails if any of
+  them contains "Deployed", "Connected to GitHub", "Repository created", "Rolled back", "Imported
+  successfully" or "Invite sent" before its confirm, and requires the words "Demo action" to be present. It
+  is easy to write a screen that announces success on open, and that is exactly what the teardown found.
+- **Rejected:** a disabled confirm button, which says the same thing less clearly than a sentence.
+
+### D53. 2026-09-27: The import report comes before the estimate, and before any charge
+- **Decision:** import is repo, branch, folder, **report**, then Import. The compatibility report names the
+  detected framework, the support level as a word and not only a colour, what Architect would add or change,
+  and what it would leave alone.
+- **The finding it answers:** importing a Flask repository produced no compatibility error at any step
+  before Send, preselected a branch that was not the repository's default, and showed no cost. An
+  unsupported repository did not fail early, it failed after credits had been spent.
+- **So three things are stated on the screen:** the branch is labelled "the repository default", the Flask
+  case reads "Partial" with "will not modify your Python routes", and the screen says nothing is charged
+  before Import.
+- **The unsupported level is shown even though no seed repo uses it**, because a support scale that only
+  ever shows its two good outcomes teaches the reader the wrong thing.
+
+### D54. 2026-09-27: Safe defaults, each one tied to the finding it answers
+- **Decision:** the repository is private by default, sync is two way by default, Marketplace is off by
+  default with the note about who pays beside it, and admin is an invite with roles rather than a server
+  environment variable.
+- **Each default is evidence-led, not taste.** Publishing defaulted to on and spent the owner's credits.
+  Admin access could only be granted through an environment variable, which the person who owns the app
+  cannot reach. The repo modal never said whether the repository it created was public or private.
+- **Two way is shown, not claimed.** The connected state lists commits in both directions, so "two-way
+  sync" is a thing on screen rather than a line in a strategy document.
+- **Rejected:** a settings page listing these as options with no defaults, which would move the decision
+  back onto the person least equipped to make it, which is what the products in the teardown do.

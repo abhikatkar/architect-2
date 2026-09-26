@@ -1,5 +1,6 @@
 import { LayerCanvas } from "@/components/workspace/canvas";
 import { CodeCanvas } from "@/components/code/code-canvas";
+import { DeployCanvas } from "@/components/deploy/deploy-canvas";
 import { verifyJevResult } from "@/lib/jev/sign";
 import type { JevResult } from "@/lib/jev";
 import { BuildProgress } from "./build-progress";
@@ -29,6 +30,8 @@ type Props = {
   panel: "terminal" | "logs" | "checks";
   accept: string;
   revert: string;
+  sheet: string;
+  rollback: string;
   basePath: string;
   query: (patch: Record<string, string>) => string;
   /** Signed in: the route that records completion. Demo: null. */
@@ -57,6 +60,8 @@ export function WorkspaceCanvas({
   panel,
   accept,
   revert,
+  sheet,
+  rollback,
   basePath,
   query,
   finishAction,
@@ -163,6 +168,19 @@ export function WorkspaceCanvas({
         panel={panel}
         accept={accept}
         revert={revert}
+        query={query}
+      />
+    );
+  }
+
+  if (layer === "deploy") {
+    return (
+      <DeployCanvas
+        project={project}
+        fixApplied={fixApplied}
+        accept={accept}
+        sheet={sheet}
+        rollback={rollback}
         query={query}
       />
     );

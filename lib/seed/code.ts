@@ -288,6 +288,7 @@ export function pendingFixChange(p: DemoProject, fixApplied = false): ChangeRequ
     message: "Keep answers as specific as the source",
     ago: fixApplied ? "just now" : "not applied yet",
     version: fixApplied ? p.fix.newVersion : null,
+    cost: p.fix.cost,
     diffs: [
       {
         id: "d6",

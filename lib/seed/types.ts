@@ -226,6 +226,8 @@ export type ChangeRequest = {
   ago: string;
   /** Absent until the change is applied, like v15. */
   version: string | null;
+  /** What applying it costs. Only pending changes carry one. */
+  cost?: number;
   diffs: FileDiff[];
 };
 
@@ -242,6 +244,38 @@ export type CheckResult = {
   state: "pass" | "fail";
   detail: string;
   ms: number;
+};
+
+/** Where the app answers, and whether the name is ours or the customer's. */
+export type DomainRecord = {
+  host: string;
+  kind: "default" | "custom";
+  state: "live" | "needs dns";
+  detail: string;
+};
+
+/** Who can open the app. Replaces an admin list held in a server env var. */
+export type MemberRole = "owner" | "admin" | "editor" | "viewer";
+export type Member = {
+  name: string;
+  email: string;
+  role: MemberRole;
+  state: "active" | "invited";
+};
+
+export type PublishSettings = {
+  /** Off by default, and the reason is shown next to it. */
+  marketplace: boolean;
+  visibility: "private" | "link" | "public";
+  listing: string;
+};
+
+/** A repository Architect could connect to, for the consent sheet. */
+export type RepoTarget = {
+  id: string;
+  name: string;
+  kind: "new" | "existing";
+  detail: string;
 };
 
 export type DemoProject = {

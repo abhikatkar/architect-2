@@ -30,6 +30,16 @@ import { REAL_CHANGE } from "../lib/seed/real-change.ts";
 import { GROUNDING_QUESTIONS } from "../lib/jev/questions.ts";
 import { addedLines, allDiffIds, changedFileCount } from "../lib/seed/totals.ts";
 import {
+  appliedPending,
+  pendingChanges,
+  previewAfter,
+  revertedBy,
+  rollbackTargets,
+  spendAfter,
+  versionForPending,
+} from "../lib/seed/totals.ts";
+import { DOMAINS, MEMBERS, PUBLISH, ROLES } from "../lib/seed/deploy.ts";
+import {
   ledgerSpend,
   conversationTotal,
   failureSpend,
@@ -245,7 +255,6 @@ check(
 const files = codeFiles(p);
 const changes = changeRequests(p);
 const diffIds = allDiffIds(changes);
-const filePaths = new Set(files.map((f) => f.path));
 const fileIds = new Set(files.map((f) => f.id));
 
 check(
@@ -313,6 +322,103 @@ check(
   CHECKS.every((c) => c.state === "pass" || c.state === "fail") &&
     CHECKS.every((c) => c.ms > 0),
   `${CHECKS.filter((c) => c.state === "pass").length} of ${CHECKS.length} pass`,
+);
+
+// 22. Deploy, import and consent.
+const waiting = pendingChanges(changes);
+const allIds = diffIds;
+
+check(
+  "the consent sheet counts the files and commits that actually exist",
+  files.length === 42 && changes.length >= 1,
+  `${files.length} files, ${changes.length} commits, both counted not typed`,
+);
+
+check(
+  "every rollback target exists and is not already live",
+  rollbackTargets(p).every(
+    (v) => p.versions.some((x) => x.label === v.label) && !v.live,
+  ),
+  `${rollbackTargets(p).length} of ${p.versions.length} versions can be rolled back to`,
+);
+
+check(
+  "rolling back reverts only versions newer than the target",
+  revertedBy(p, "v11").every((v) => Number(v.label.slice(1)) > 11),
+  `v11 reverts ${revertedBy(p, "v11").map((v) => v.label).join(", ")}`,
+);
+
+// The one the order-independence rule exists for: the same decisions must give
+// the same numbers whatever sequence someone clicked them in.
+const everyOrder = [allIds, [...allIds].reverse(), [...allIds].sort()];
+const previews = everyOrder.map((order) => previewAfter(p, changes, order));
+const spends = everyOrder.map((order) => spendAfter(p, changes, order));
+
+check(
+  "the same accepted changes give the same version, whatever the click order",
+  new Set(previews).size === 1,
+  `${previews[0]} from ${everyOrder.length} orderings`,
+);
+
+check(
+  "the same accepted changes give the same total, whatever the click order",
+  new Set(spends).size === 1,
+  `${money(spends[0])} from ${everyOrder.length} orderings`,
+);
+
+check(
+  "a pending change's version comes from its position, not from when it landed",
+  waiting.every((c, i) => versionForPending(p, changes, c.id) === `v${15 + i}`),
+  waiting.map((c) => `${c.id} -> ${versionForPending(p, changes, c.id)}`).join(", "),
+);
+
+check(
+  "accepting every file of a pending change is what applies it",
+  appliedPending(changes, []).length === 0 &&
+    appliedPending(changes, allIds).length === waiting.length,
+  `${waiting.length} waiting, ${appliedPending(changes, allIds).length} once accepted`,
+);
+
+check(
+  "applying a pending change adds exactly its own cost",
+  spendAfter(p, changes, allIds) ===
+    round(ledgerSpend(p) + waiting.reduce((sum, c) => sum + (c.cost ?? 0), 0)),
+  `${money(ledgerSpend(p))} to ${money(spendAfter(p, changes, allIds))}`,
+);
+
+check(
+  "both import examples name a framework and a support level",
+  p.imports.length >= 2 &&
+    p.imports.every((i) => i.detected.length > 0 && i.support.length > 0),
+  p.imports.map((i) => `${i.repo}: ${i.support}`).join(", "),
+);
+
+check(
+  "a partial import says what it will not touch",
+  p.imports
+    .filter((i) => i.support === "partial")
+    .every((i) => typeof i.note === "string" && i.note.length > 20),
+  "the Flask repo keeps its Python routes",
+);
+
+check(
+  "access roles come from the published set, and there is exactly one owner",
+  MEMBERS.every((m) => ROLES.some((r) => r.id === m.role)) &&
+    MEMBERS.filter((m) => m.role === "owner").length === 1,
+  `${MEMBERS.length} members, roles ${ROLES.map((r) => r.id).join("/")}`,
+);
+
+check(
+  "marketplace is off by default and the credits note explains why that matters",
+  PUBLISH.marketplace === false && p.copy.marketplaceNote.includes("spend your credits"),
+  "off, with who pays said next to it",
+);
+
+check(
+  "there is exactly one default domain and it is the live one",
+  DOMAINS.filter((d) => d.kind === "default").length === 1 &&
+    DOMAINS.find((d) => d.kind === "default")?.state === "live",
+  DOMAINS.map((d) => `${d.host} ${d.state}`).join(", "),
 );
 
 const failedCount = results.filter((r) => !r.ok).length;

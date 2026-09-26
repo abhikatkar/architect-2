@@ -75,7 +75,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 09:15 | Slice 5, the Code tab: file tree, read-only file view, diffs grouped by request, accept and revert in the address, terminal, logs and checks | 3 h 50 min | Claude Code, Chrome over CDP | Found a bug in existing code first: tab links were hand built and dropped every carried parameter, so clicking any tab silently reverted an applied fix. Proved it, fixed it, asserted it. The phone layout put 42 file rows above the thing you came to review until CSS order moved them |
 
-**Day total so far:** 23 h 40 min across 12 commits.
+| 12:30 | Slice 6, the last P0 slice: GitHub consent, import with a compatibility report, and deploy with promote, rollback, domain, publish and access | 4 h 10 min | Claude Code, Chrome over CDP | The first overlay in the product, server rendered so it opens and closes from the address, with Escape and a focus trap added on top for anyone running JavaScript. Two assertions I wrote first could not fail: one followed a redirect and then asserted the 200 it landed on, the other was a ternary that always returned true. Both rewritten before they counted |
+
+**Day total so far:** 27 h 50 min across 13 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

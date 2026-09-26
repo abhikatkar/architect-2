@@ -46,6 +46,12 @@ async function get(path) {
   return { status: res.status, html: await res.text() };
 }
 
+/** Without following, so a guard's redirect can actually be asserted. */
+async function raw(path) {
+  const res = await fetch(`${base}${path}`, { redirect: "manual" });
+  return { status: res.status, location: res.headers.get("location") ?? "" };
+}
+
 // 1. The app preview must not start on Desktop. "Auto" is the default and it
 //    is phone width below 640px by CSS, because a server cannot measure a
 //    viewport and this product runs without JavaScript.
@@ -393,6 +399,151 @@ async function get(path) {
     "but the run trace is cleared, so a tab click really changes tab",
     !/href="\/demo\?tab=code[^"]*why=/.test(why),
     "why is dropped on purpose",
+  );
+}
+
+// 20. Sheets are closed until their parameter says otherwise.
+{
+  const { html } = await get("/demo?tab=deploy&pane=canvas");
+  check(
+    "no sheet is open until its parameter is present",
+    !html.includes('role="dialog"'),
+    "deploy opens with nothing over it",
+  );
+  const { html: open } = await get("/demo?tab=deploy&pane=canvas&sheet=promote");
+  check(
+    "a sheet opens from the address, and is a real dialog",
+    open.includes('role="dialog"') && open.includes('aria-modal="true"'),
+    "sheet=promote",
+  );
+  check(
+    "the confirm is pinned so a phone never scrolls to find it",
+    open.includes("sticky bottom-0"),
+    "pinned footer",
+  );
+}
+
+// 21. Nothing claims to have been written before its confirm.
+//
+// Stated as a negative on purpose: it is easy to write a screen that says
+// "Connected" or "Deployed" the moment you open it, and that is the exact
+// failure the teardown found on a real product.
+{
+  for (const path of [
+    "/demo?tab=deploy&pane=canvas&sheet=promote",
+    "/demo?tab=deploy&pane=canvas&sheet=github",
+    "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11",
+    "/demo/import",
+  ]) {
+    const text = visibleText((await get(path)).html);
+    const claims =
+      /\b(Deployed|Connected to GitHub|Repository created|Rolled back|Imported successfully|Invite sent)\b/.test(
+        text,
+      );
+    check(
+      `nothing on ${path.split("&sheet=")[1] ?? "import"} claims it already happened`,
+      !claims && text.includes("Demo action"),
+      "no past tense, and the demo label is present",
+    );
+  }
+}
+
+// 22. The consent sheet says exactly what it would write, counted not typed.
+{
+  const text = visibleText((await get("/demo?tab=deploy&pane=canvas&sheet=github")).html);
+  check(
+    "the consent sheet lists what will be written",
+    text.includes("Push 42 files") && text.includes("Create 3 commits"),
+    "42 files and 3 commits, from the tree and the change list",
+  );
+  check(
+    "the repository is private by default and says so",
+    /private\s+by default/.test(text),
+    "the modal it replaces never said which it was",
+  );
+  check(
+    "sync is two way by default, shown in both directions",
+    text.includes("two-way") && text.includes("into Architect") && text.includes("from Architect"),
+    "commits in and out",
+  );
+}
+
+// 23. Import reports before it runs, and says Partial out loud.
+{
+  const text = visibleText((await get("/demo/import?repo=northwind%2Fbilling-api")).html);
+  check(
+    "the Flask repo is reported Partial, not accepted silently",
+    text.includes("part Partial") && text.includes("will not modify your Python routes"),
+    "the finding this screen answers",
+  );
+  check(
+    "the branch is named as the repository default",
+    text.includes("ok the repository default"),
+    "the teardown found the wrong branch preselected",
+  );
+  check(
+    "nothing is charged before Import, and the screen says so",
+    text.includes("Nothing is charged before you press Import"),
+    "report first, cost second",
+  );
+  // Asserted without following the redirect, so a 200 from the login page
+  // cannot be mistaken for the guard working.
+  const guarded = await raw("/app/import");
+  check(
+    "the signed-in import route is behind the guard",
+    guarded.status >= 300 && guarded.status < 400 && guarded.location.includes("/login"),
+    `${guarded.status} to ${guarded.location.replace(base, "") || "nowhere"}`,
+  );
+  const twin = await raw("/demo/import");
+  check(
+    "and the demo twin is reachable without signing in",
+    twin.status === 200,
+    `/demo/import ${twin.status}`,
+  );
+}
+
+// 24. Deploy: safe defaults, and rollback only to versions that exist.
+{
+  const text = visibleText((await get("/demo?tab=deploy&pane=canvas&sheet=promote")).html);
+  check(
+    "marketplace is off by default with the credits note beside it",
+    /off\s+List on Marketplace/.test(text) && text.includes("spend your credits"),
+    "the default that cost people money",
+  );
+  check(
+    "admin is an invite, and the env var it replaces is named",
+    text.includes("Send invite") &&
+      text.includes("Invite by email") &&
+      text.includes("environment variable"),
+    "roles and invites replace the env var",
+  );
+  const { html: bogus } = await get("/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v99");
+  check(
+    "a rollback to a version that does not exist opens nothing",
+    !bogus.includes('role="dialog"'),
+    "the v3-that-did-not-exist bug cannot recur",
+  );
+  const { html: liveTarget } = await get("/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v12");
+  check(
+    "a rollback to the version already live opens nothing",
+    !liveTarget.includes('role="dialog"'),
+    "v12 is already what people see",
+  );
+}
+
+// 25. F6's last hop: accepting in Code moves the version on Deploy.
+{
+  const before = visibleText((await get("/demo?tab=deploy&pane=canvas")).html);
+  const after = visibleText((await get("/demo?tab=deploy&pane=canvas&accept=d6")).html);
+  check(
+    "accepting a change in Code moves the preview version on Deploy",
+    before.includes("Preview v14") && after.includes("Preview v15"),
+    "one URL state, two screens",
+  );
+  check(
+    "and Deploy says where that version came from",
+    after.includes("you accepted in the Code tab"),
+    "the last hop of F6",
   );
 }
 

@@ -29,6 +29,10 @@ const CARRIED = [
   "panel",
   "accept",
   "revert",
+  // Deploy and GitHub. `sheet` names which consent or confirm sheet is open,
+  // so a sheet is a shareable link and nothing client side decides it.
+  "sheet",
+  "rollback",
 ] as const;
 
 type Search = Record<string, string | string[] | undefined>;
@@ -85,6 +89,8 @@ export function workspaceUrl(
     rawPanel === "logs" || rawPanel === "checks" ? rawPanel : "terminal";
   const accept = first(searchParams.accept) ?? "";
   const revert = first(searchParams.revert) ?? "";
+  const sheet = first(searchParams.sheet) ?? "";
+  const rollback = first(searchParams.rollback) ?? "";
 
   const current: Record<string, string> = {
     tab: layer,
@@ -104,6 +110,8 @@ export function workspaceUrl(
     panel: panel === "terminal" ? "" : panel,
     accept,
     revert,
+    sheet,
+    rollback,
   };
 
   const query = (patch: Record<string, string>) => {
@@ -132,6 +140,8 @@ export function workspaceUrl(
     panel,
     accept,
     revert,
+    sheet,
+    rollback,
     query,
   };
 }
