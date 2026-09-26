@@ -71,8 +71,8 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Metric | Value | Source |
 |---|---|---|
 | Generated diagrams | 3, from JSON committed in [docs/architecture/](../architecture/) | `archify deliver` |
-| Source links verified against the pinned commit | **22**, all in the architecture diagram | the delivery receipt, `evidence.references` |
-| Smallest node text at a 1440px desktop | **7.7px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
+| Source links verified against the pinned commit | **22**, all in the architecture diagram, re-derived at the final commit | the delivery receipt, `evidence.references` |
+| Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
 | Consistency invariants | **55** | `scripts/consistency-check.mjs` |
 | Rendered-page assertions | **71** | `scripts/rendered-check.mjs` |
@@ -80,7 +80,7 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Unused copy strings | **0.** Five were removed as duplicates and an invariant now fails the build if a key is unread | `scripts/consistency-check.mjs` |
 | Files browsable in the Code tab | **42**, the same number the GitHub consent line counts | `lib/seed/code.ts`, asserted equal |
 | Real changes shown beside the simulated ones | **1**, commit `b8ba98a`, generated from git | `scripts/capture-real-change.mjs` |
-| Pinned revision | `a2ea7a2` | [D42](../07-decision-log.md) |
+| Pinned revision | `6e03ff1`, the final code | [D42](../07-decision-log.md) |
 | Nodes marked Real | 10 | the diagram |
 | Nodes marked Simulated | 1, `lib/seed` | the diagram |
 | Containment checked at | 1440x900, 1600x1000, 1920x1080 and 2048x1320, light and dark | `archify visual-check`, all pass |

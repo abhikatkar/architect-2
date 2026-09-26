@@ -13,7 +13,7 @@
     "repository": {
       "url": "https://github.com/abhikatkar/architect-2",
       "provider": "github",
-      "revision": "a34f252da5d984eb1d65f5b7ce24f34210bf03b6"
+      "revision": "6e03ff1f05e37eafe0b985acdf89ab2ec915bd5f"
     },
     "views": [
       {
@@ -109,7 +109,7 @@
       "id": "seed",
       "type": "backend",
       "label": "lib/seed fixtures",
-      "sublabel": "Simulated: 1 project, code, deploy",
+      "sublabel": "Simulated: agents, code, deploy",
       "pos": [
         555,
         70
@@ -128,7 +128,7 @@
         {
           "path": "lib/seed/totals.ts",
           "line": 29,
-          "end_line": 213,
+          "end_line": 212,
           "label": "derived totals"
         }
       ]

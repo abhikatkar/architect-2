@@ -843,3 +843,34 @@ Format: date, decision, evidence, alternatives rejected.
   sync" is a thing on screen rather than a line in a strategy document.
 - **Rejected:** a settings page listing these as options with no defaults, which would move the decision
   back onto the person least equipped to make it, which is what the products in the teardown do.
+
+### D55. 2026-09-27: The framework picker says what Architect cannot manage
+- **Decision:** screen 11 offers Lyzr, GitAgent, LangGraph, CrewAI and the OpenAI Agents SDK, and every one
+  of them carries a list of what Architect does **not** manage for it, beside the list of what it does.
+- **Why it exists at all.** The brief asks for a platform where you can "build agents in any framework".
+  Gap 4 in [03-architect-today.md](03-architect-today.md) records that today's product cannot: agents are
+  Lyzr agents or GitAgent in beta. Every other clause of that sentence in the brief had a screen.
+- **Why the second column is the design.** A picker where five frameworks are all fully supported teaches a
+  developer nothing and is wrong by the next release. Only Lyzr manages all five capabilities, and the
+  screen says so. The three that are new in 2.0 are marked as new rather than blended in with the two that
+  exist today.
+- **Held in place by invariants:** only Lyzr may claim everything, every framework must list at least one
+  thing that stays yours, and all five must share runs and traces, because that is the part that genuinely
+  does not change between them.
+- **It also closes a gap between two docs.** F5 was P0 while the screen it needs was P1, so the flow could
+  not be completed as written. Recorded as 15 of 15 P0 plus this one P1.
+
+### D56. 2026-09-27: Copy that nothing renders is deleted, and an invariant keeps it that way
+- **Decision:** five unused strings in the demo fixture were removed rather than wired up, and a check now
+  reads the sources and fails if any `copy` key is unread.
+- **Four were duplicates.** `loopStopped` and `platformRetry` were exact copies of strings the build screen
+  already renders from `failure`, `stageFailed` was a near copy of `failure.cause`, and `stalePreview` was a
+  hardcoded version of a sentence the preview already builds from the version numbers. Wiring any of them
+  would have created the second source of truth D36 exists to prevent.
+- **The fifth was a missing feature wearing a string.** `estimateOverCap` described a warning that had never
+  been built, and the overage in it was computed against the fix-applied state, so it was wrong in the other
+  one. The plan gate has always shown "of your $5.00 cap" without checking, and this project's own next
+  build does cross it. The warning is now arithmetic on spend, estimate and cap.
+- **Deleting the counts from the consent string exposed a contradiction already shipped:** the sheet listed
+  "3 commits", derived from the change list, directly above a fixture sentence reading "1 commit". The
+  string carries no digits now, and an invariant fails if one reappears.
