@@ -580,3 +580,27 @@ Format: date, decision, evidence, alternatives rejected.
   refused with "requires a valid credit card on file", and both `.env.local` values had been pasted wrapped
   in angle brackets, which the Gateway reports as `401 authentication_error`. The deployment still carries a
   bad copy of the key and is called out in the README rather than papered over.
+
+### D42. 2026-09-26: Diagrams are generated from the code, and never flatter it
+- **Decision:** the three architecture diagrams are generated from JSON sources committed in
+  [docs/architecture/](architecture/), not drawn by hand. They are regenerated before submission, and a node
+  is never marked Real unless it actually runs.
+- **Source backed, and checked.** The architecture diagram pins commit `a2ea7a2` and carries 23 source
+  links. Every link is verified against the blob at that commit when the diagram is built, so a stale line
+  number fails the build rather than pointing a reader at the wrong code. A diagram that cannot be traced
+  back to the code is decoration.
+- **Every node is labelled Real or Simulated.** Eleven are real. One, `lib/seed`, is simulated, and it is
+  the one that feeds every build, preview, deploy and agent run in the product. Saying so on the diagram
+  costs nothing and is the same rule the README status table follows.
+- **The `tag` field was the first attempt and it did not render**, so the marking moved into the sublabel,
+  which does. The point of checking the delivered image rather than trusting the specification: the
+  requirement was in the source and invisible on the page.
+- **Trust boundaries are drawn because they are the thing worth arguing about:** the client is untrusted,
+  the server holds the Gateway key, and Supabase and the AI Gateway are third parties. `/jev/run` sits
+  outside the proxy guard on purpose, and the diagram shows that rather than hiding it.
+- **Regeneration is one command per diagram**, `archify deliver`, with the JSON as the only thing edited by
+  hand. Before submission the pinned revision is updated and all three are rebuilt, so the diagrams and the
+  code cannot drift apart quietly.
+- **Rejected:** hand-drawn images, which drift the moment the code changes and cannot be verified. Also
+  rejected: marking the whole product Real because most of it is, which would be the exact dishonesty the
+  status table exists to prevent.

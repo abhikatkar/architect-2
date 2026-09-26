@@ -21,3 +21,6 @@ npm-debug.log*
 
 # raw drop zone, not part of the deliverable
 _inbox/
+
+# Diagram evidence images, regenerate with: archify visual-check
+public/architecture/*.visual-check.*

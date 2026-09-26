@@ -63,7 +63,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 21:05 | Jev live at last: captured real results for all three agents, measured latency, tokens and cost, verified the UI end to end and flipped it to Functional | 1 h 05 min | Claude Code, curl against a local production server, Supabase MCP | 22 live calls, median 430 ms, $0.000017 per call. The 401 turned out to be both `.env.local` values pasted wrapped in angle brackets. Confirmed the boolean returns no confidence by observation rather than from the docs. Caught a real copy defect while reading the rendered HTML: "Confidence 42% . Jev was not decided", a space before the period |
 
-**Day total so far:** 10 h across 5 commits.
+| 22:20 | Three generated diagrams: system architecture with source links and trust boundaries, the agent workflow, and the Jev call sequence | 1 h 20 min | Claude Code, archify | 23 source links verified against the pinned commit. Caught two things only by opening the delivered images: the Real and Simulated markings were in a field that does not render, and the first workflow was too tall to contain at 1440x900 |
+
+**Day total so far:** 11 h 20 min across 6 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

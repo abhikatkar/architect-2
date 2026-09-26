@@ -1,0 +1,211 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Northwind Helpline: the right model type per decision",
+    "visual_preset": "blueprint",
+    "quality_profile": "showcase",
+    "output": "public/architecture/agent-workflow.html",
+    "views": [
+      {
+        "id": "happy-path",
+        "label": "Message to reply",
+        "focus": [
+          "msg",
+          "intake",
+          "answer",
+          "ground",
+          "send"
+        ],
+        "note": "Three typed decisions and one piece of writing, in the order they happen."
+      },
+      {
+        "id": "decisions",
+        "label": "The three decisions",
+        "focus": [
+          "intake",
+          "ground",
+          "escal"
+        ],
+        "note": "Each has a fixed answer space, so a decision model cannot invent an answer outside it."
+      },
+      {
+        "id": "escalation",
+        "label": "When grounding fails",
+        "focus": [
+          "ground",
+          "escal"
+        ],
+        "note": "The one agent that writes is the one that can drift, and this is where that gets caught."
+      }
+    ],
+    "viewBox": [
+      1200,
+      534
+    ]
+  },
+  "lanes": [
+    {
+      "id": "customer",
+      "label": "Customer"
+    },
+    {
+      "id": "decide",
+      "label": "Decision model: Jev"
+    },
+    {
+      "id": "write",
+      "label": "Language model"
+    }
+  ],
+  "phases": [
+    {
+      "id": "sort",
+      "label": "Sort",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "draft",
+      "label": "Draft",
+      "fromCol": 2,
+      "toCol": 2,
+      "variant": "emphasis"
+    },
+    {
+      "id": "check",
+      "label": "Check and route",
+      "fromCol": 3,
+      "toCol": 5
+    }
+  ],
+  "mainPath": [
+    "msg",
+    "intake",
+    "answer",
+    "ground",
+    "send"
+  ],
+  "nodes": [
+    {
+      "id": "msg",
+      "lane": "customer",
+      "col": 0,
+      "type": "external",
+      "label": "Customer message",
+      "sublabel": "free text from a customer",
+      "width": 164
+    },
+    {
+      "id": "intake",
+      "lane": "decide",
+      "col": 1,
+      "type": "backend",
+      "label": "Intake",
+      "sublabel": "Jev decision: topic + urgency",
+      "width": 164
+    },
+    {
+      "id": "answer",
+      "lane": "write",
+      "col": 2,
+      "type": "backend",
+      "label": "Answer",
+      "sublabel": "Language model: drafts reply",
+      "width": 164
+    },
+    {
+      "id": "ground",
+      "lane": "decide",
+      "col": 3,
+      "type": "backend",
+      "label": "Grounding Checker",
+      "sublabel": "Jev decision: grounded?",
+      "width": 164
+    },
+    {
+      "id": "escal",
+      "lane": "decide",
+      "col": 4,
+      "type": "security",
+      "label": "Escalation Router",
+      "sublabel": "Jev decision: which queue",
+      "width": 164
+    },
+    {
+      "id": "send",
+      "lane": "customer",
+      "col": 5,
+      "type": "frontend",
+      "label": "Reply sent",
+      "sublabel": "grounded in a source",
+      "width": 164
+    }
+  ],
+  "edges": [
+    {
+      "id": "msg-intake",
+      "from": "msg",
+      "to": "intake",
+      "variant": "emphasis"
+    },
+    {
+      "id": "intake-answer",
+      "from": "intake",
+      "to": "answer",
+      "label": "topic, urgency",
+      "variant": "emphasis"
+    },
+    {
+      "id": "answer-ground",
+      "from": "answer",
+      "to": "ground",
+      "label": "draft",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ground-send",
+      "from": "ground",
+      "to": "send",
+      "label": "grounded",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ground-escal",
+      "from": "ground",
+      "to": "escal",
+      "label": "not grounded",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Why a decision model for three of them",
+      "items": [
+        "Intake picks 1 of 5 topics and scores urgency",
+        "Grounding Checker answers one yes or no question",
+        "Escalation Router picks 1 of 3 queues"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Why the fourth stays a language model",
+      "items": [
+        "Answer writes prose for a customer to read",
+        "It is also the only agent that can drift from its source",
+        "That drift is what the Grounding Checker exists to catch"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "What the live calls showed",
+      "items": [
+        "Jev returns a confidence for choice and score, and none for boolean",
+        "One real call scored topic at 100% and urgency at 42% at the same time",
+        "Below 60% the product sends the decision to a person instead"
+      ]
+    }
+  ]
+}

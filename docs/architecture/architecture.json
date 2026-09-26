@@ -1,0 +1,541 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Architect 2.0: what runs and what is staged",
+    "visual_preset": "blueprint",
+    "quality_profile": "showcase",
+    "output": "public/architecture/architecture.html",
+    "viewBox": [
+      1340,
+      660
+    ],
+    "repository": {
+      "url": "https://github.com/abhikatkar/architect-2",
+      "provider": "github",
+      "revision": "a2ea7a235e5b0adff807d0cc12332dd9214918f9"
+    },
+    "views": [
+      {
+        "id": "signed-in",
+        "label": "Signed in path",
+        "focus": [
+          "browser",
+          "proxy",
+          "routes",
+          "sbauth",
+          "projects",
+          "profiles"
+        ],
+        "note": "Google sign in, the guard on /app, and the two tables scoped to their owner."
+      },
+      {
+        "id": "decision-path",
+        "label": "Decision model path",
+        "focus": [
+          "browser",
+          "jevrun",
+          "libjev",
+          "jevcalls",
+          "gateway",
+          "jev"
+        ],
+        "note": "The one path that leaves this system for a model. It is deliberately outside the guard so the signed out demo can use it."
+      },
+      {
+        "id": "staged",
+        "label": "What is staged",
+        "focus": [
+          "seed",
+          "routes",
+          "browser"
+        ],
+        "note": "Every build, preview and deploy reads a fixture. Nothing is executed."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "Browser",
+      "sublabel": "Real: HTML and form posts",
+      "pos": [
+        30,
+        270
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "app/layout.tsx",
+          "line": 1,
+          "end_line": 43,
+          "label": "root layout"
+        },
+        {
+          "path": "app/demo/page.tsx",
+          "line": 18,
+          "end_line": 83,
+          "label": "signed out demo"
+        }
+      ]
+    },
+    {
+      "id": "proxy",
+      "type": "security",
+      "label": "Proxy guard",
+      "sublabel": "Real: protects /app",
+      "pos": [
+        285,
+        130
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "brand": "next-js",
+      "sources": [
+        {
+          "path": "proxy.ts",
+          "line": 5,
+          "end_line": 15,
+          "label": "proxy + matcher"
+        }
+      ]
+    },
+    {
+      "id": "seed",
+      "type": "backend",
+      "label": "lib/seed fixtures",
+      "sublabel": "Simulated: 1 project, 4 agents",
+      "pos": [
+        545,
+        30
+      ],
+      "size": [
+        170,
+        68
+      ],
+      "sources": [
+        {
+          "path": "lib/seed/northwind.ts",
+          "line": 19,
+          "end_line": 105,
+          "label": "the four agents"
+        },
+        {
+          "path": "lib/seed/totals.ts",
+          "line": 24,
+          "end_line": 60,
+          "label": "derived totals"
+        }
+      ]
+    },
+    {
+      "id": "routes",
+      "type": "backend",
+      "label": "Route handlers",
+      "sublabel": "Real: auth, projects, build",
+      "pos": [
+        545,
+        130
+      ],
+      "size": [
+        170,
+        68
+      ],
+      "sources": [
+        {
+          "path": "app/auth/callback/route.ts",
+          "line": 6,
+          "end_line": 43,
+          "label": "OAuth callback"
+        },
+        {
+          "path": "app/app/projects/route.ts",
+          "line": 1,
+          "end_line": 35,
+          "label": "create project"
+        },
+        {
+          "path": "app/onboarding/save/route.ts",
+          "line": 1,
+          "end_line": 35,
+          "label": "save preference"
+        }
+      ]
+    },
+    {
+      "id": "jevrun",
+      "type": "backend",
+      "label": "POST /jev/run",
+      "sublabel": "Real: outside the guard",
+      "pos": [
+        285,
+        410
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "app/jev/run/route.ts",
+          "line": 16,
+          "end_line": 43,
+          "label": "POST handler"
+        }
+      ]
+    },
+    {
+      "id": "libjev",
+      "type": "backend",
+      "label": "lib/jev",
+      "sublabel": "Real: server only, holds key",
+      "pos": [
+        545,
+        410
+      ],
+      "size": [
+        170,
+        68
+      ],
+      "sources": [
+        {
+          "path": "lib/jev/index.ts",
+          "line": 151,
+          "end_line": 225,
+          "label": "runJevAgent"
+        },
+        {
+          "path": "lib/jev/questions.ts",
+          "line": 45,
+          "end_line": 95,
+          "label": "typed questions"
+        },
+        {
+          "path": "lib/jev/recorded.ts",
+          "line": 17,
+          "end_line": 64,
+          "label": "captured fallback"
+        }
+      ]
+    },
+    {
+      "id": "sbauth",
+      "type": "security",
+      "label": "Supabase Auth",
+      "sublabel": "Real: Google OAuth",
+      "pos": [
+        835,
+        30
+      ],
+      "size": [
+        175,
+        68
+      ],
+      "brand": "supabase",
+      "sources": [
+        {
+          "path": "lib/supabase/server.ts",
+          "line": 10,
+          "end_line": 35,
+          "label": "cookie client"
+        },
+        {
+          "path": "app/auth/callback/route.ts",
+          "line": 24,
+          "end_line": 30,
+          "label": "exchange code"
+        }
+      ]
+    },
+    {
+      "id": "projects",
+      "type": "database",
+      "label": "projects",
+      "sublabel": "Real: RLS, owner scoped",
+      "pos": [
+        835,
+        130
+      ],
+      "size": [
+        175,
+        68
+      ],
+      "brand": "postgresql",
+      "sources": [
+        {
+          "path": "supabase/migrations/20260925150000_projects.sql",
+          "line": 37,
+          "end_line": 64,
+          "label": "RLS policies"
+        },
+        {
+          "path": "lib/projects.ts",
+          "line": 1,
+          "end_line": 72,
+          "label": "data access"
+        }
+      ]
+    },
+    {
+      "id": "profiles",
+      "type": "database",
+      "label": "profiles",
+      "sublabel": "Real: RLS, depth preference",
+      "pos": [
+        835,
+        225
+      ],
+      "size": [
+        175,
+        68
+      ],
+      "brand": "postgresql",
+      "sources": [
+        {
+          "path": "supabase/migrations/20260925200000_profiles.sql",
+          "line": 24,
+          "end_line": 49,
+          "label": "RLS policies"
+        },
+        {
+          "path": "lib/profiles.ts",
+          "line": 1,
+          "end_line": 56,
+          "label": "data access"
+        }
+      ]
+    },
+    {
+      "id": "jevcalls",
+      "type": "database",
+      "label": "jev_calls",
+      "sublabel": "Real: definer functions only",
+      "pos": [
+        835,
+        330
+      ],
+      "size": [
+        175,
+        76
+      ],
+      "brand": "postgresql",
+      "sources": [
+        {
+          "path": "supabase/migrations/20260926120000_jev_calls.sql",
+          "line": 34,
+          "end_line": 39,
+          "label": "RLS, revoke anon"
+        },
+        {
+          "path": "supabase/migrations/20260926120000_jev_calls.sql",
+          "line": 42,
+          "end_line": 88,
+          "label": "definer functions"
+        },
+        {
+          "path": "supabase/migrations/20260926120000_jev_calls.sql",
+          "line": 106,
+          "end_line": 108,
+          "label": "grant execute"
+        }
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "cloud",
+      "label": "Vercel AI Gateway",
+      "sublabel": "Real: AI_GATEWAY_API_KEY",
+      "pos": [
+        835,
+        510
+      ],
+      "size": [
+        175,
+        68
+      ],
+      "brand": "vercel",
+      "sources": [
+        {
+          "path": "lib/jev/index.ts",
+          "line": 195,
+          "end_line": 200,
+          "label": "evaluate call"
+        }
+      ]
+    },
+    {
+      "id": "jev",
+      "type": "external",
+      "label": "Jev",
+      "sublabel": "Real: typesafe-ai/jev",
+      "pos": [
+        1110,
+        510
+      ],
+      "size": [
+        175,
+        68
+      ],
+      "sources": [
+        {
+          "path": "lib/jev/questions.ts",
+          "line": 12,
+          "end_line": 12,
+          "label": "model id"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Client, untrusted",
+      "wraps": [
+        "browser"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Server, Next.js on Vercel",
+      "wraps": [
+        "proxy",
+        "seed",
+        "routes",
+        "jevrun",
+        "libjev"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Third party: Supabase, row level security",
+      "wraps": [
+        "sbauth",
+        "projects",
+        "profiles",
+        "jevcalls"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Third party: Vercel and TypeSafe AI",
+      "wraps": [
+        "gateway",
+        "jev"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "browser-proxy",
+      "from": "browser",
+      "to": "proxy",
+      "label": "request to /app",
+      "variant": "emphasis"
+    },
+    {
+      "id": "proxy-routes",
+      "from": "proxy",
+      "to": "routes",
+      "label": "signed in only"
+    },
+    {
+      "id": "routes-seed",
+      "from": "routes",
+      "to": "seed",
+      "label": "reads fixtures",
+      "variant": "dashed"
+    },
+    {
+      "id": "routes-auth",
+      "from": "routes",
+      "to": "sbauth",
+      "label": "exchange code",
+      "variant": "security",
+      "labelSegment": 1
+    },
+    {
+      "id": "routes-projects",
+      "from": "routes",
+      "to": "projects",
+      "label": "own rows only",
+      "labelDy": 13
+    },
+    {
+      "id": "routes-profiles",
+      "from": "routes",
+      "to": "profiles",
+      "label": "depth preference",
+      "labelSegment": 1
+    },
+    {
+      "id": "browser-jevrun",
+      "from": "browser",
+      "to": "jevrun",
+      "label": "form post, no JS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "jevrun-libjev",
+      "from": "jevrun",
+      "to": "libjev",
+      "label": "runJevAgent"
+    },
+    {
+      "id": "libjev-jevcalls",
+      "from": "libjev",
+      "to": "jevcalls",
+      "label": "count, then log",
+      "variant": "security"
+    },
+    {
+      "id": "libjev-gateway",
+      "from": "libjev",
+      "to": "gateway",
+      "label": "evaluate",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gateway-jev",
+      "from": "gateway",
+      "to": "jev",
+      "label": "typed questions",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Real",
+      "items": [
+        "Google sign in and the guard on /app",
+        "projects and profiles, row level security proven with two users",
+        "Jev decisions: 22 live calls, median 430 ms, $0.000017 each",
+        "jev_calls: anon may insert through a definer function, never select"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Simulated",
+      "items": [
+        "Builds, previews, deploys and agent runs are read from lib/seed",
+        "Costs and versions are derived from those fixtures, not measured",
+        "No code is generated, executed or shipped anywhere"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Why the key stays server side",
+      "items": [
+        "lib/jev is server-only, so no client import can reach the key",
+        "/jev/run sits outside the guard so the signed out demo still works",
+        "Rate limit 10 per IP per hour, cap 300 per day, both proven"
+      ]
+    }
+  ]
+}

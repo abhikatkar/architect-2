@@ -22,7 +22,7 @@ This repo documents the full zero-to-one process, not just the code.
 6. **[Product strategy](docs/05-product-strategy.md):** thesis, positioning, and what I cut
 7. **[User flows](docs/06-user-flows.md)**
 8. **[Decision log](docs/07-decision-log.md):** every major decision, dated, with the evidence behind it
-9. **[Architecture](docs/08-architecture.md):** my stack and how it maps to Lyzr's backend
+9. **[Architecture](docs/08-architecture.md):** my stack, how it maps to Lyzr's backend, and three interactive diagrams: [system architecture](public/architecture/architecture.html) with every node marked Real or Simulated and linked to its source, the [agent workflow](public/architecture/agent-workflow.html), and the [Jev call sequence](public/architecture/jev-call-sequence.html)
 10. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md)**
 11. **[Design](docs/design/):** the [design system](docs/design/design-system.md), the [screen inventory](docs/design/screen-inventory.md), and the [seed content](docs/design/content-and-seed-data.md) behind the build
 12. **[Build log](docs/journal/build-log.md):** what was done each day, and how long it took

@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Test this agent: one real call, and the fallback",
+    "visual_preset": "blueprint",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1700,
+      760
+    ],
+    "output": "public/architecture/jev-call-sequence.html",
+    "views": [
+      {
+        "id": "guardrail",
+        "label": "Guardrail first",
+        "focus": [
+          "libjev",
+          "calls"
+        ],
+        "note": "The limits are checked before the Gateway is called, so a refusal costs nothing."
+      },
+      {
+        "id": "live-call",
+        "label": "The live call",
+        "focus": [
+          "libjev",
+          "gateway",
+          "jev"
+        ],
+        "note": "The only hop that leaves this system, and the only one that is timed."
+      },
+      {
+        "id": "fallback",
+        "label": "Recorded fallback",
+        "focus": [
+          "libjev",
+          "calls",
+          "panel",
+          "visitor"
+        ],
+        "note": "A stored result from a real call, labelled with its date. Never a fabricated live one."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "visitor",
+      "type": "external",
+      "label": "Visitor, signed out"
+    },
+    {
+      "id": "panel",
+      "type": "frontend",
+      "label": "Agent inspector"
+    },
+    {
+      "id": "route",
+      "type": "backend",
+      "label": "POST /jev/run"
+    },
+    {
+      "id": "libjev",
+      "type": "backend",
+      "label": "lib/jev, server only"
+    },
+    {
+      "id": "calls",
+      "type": "database",
+      "label": "jev_calls"
+    },
+    {
+      "id": "gateway",
+      "type": "cloud",
+      "label": "AI Gateway"
+    },
+    {
+      "id": "jev",
+      "type": "external",
+      "label": "Jev"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 300,
+      "label": "Check the limits first"
+    },
+    {
+      "from": 308,
+      "to": 426,
+      "label": "The one call that leaves"
+    },
+    {
+      "from": 434,
+      "to": 552,
+      "label": "Log, then answer"
+    },
+    {
+      "from": 562,
+      "to": 684,
+      "label": "If the limit or the cap is hit"
+    }
+  ],
+  "messages": [
+    {
+      "id": "click",
+      "from": "visitor",
+      "to": "panel",
+      "y": 164,
+      "label": "Run this agent",
+      "variant": "default"
+    },
+    {
+      "id": "post",
+      "from": "panel",
+      "to": "route",
+      "y": 194,
+      "label": "form post, works before JS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "invoke",
+      "from": "route",
+      "to": "libjev",
+      "y": 224,
+      "label": "runJevAgent(agent, input, hashed IP)",
+      "variant": "default"
+    },
+    {
+      "id": "count",
+      "from": "libjev",
+      "to": "calls",
+      "y": 254,
+      "label": "jev_call_counts, a definer function",
+      "variant": "security"
+    },
+    {
+      "id": "under",
+      "from": "calls",
+      "to": "libjev",
+      "y": 284,
+      "label": "under 10 per hour and 300 per day",
+      "variant": "return"
+    },
+    {
+      "id": "evaluate",
+      "from": "libjev",
+      "to": "gateway",
+      "y": 320,
+      "label": "evaluate(state, questions)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "typed",
+      "from": "gateway",
+      "to": "jev",
+      "y": 350,
+      "label": "typed questions",
+      "variant": "default"
+    },
+    {
+      "id": "answers",
+      "from": "jev",
+      "to": "gateway",
+      "y": 380,
+      "label": "answers + confidence",
+      "variant": "return"
+    },
+    {
+      "id": "result",
+      "from": "gateway",
+      "to": "libjev",
+      "y": 410,
+      "label": "result",
+      "variant": "return"
+    },
+    {
+      "id": "log",
+      "from": "libjev",
+      "to": "calls",
+      "y": 446,
+      "label": "log_jev_call: outcome, latency, salted hash",
+      "variant": "dashed"
+    },
+    {
+      "id": "back",
+      "from": "libjev",
+      "to": "route",
+      "y": 476,
+      "label": "JevResult",
+      "variant": "return"
+    },
+    {
+      "id": "redirect",
+      "from": "route",
+      "to": "panel",
+      "y": 506,
+      "label": "303 redirect carrying the result",
+      "variant": "return"
+    },
+    {
+      "id": "render",
+      "from": "panel",
+      "to": "visitor",
+      "y": 536,
+      "label": "Live result, latency measured here",
+      "variant": "return"
+    },
+    {
+      "id": "atlimit",
+      "from": "libjev",
+      "to": "calls",
+      "y": 576,
+      "label": "jev_call_counts, a definer function",
+      "variant": "security"
+    },
+    {
+      "id": "refuse",
+      "from": "calls",
+      "to": "libjev",
+      "y": 606,
+      "label": "at the limit",
+      "variant": "return"
+    },
+    {
+      "id": "stored",
+      "from": "libjev",
+      "to": "panel",
+      "y": 636,
+      "label": "recorded result, with the date it was captured",
+      "variant": "dashed"
+    },
+    {
+      "id": "honest",
+      "from": "panel",
+      "to": "visitor",
+      "y": 666,
+      "label": "labelled Recorded, never a fake live one",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "panel",
+      "from": 186,
+      "to": 542,
+      "type": "frontend"
+    },
+    {
+      "participant": "route",
+      "from": 216,
+      "to": 512,
+      "type": "backend"
+    },
+    {
+      "participant": "libjev",
+      "from": 220,
+      "to": 482,
+      "type": "backend"
+    },
+    {
+      "participant": "calls",
+      "from": 249,
+      "to": 290,
+      "type": "database"
+    },
+    {
+      "participant": "gateway",
+      "from": 315,
+      "to": 416,
+      "type": "cloud"
+    },
+    {
+      "participant": "jev",
+      "from": 345,
+      "to": 386,
+      "type": "external"
+    },
+    {
+      "participant": "libjev",
+      "from": 570,
+      "to": 642,
+      "type": "backend"
+    },
+    {
+      "participant": "calls",
+      "from": 571,
+      "to": 612,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Measured, not claimed",
+      "items": [
+        "Latency is wall clock around evaluate, because the SDK returns none",
+        "22 live calls, median 430 ms, about $0.000017 each",
+        "The call log stores a timestamp, agent, outcome, latency and a salted IP hash"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "The guardrail comes first",
+      "items": [
+        "10 live calls per IP per hour, 300 per day in total",
+        "Only successful calls count, so a failure spends nobody's quota",
+        "Both limits proven by moving the counter, not by faking a trigger"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "No user content is stored",
+      "items": [
+        "Not the message typed in, not the answer returned",
+        "anon may execute the definer function and may never select the table",
+        "The IP hash is salted with a server only secret"
+      ]
+    }
+  ]
+}

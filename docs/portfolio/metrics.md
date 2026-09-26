@@ -66,6 +66,17 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Distinct errors or dead ends logged | Architect 9, Lovable 7, Replit 6, Emergent 6, v0 5 |
 | Screenshots captured | 161 teardown raw, 17 published to [research/screenshots/](../research/screenshots/). 14 "before" captures, 11 published to [assets/before/](assets/before/). 12 of the 28 published are redacted per [D12](../07-decision-log.md) |
 
+## Diagrams
+
+| Metric | Value | Source |
+|---|---|---|
+| Generated diagrams | 3, from JSON committed in [docs/architecture/](../architecture/) | `archify deliver` |
+| Source links verified against the pinned commit | **23**, all in the architecture diagram | the delivery receipt, `evidence.references` |
+| Pinned revision | `a2ea7a2` | [D42](../07-decision-log.md) |
+| Nodes marked Real | 11 | the diagram |
+| Nodes marked Simulated | 1, `lib/seed` | the diagram |
+| Containment checked at | 1440x900, 1600x1000, 1920x1080 and 2048x1320, light and dark | `archify visual-check`, all pass |
+
 ## Jev decision model
 
 Ours, measured by us. The AI SDK returns no latency, so every figure here is wall-clock measured in our own
