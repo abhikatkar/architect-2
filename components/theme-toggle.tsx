@@ -36,9 +36,17 @@ type Choice = (typeof OPTIONS)[number]["value"];
 export function ThemeToggle({
   current,
   next,
+  tier = "workspace",
 }: {
   current: Choice;
   next: string;
+  /*
+    Which type tier this instance is sitting in. The toggle is the one control
+    that appears on both a marketing page and inside the workspace, so it is
+    the one control that cannot pick a size and keep it: 13px is right in a
+    header full of 13px meta and three sizes too small under a 60px hero.
+  */
+  tier?: "workspace" | "marketing";
 }) {
   // Seeded from the server so the first paint matches, then owned here. After
   // a click this is the truth and the cookie is being made to agree with it.
@@ -90,7 +98,9 @@ export function ThemeToggle({
       method="post"
       /* How the inline capture handler in the layout finds this form. */
       data-theme-form
-      className="flex items-center gap-0.5 rounded-input border border-rule p-0.5"
+      /* rule-strong, not rule: this outline is what groups the three buttons
+         into one control, so it is a control boundary rather than a divider. */
+      className="flex items-center gap-0.5 rounded-input border border-rule-strong p-0.5"
       /* Reached only if the inline handler is not there, since it prevents
          this submit. Kept so the fast path does not depend on one script tag. */
       onSubmit={(event) => {
@@ -110,9 +120,9 @@ export function ThemeToggle({
           name="theme"
           value={o.value}
           aria-pressed={choice === o.value}
-          className={`min-h-9 rounded-input px-2 text-caption ${
-            choice === o.value ? "bg-blueprint text-paper" : "text-graphite"
-          }`}
+          className={`rounded-input ${
+            tier === "marketing" ? "min-h-11 px-3 text-note" : "min-h-9 px-2 text-caption"
+          } ${choice === o.value ? "bg-blueprint text-paper" : "text-graphite"}`}
         >
           {o.label}
         </button>

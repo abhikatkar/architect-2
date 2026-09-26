@@ -173,7 +173,7 @@ export function CodeCanvas({
     <div className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h2 className="text-title font-semibold">Code</h2>
+          <h2 className="text-title font-bold">Code</h2>
           <span className="max-w-[72ch] text-small text-graphite">
             Every change the agents made, grouped by the request that caused it.
           </span>
@@ -208,7 +208,7 @@ export function CodeCanvas({
                 <Link
                   href={query({ diff: "" })}
                   prefetch={false}
-                  className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+                  className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
                 >
                   Close
                 </Link>
@@ -230,7 +230,7 @@ export function CodeCanvas({
                 <Link
                   href={verdictHref(openDiff.d.id, "revert")}
                   prefetch={false}
-                  className="inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-body"
+                  className="inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-body"
                 >
                   Revert this file
                 </Link>
@@ -250,7 +250,7 @@ export function CodeCanvas({
                 <Link
                   href={query({ file: "" })}
                   prefetch={false}
-                  className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+                  className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
                 >
                   Close
                 </Link>
@@ -329,14 +329,14 @@ export function CodeCanvas({
                               <Link
                                 href={verdictHref(d.id, "accept")}
                                 prefetch={false}
-                                className="inline-flex min-h-11 items-center rounded-input border border-rule px-2 text-caption"
+                                className="inline-flex min-h-11 items-center rounded-input border border-rule-strong px-2 text-caption"
                               >
                                 Accept
                               </Link>
                               <Link
                                 href={verdictHref(d.id, "revert")}
                                 prefetch={false}
-                                className="inline-flex min-h-11 items-center rounded-input border border-rule px-2 text-caption"
+                                className="inline-flex min-h-11 items-center rounded-input border border-rule-strong px-2 text-caption"
                               >
                                 Revert
                               </Link>
@@ -358,14 +358,14 @@ export function CodeCanvas({
                       <Link
                         href={bulkHref(change, "accept")}
                         prefetch={false}
-                        className="inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+                        className="inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
                       >
                         Accept all {changedFileCount(change)}
                       </Link>
                       <Link
                         href={bulkHref(change, "revert")}
                         prefetch={false}
-                        className="inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+                        className="inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
                       >
                         Revert all {changedFileCount(change)}
                       </Link>

@@ -122,7 +122,7 @@ export function BuildProgress({
   return (
     <section className="min-w-0 rounded-panel border border-rule p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-title font-semibold">
+        <h2 className="text-title font-bold">
           {failedNow ? "Build stopped" : finished ? "Built" : "Building your app"}
         </h2>
         {/* The honesty label sits with the timing, not in small print. */}
@@ -272,7 +272,7 @@ export function BuildProgress({
             <button
               type="button"
               onClick={replay}
-              className="min-h-11 rounded-input border border-rule px-3 text-body"
+              className="min-h-11 rounded-input border border-rule-strong px-3 text-body"
             >
               Replay build
             </button>
@@ -294,7 +294,7 @@ export function BuildProgress({
         >
           <button
             type="submit"
-            className="min-h-11 rounded-input border border-rule px-3 text-body"
+            className="min-h-11 rounded-input border border-rule-strong px-3 text-body"
           >
             Finish build
           </button>

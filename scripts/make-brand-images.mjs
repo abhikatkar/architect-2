@@ -23,10 +23,10 @@ const PORT = 9800 + Math.floor(Math.random() * 150);
 
 // The blueprint tokens, light theme, from app/globals.css.
 const PAPER = "#f5f7f6";
-const INK = "#16202e";
-const GRAPHITE = "#586474";
-const RULE = "#d9dfe3";
-const BLUEPRINT = "#1d4ed8";
+const INK = "#0b1f4d";
+const GRAPHITE = "#4f5f7c";
+const RULE = "#dce2ec";
+const BLUEPRINT = "#2451e6";
 
 /** The mark itself, at whatever size is asked for. Same geometry as icon.svg. */
 const mark = (size, plate = PAPER) => `
@@ -49,9 +49,19 @@ const mark = (size, plate = PAPER) => `
 */
 const APPLE = `<!doctype html><html><body style="margin:0">${mark(180)}</body></html>`;
 
-const OG = `<!doctype html><html><body style="margin:0">
+/*
+  The two families the product uses, fetched from Google Fonts for this render
+  only. The preview is the first thing anyone sees of the design, so it is set
+  in the same faces as the pages it links to rather than in whatever the
+  rendering machine happens to have.
+*/
+const FONTS = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@600;700&family=Instrument+Sans:wght@400;500&display=block" />`;
+const DISPLAY = "Urbanist, ui-sans-serif, system-ui, sans-serif";
+const TEXT = "'Instrument Sans', ui-sans-serif, system-ui, sans-serif";
+
+const OG = `<!doctype html><html><head>${FONTS}</head><body style="margin:0">
   <div style="width:1200px;height:630px;background:${PAPER};color:${INK};
-              font-family:ui-sans-serif,system-ui,sans-serif;position:relative;
+              font-family:${TEXT};position:relative;
               display:flex;flex-direction:column;justify-content:center;padding:0 88px;box-sizing:border-box">
     <div style="position:absolute;inset:0;
                 background-image:linear-gradient(${RULE} 1px,transparent 1px),linear-gradient(90deg,${RULE} 1px,transparent 1px);
@@ -59,9 +69,9 @@ const OG = `<!doctype html><html><body style="margin:0">
     <div style="position:relative">
       <div style="display:flex;align-items:center;gap:20px">
         <div style="width:72px;height:72px;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px ${RULE}">${mark(72)}</div>
-        <div style="font-size:56px;font-weight:600;letter-spacing:-0.02em">Architect 2.0</div>
+        <div style="font-family:${DISPLAY};font-size:52px;font-weight:700;letter-spacing:-0.02em">Architect 2.0</div>
       </div>
-      <div style="margin-top:36px;font-size:46px;font-weight:500;line-height:1.25;max-width:20ch">
+      <div style="font-family:${DISPLAY};margin-top:36px;font-size:60px;font-weight:700;line-height:1.1;letter-spacing:-0.02em;max-width:20ch">
         See it. Steer it. Own it.<br />Ship it safely.
       </div>
       <div style="margin-top:32px;font-size:26px;color:${GRAPHITE};max-width:46ch;line-height:1.4">
@@ -124,7 +134,10 @@ async function shot(html, width, height, out) {
   await send("Page.navigate", {
     url: `data:text/html;charset=utf-8,${encodeURIComponent(html)}`,
   });
-  await sleep(900);
+  // Long enough for the web fonts to arrive and paint. With display=block a
+  // short wait captures the fallback face, which looks like a font bug in the
+  // one image nobody re-renders.
+  await sleep(2500);
   const { data } = await send("Page.captureScreenshot", {
     format: "png",
     clip: { x: 0, y: 0, width, height, scale: 1 },

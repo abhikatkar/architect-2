@@ -161,7 +161,7 @@ export function DeployCanvas({
     <div className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h2 className="text-title font-semibold">Deploy</h2>
+          <h2 className="text-title font-bold">Deploy</h2>
           <span className="max-w-[72ch] text-small text-graphite">
             What is live, what is waiting in preview, and what it would take to
             change that.

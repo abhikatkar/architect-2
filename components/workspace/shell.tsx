@@ -71,9 +71,11 @@ export function WorkspaceShell({
       <header className="border-b border-rule">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 sm:px-6">
           <div className="min-w-0">
-            <h1 className="truncate text-lead font-semibold">{projectName}</h1>
+            {/* The project name is the page. 24px in the display face, which
+                is the one place the workspace is allowed to be loud. */}
+            <h1 className="truncate text-title font-bold">{projectName}</h1>
             {subtitle ? (
-              <p className="truncate text-caption text-graphite">{subtitle}</p>
+              <p className="truncate text-small text-graphite">{subtitle}</p>
             ) : null}
           </div>
 
@@ -100,10 +102,10 @@ export function WorkspaceShell({
                   <Link
                     href={query({ ...VIEW_PATCH, tab: l })}
                     aria-current={active ? "page" : undefined}
-                    className={`inline-flex min-h-11 items-center rounded-input px-2 text-body sm:px-3 ${
+                    className={`inline-flex min-h-11 items-center rounded-input px-3 text-body font-medium sm:px-4 ${
                       active
                         ? "bg-blueprint text-paper"
-                        : "text-graphite hover:text-ink"
+                        : "text-graphite hover:bg-ink/5 hover:text-ink"
                     }`}
                   >
                     {LAYER_LABELS[l]}

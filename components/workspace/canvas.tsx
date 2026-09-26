@@ -13,7 +13,7 @@ function Panel({
 }) {
   return (
     <section className="min-w-0 rounded-panel border border-rule p-4">
-      <h2 className="text-title font-semibold">{title}</h2>
+      <h2 className="text-title font-bold">{title}</h2>
       {note ? <p className="mt-1 max-w-[72ch] text-small text-graphite">{note}</p> : null}
       <div className="mt-3 min-w-0">{children}</div>
     </section>

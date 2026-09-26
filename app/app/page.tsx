@@ -103,7 +103,7 @@ export default async function HomePage(props: PageProps<"/app">) {
           <form action="/auth/signout" method="post">
             <button
               type="submit"
-              className="min-h-11 rounded-input border border-rule px-3 text-body text-graphite"
+              className="min-h-11 rounded-input border border-rule-strong px-3 text-body text-graphite"
             >
               Sign out
             </button>
@@ -129,7 +129,7 @@ export default async function HomePage(props: PageProps<"/app">) {
           required
           autoFocus
           placeholder="A support agent that answers billing questions from our help center..."
-          className="w-full resize-none rounded-panel border border-rule bg-paper p-4 text-body placeholder:text-graphite"
+          className="w-full resize-none rounded-panel border border-rule-strong bg-paper p-4 text-body placeholder:text-graphite"
         />
         <div className="flex flex-wrap items-center gap-3">
           <button
@@ -161,7 +161,7 @@ export default async function HomePage(props: PageProps<"/app">) {
                 <input type="hidden" name="prompt" value={t.prompt} />
                 <button
                   type="submit"
-                  className="flex h-full w-full flex-col gap-1 rounded-panel border border-rule p-4 text-left"
+                  className="flex h-full w-full flex-col gap-1 rounded-panel border border-rule-strong p-4 text-left"
                 >
                   <span className="text-body font-medium">{t.title}</span>
                   <span className="text-small text-graphite">{t.blurb}</span>
@@ -192,7 +192,7 @@ export default async function HomePage(props: PageProps<"/app">) {
               <li key={p.id} className="min-w-0">
                 <Link
                   href={`/app/p/${p.id}`}
-                  className="flex min-h-11 flex-wrap items-baseline gap-x-3 gap-y-1 rounded-panel border border-rule p-3"
+                  className="flex min-h-11 flex-wrap items-baseline gap-x-3 gap-y-1 rounded-panel border border-rule-strong p-3"
                 >
                   <span className="min-w-0 flex-1 truncate text-body font-medium">
                     {p.name}

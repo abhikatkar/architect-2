@@ -1048,3 +1048,43 @@ Format: date, decision, evidence, alternatives rejected.
   escalated" looks as though it should drop to 6. It does not, because those are the month's conversations
   and Lena K.'s was escalated before the fix existed. The screen says so, rather than leaving a reader to
   decide whether the number is stale or the fix is fake.
+
+### D64. 2026-09-27: A visual refresh that borrows principles from large marketing sites and no identity
+- **Decision:** two families, a deeper navy ink against a more vivid blueprint, two type tiers, a larger
+  radius scale with one elevation token, and a contrast gate that measures the result. The blueprint
+  language, the token meanings, "mono means raw", the derived numbers and every accessibility rule stay
+  exactly as they were.
+- **What was borrowed and what was not.** The principles that make large marketing sites read as
+  confident are public property: bold large type, a two-family system, a deep ink rather than black,
+  generous spacing, soft elevation on cards, pill calls to action. None of them belongs to a brand. The
+  things that do belong to a brand are its typefaces, its palette and its mark, and none of those are here.
+  Urbanist and Instrument Sans are both SIL Open Font License, the palette is derived from this project's
+  own blueprint navy, and the mark is the one drawn in
+  [D63](#d63-2026-09-26-the-product-has-its-own-mark-and-its-controls-behave-like-controls).
+- **Two families, and where the second one stops.** Urbanist draws the headings and Instrument Sans carries
+  the text. Both were rendered side by side at 15, 18, 20 and 24 px before the rule was written down. At
+  15 px Urbanist 700 sets narrower than Instrument Sans 600 at the same size, with a smaller x-height and
+  counters in a, e and g that close up, and the punctuation nearly disappears. At 20 px and up it is the
+  better face by a distance. So the display face starts at 20 px and the workspace, which is dense on
+  purpose, is Instrument Sans all the way down.
+- **Two type tiers rather than one scale stretched.** Marketing surfaces are read at arm's length and the
+  workspace is scanned, so they get different scales: 16, 18, 20, 32, 48 and a 36 to 60 px hero against 13,
+  14, 15, 18, 24, 32. A token belongs to one tier, which is what stops a landing page from quietly picking
+  up a 13 px caption.
+- **Two border tokens, because a border does two jobs.** `rule` divides things you read and stays a
+  hairline. `rule-strong` is the outline of something you can click, where that outline is what says
+  "control", and it holds 3:1 (WCAG 1.4.11). Making one token do both would either fail the controls or
+  turn every divider in the workspace into a heavy line. 35 control borders moved across, of which 31 still
+  carry it: the four on the marketing pages went one further, to a full-strength ink outline, because a
+  pill call to action reads better with a crisp edge than a grey one.
+- **AA is measured, not claimed.** [scripts/contrast-check.mjs](../scripts/contrast-check.mjs) walks 16
+  surfaces in both themes, composites the real background behind every run of text through whatever
+  translucent layers sit between, and applies the threshold that text's size and weight earn. **2272 pairs
+  measured, tightest 3.27:1 against a 3:1 boundary requirement.** It failed 24 of its 32 page checks on its
+  first run, every one of them a control border at 1.21:1. Without it the refresh would have shipped
+  on the claim that the new navy "looks like it passes", which is the same class of claim the focus check
+  was written to replace
+  ([D51](#d51-2026-09-26-sheets-are-server-rendered-overlays-with-keyboard-help-on-top)).
+- **Rejected:** copying a specific site's fonts or palette, which is both a licensing problem and a
+  positioning problem for a product whose argument is that what you build is yours. Also rejected:
+  raising `rule` itself to 3:1, which would have put a mid-grey line around every panel in the workspace.

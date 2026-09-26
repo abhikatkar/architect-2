@@ -1274,7 +1274,7 @@ async function raw(path) {
     "the icon is a real SVG with a dark variant inside it",
     icon.status === 200 &&
       svg.includes("prefers-color-scheme: dark") &&
-      svg.includes("#1d4ed8"),
+      svg.includes("#2451e6"),
     "blueprint light and dark, in one file",
   );
   const og = await fetch(`${base}/opengraph-image.png`);
@@ -1288,6 +1288,69 @@ async function raw(path) {
     `${og.status}, ${og.headers.get("content-type")}, ${bytes} bytes`,
   );
 }
+
+/*
+  43. The landing page shows a real screen and four checkable figures.
+
+  A landing page is the one surface where it is easiest to show something the
+  product does not have, which is what the teardown found on five other tools.
+  So the picture is asserted to be the file scripts/landing-still.mjs writes
+  from this build, in both themes, and each principle is asserted to carry its
+  teardown figure rather than an adjective.
+*/
+{
+  const { html } = await get("/");
+  const text = visibleText(html);
+
+  check(
+    "the landing page shows the real screen, in both themes",
+    html.includes("/still/why-did-it-do-that-light.png") &&
+      html.includes("/still/why-did-it-do-that-dark.png") &&
+      html.includes('data-shot="light"') &&
+      html.includes('data-shot="dark"'),
+    "two files, switched by the same rules as the tokens",
+  );
+
+  for (const [file, what] of [
+    ["why-did-it-do-that-light.png", "light"],
+    ["why-did-it-do-that-dark.png", "dark"],
+  ]) {
+    const res = await fetch(`${base}/still/${file}`);
+    const bytes = (await res.arrayBuffer()).byteLength;
+    check(
+      `and the ${what} screenshot is actually served`,
+      res.status === 200 &&
+        res.headers.get("content-type") === "image/png" &&
+        bytes > 10000,
+      `${res.status}, ${res.headers.get("content-type")}, ${bytes} bytes`,
+    );
+  }
+
+  const FIGURES = ["42 min", "8 steps", "0 presses", "2 defaults"];
+  check(
+    "every promise carries a figure from the teardown",
+    FIGURES.every((f) => text.includes(f)),
+    FIGURES.filter((f) => !text.includes(f)).join(", ") || FIGURES.join(", "),
+  );
+
+  check(
+    "the hero makes one claim and one sentence of it",
+    text.includes("Build agentic apps you can see inside.") &&
+      text.includes(
+        "Every layer is visible while it runs, steerable when it goes wrong, yours when you leave, and reversible once it is live.",
+      ),
+    "thesis and one sentence",
+  );
+
+  check(
+    "and it is still honest about what is simulated",
+    /Sign-in and projects are real; build, agents, code and deploy flows are simulated\./.test(
+      text,
+    ),
+    "the footer says which half is real",
+  );
+}
+
 
 const failed = results.filter((r) => !r.ok).length;
 for (const r of results) {

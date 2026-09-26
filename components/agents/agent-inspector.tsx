@@ -93,7 +93,7 @@ export function AgentInspector({
         </div>
         <Link
           href={query({ agent: "", depth: "" })}
-          className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+          className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
         >
           Close
         </Link>

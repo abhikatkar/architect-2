@@ -7,32 +7,63 @@ export const metadata: Metadata = {
 
 const COLORS = [
   { name: "paper", cls: "bg-paper", light: "#F5F7F6", dark: "#0E1A2B", meaning: "Canvas. Dark mode is blueprint navy, not black" },
-  { name: "ink", cls: "bg-ink", light: "#16202E", dark: "#E8EEF6", meaning: "Primary text" },
-  { name: "graphite", cls: "bg-graphite", light: "#586474", dark: "#9AA8BA", meaning: "Secondary text" },
-  { name: "rule", cls: "bg-rule", light: "#D9DFE3", dark: "#22324A", meaning: "Borders and dividers" },
-  { name: "blueprint", cls: "bg-blueprint", light: "#1D4ED8", dark: "#7FA6FF", meaning: "Primary action, selection, the drawing" },
+  { name: "ink", cls: "bg-ink", light: "#0B1F4D", dark: "#E8EEF6", meaning: "Primary text" },
+  { name: "graphite", cls: "bg-graphite", light: "#4F5F7C", dark: "#9FB0C8", meaning: "Secondary text" },
+  { name: "rule", cls: "bg-rule", light: "#DCE2EC", dark: "#23354E", meaning: "Hairline dividers and panel edges. Decorative" },
+  { name: "rule-strong", cls: "bg-rule-strong", light: "#7D89A1", dark: "#5C6E8C", meaning: "The outline of a control, at 3:1. Never a divider" },
+  { name: "blueprint", cls: "bg-blueprint", light: "#2451E6", dark: "#6E9BFF", meaning: "Primary action, selection, the drawing" },
   { name: "cost", cls: "bg-cost", light: "#A16207", dark: "#E3B35C", meaning: "Money only: estimates, meters, charges" },
   { name: "live", cls: "bg-live", light: "#15803D", dark: "#5CCB8A", meaning: "What is live in production, passing checks" },
   { name: "fault", cls: "bg-fault", light: "#B42318", dark: "#FF8A7A", meaning: "Errors and stopped loops" },
 ];
 
-const TYPE = [
-  { name: "display", px: 34, cls: "text-display", lh: "1.2" },
-  { name: "heading", px: 26, cls: "text-heading", lh: "1.2" },
-  { name: "title", px: 20, cls: "text-title", lh: "1.2" },
-  { name: "lead", px: 16, cls: "text-lead", lh: "1.5" },
-  { name: "body", px: 14, cls: "text-body", lh: "1.5" },
-  { name: "small", px: 13, cls: "text-small", lh: "1.5" },
-  { name: "caption", px: 12, cls: "text-caption", lh: "1.5" },
+/* Marketing tier: read at arm's length, set in Urbanist from 20px up. */
+const MARKETING_TYPE = [
+  { name: "hero", px: "36 to 60", cls: "text-hero", lh: "1.05" },
+  { name: "display", px: "48", cls: "text-display", lh: "1.1" },
+  { name: "heading", px: "32", cls: "text-heading", lh: "1.15" },
+  { name: "subhead", px: "20", cls: "text-subhead", lh: "1.2" },
+  { name: "lead", px: "18", cls: "text-lead", lh: "1.5" },
+  { name: "note", px: "16", cls: "text-note", lh: "1.5" },
+];
+
+/* Workspace tier: dense on purpose, Instrument Sans all the way down. */
+const WORKSPACE_TYPE = [
+  { name: "heading", px: "32", cls: "text-heading", lh: "1.15" },
+  { name: "title", px: "24", cls: "text-title", lh: "1.15" },
+  { name: "lead", px: "18", cls: "text-lead", lh: "1.5" },
+  { name: "body", px: "15", cls: "text-body", lh: "1.5" },
+  { name: "small", px: "14", cls: "text-small", lh: "1.5" },
+  { name: "caption", px: "13", cls: "text-caption", lh: "1.5" },
 ];
 
 const RADIUS = [
-  { name: "input", cls: "rounded-input", px: "4px", use: "Inputs and chips" },
-  { name: "panel", cls: "rounded-panel", px: "8px", use: "Panels" },
-  { name: "overlay", cls: "rounded-overlay", px: "12px", use: "Modals and sheets" },
+  { name: "input", cls: "rounded-input", px: "8px", use: "Inputs and chips" },
+  { name: "panel", cls: "rounded-panel", px: "12px", use: "Panels" },
+  { name: "card", cls: "rounded-card", px: "16px", use: "Cards" },
+  { name: "overlay", cls: "rounded-overlay", px: "16px", use: "Sheets and modals" },
+  { name: "pill", cls: "rounded-pill", px: "full", use: "Primary marketing calls to action" },
 ];
 
 const SPACING = [1, 2, 3, 4, 6, 8, 12];
+
+/** One tier of the scale, every size set in the face it will actually use. */
+function TypeList({ rows }: { rows: { name: string; px: string; cls: string; lh: string }[] }) {
+  return (
+    <ul className="flex flex-col gap-4">
+      {rows.map((t) => (
+        <li key={t.name} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-6">
+          <span className="font-mono text-caption text-graphite sm:w-40 sm:shrink-0">
+            {t.name} {t.px}px / {t.lh}
+          </span>
+          <span className={`${t.cls} min-w-0 break-words`}>
+            Make the machine legible
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function Section({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
@@ -136,21 +167,17 @@ export default function TokensPage() {
       </Section>
 
       <Section
-        title="Type scale"
-        note="Instrument Sans for the whole interface. Line height 1.5 for body, 1.2 for headings. Sentence case everywhere, and no line longer than 72 characters."
+        title="Type scale, marketing tier"
+        note="Landing, sign in, onboarding, the legal pages and the diagrams index. Urbanist from 20px up, Instrument Sans below it. Line height 1.5 for body, about 1.15 for headings. Sentence case everywhere, and no line longer than 72 characters."
       >
-        <ul className="flex flex-col gap-4">
-          {TYPE.map((t) => (
-            <li key={t.name} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-6">
-              <span className="font-mono text-caption text-graphite sm:w-40 sm:shrink-0">
-                {t.name} {t.px}px / {t.lh}
-              </span>
-              <span className={`${t.cls} min-w-0 break-words`}>
-                Make the machine legible
-              </span>
-            </li>
-          ))}
-        </ul>
+        <TypeList rows={MARKETING_TYPE} />
+      </Section>
+
+      <Section
+        title="Type scale, workspace tier"
+        note="The demo and the signed in workspace. Dense on purpose, because a ledger bar and a diff list are read by scanning rather than by reading. Nothing here is Urbanist: below 20px its counters close up, so the dense tier is Instrument Sans throughout."
+      >
+        <TypeList rows={WORKSPACE_TYPE} />
       </Section>
 
       <Section
@@ -175,7 +202,10 @@ escalate:    true`}
         </div>
       </Section>
 
-      <Section title="Radius" note="Radius follows hierarchy. Never one value for everything.">
+      <Section
+        title="Radius and elevation"
+        note="Radius follows hierarchy. Never one value for everything. Card and overlay are the same measurement on purpose: a card and a sheet are the same object at two depths."
+      >
         <div className="flex flex-wrap gap-4">
           {RADIUS.map((r) => (
             <div key={r.name} className="flex flex-col gap-2">
@@ -186,6 +216,16 @@ escalate:    true`}
               <span className="text-caption text-graphite">{r.use}</span>
             </div>
           ))}
+        </div>
+        <div className="mt-6 flex flex-wrap items-end gap-4">
+          <div className="rounded-card border border-rule bg-paper p-4 shadow-soft">
+            <p className="font-mono text-caption text-graphite">shadow-soft</p>
+            <p className="text-body">Marketing cards and every overlay. Nothing else.</p>
+          </div>
+          <div className="rounded-panel border border-rule bg-paper p-4">
+            <p className="font-mono text-caption text-graphite">no shadow</p>
+            <p className="text-body">Workspace panels stay flat on a hairline.</p>
+          </div>
         </div>
       </Section>
 

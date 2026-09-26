@@ -91,7 +91,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 22:10 | Final pre-submission polish: the cursor rule and its browser check, our own icon and link preview, the push list derived, and the inbox note | 1 h 40 min | Claude Code, Chrome over CDP | The cursor check found nothing once written, which is the wrong way round, so it was run again with the rule removed: 6 of 7 pages failed, which is what makes the green run worth having. The icon was drawn at 16px first and the first version failed there, with the hub's hole closing up and the artwork sitting small in the tile, so it was rasterised at true 16px and tightened |
 
-**Day total so far:** 40 h 25 min across 20 commits.
+| 01:15 | Visual refresh on branch `refresh`: two font families, a deeper navy palette, two type tiers, a larger radius scale, one elevation token, the landing page rebuilt, and a contrast gate that measures the lot | 2 h 45 min | Claude Code, Chrome over CDP | Part A of the request was already on `main` from the 22:10 pass, all six items, so this is Part B only. The contrast check earned itself on its first run: every control border in the product measured 1.21:1 against a 3:1 requirement, which is why `rule` and `rule-strong` are now two tokens rather than one. Urbanist was rendered against Instrument Sans at 15, 18, 20 and 24px before the 20px cut-off was written down rather than after, and the 15px comparison is what decided it. The type tier assertion then caught the theme toggle at 13px under a 60px hero, which is exactly the kind of shared component that rule exists for |
+
+**Day total so far:** 43 h 10 min across 24 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

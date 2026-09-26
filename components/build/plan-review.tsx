@@ -64,7 +64,7 @@ export function PlanReview({
         <Link href={backHref} className="text-caption text-graphite underline">
           Back to {projectName}
         </Link>
-        <h1 className="mt-2 text-heading font-semibold">{plan.headline}</h1>
+        <h1 className="mt-2 text-heading font-bold">{plan.headline}</h1>
         <p className="mt-1 max-w-[72ch] text-body text-graphite">
           Answer three questions, read the plan, then build. Nothing runs and
           nothing is charged until you press Build.
@@ -73,7 +73,7 @@ export function PlanReview({
 
       <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
         <section className="min-w-0">
-          <h2 className="text-title font-semibold">A few choices</h2>
+          <h2 className="text-title font-bold">A few choices</h2>
           <p className="mt-1 text-small text-graphite">
             Sensible answers are already selected.
           </p>
@@ -105,7 +105,7 @@ export function PlanReview({
         </section>
 
         <section className="min-w-0">
-          <h2 className="text-title font-semibold">What gets built</h2>
+          <h2 className="text-title font-bold">What gets built</h2>
           <ul className="mt-3 flex flex-col gap-2">
             {plan.points.map((p) => (
               <li key={p} className="flex gap-2 text-body">

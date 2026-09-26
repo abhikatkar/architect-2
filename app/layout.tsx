@@ -1,10 +1,27 @@
 import type { Metadata } from "next";
-import { Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Instrument_Sans, JetBrains_Mono, Urbanist } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 
-// Sans carries the whole interface. Mono is reserved for raw machine output,
-// so the typeface itself tells the user which depth they are looking at.
+/*
+  Three families, each with one job.
+
+  Urbanist draws the headings and nothing else. Instrument Sans carries every
+  word a person reads as text. Mono is reserved for raw machine output, so the
+  typeface itself tells the user which depth they are looking at.
+
+  Both display weights are loaded because both are used: 600 for the headings
+  inside a panel, 700 for the hero and the section headings on the marketing
+  pages. All three are free and self hosted by next/font, so no request leaves
+  the page for a stylesheet. Urbanist and Instrument Sans are SIL Open Font
+  License, JetBrains Mono the same.
+*/
+const urbanist = Urbanist({
+  variable: "--font-urbanist",
+  subsets: ["latin"],
+  weight: ["600", "700"],
+});
+
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
@@ -119,7 +136,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       /* The script above changes this attribute before React hydrates, which is
          the point of it, so React is told not to complain about the difference. */
       suppressHydrationWarning
-      className={`${instrumentSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${urbanist.variable} ${instrumentSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
         {/* First thing in the body, so the listener is registered before any

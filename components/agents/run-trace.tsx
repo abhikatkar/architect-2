@@ -60,7 +60,7 @@ export function RunTraceView({
     <section className="flex min-w-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-start gap-2">
         <div className="min-w-0">
-          <h2 className="text-title font-semibold">Why did it do that?</h2>
+          <h2 className="text-title font-bold">Why did it do that?</h2>
           <p className="mt-1 max-w-[72ch] text-body text-graphite">
             The customer asked{" "}
             <span className="text-ink">&ldquo;{trace.question}&rdquo;</span> and the
@@ -69,7 +69,7 @@ export function RunTraceView({
         </div>
         <Link
           href={query({ why: "", fix: "" })}
-          className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption"
+          className="ml-auto inline-flex min-h-11 items-center rounded-input border border-rule-strong px-3 text-caption"
         >
           Close
         </Link>
@@ -153,7 +153,7 @@ export function RunTraceView({
             </p>
             <Link
               href={query({ fix: "" })}
-              className="inline-flex min-h-11 items-center self-start rounded-input border border-rule px-3 text-body"
+              className="inline-flex min-h-11 items-center self-start rounded-input border border-rule-strong px-3 text-body"
             >
               Revert to {fix.previousVersion}
             </Link>

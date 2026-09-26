@@ -13,13 +13,15 @@
 :root,
 [data-theme="light"] {
   --paper: #f5f7f6;
-  --ink: #16202e;
-  --graphite: #586474;
-  --rule: #d9dfe3;
-  --blueprint: #1d4ed8;
+  --ink: #0b1f4d;
+  --graphite: #4f5f7c;
+  --rule: #dce2ec;
+  --rule-strong: #7d89a1;
+  --blueprint: #2451e6;
   --cost: #a16207;
   --live: #15803d;
   --fault: #b42318;
+  --elevation: 0 1px 2px rgb(11 31 77 / 0.05), 0 10px 30px -12px rgb(11 31 77 / 0.18);
 }
 
 /* Dark mode is blueprint navy, never black. */
@@ -27,24 +29,28 @@
   :root:not([data-theme="light"]) {
     --paper: #0e1a2b;
     --ink: #e8eef6;
-    --graphite: #9aa8ba;
-    --rule: #22324a;
-    --blueprint: #7fa6ff;
+    --graphite: #9fb0c8;
+    --rule: #23354e;
+    --rule-strong: #5c6e8c;
+    --blueprint: #6e9bff;
     --cost: #e3b35c;
     --live: #5ccb8a;
     --fault: #ff8a7a;
+    --elevation: 0 1px 2px rgb(0 0 0 / 0.4), 0 14px 34px -14px rgb(0 0 0 / 0.65);
   }
 }
 
 [data-theme="dark"] {
   --paper: #0e1a2b;
   --ink: #e8eef6;
-  --graphite: #9aa8ba;
-  --rule: #22324a;
-  --blueprint: #7fa6ff;
+  --graphite: #9fb0c8;
+  --rule: #23354e;
+  --rule-strong: #5c6e8c;
+  --blueprint: #6e9bff;
   --cost: #e3b35c;
   --live: #5ccb8a;
   --fault: #ff8a7a;
+  --elevation: 0 1px 2px rgb(0 0 0 / 0.4), 0 14px 34px -14px rgb(0 0 0 / 0.65);
 }
 
 @theme inline {
@@ -52,34 +58,77 @@
   --color-ink: var(--ink);
   --color-graphite: var(--graphite);
   --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
   --color-blueprint: var(--blueprint);
   --color-cost: var(--cost);
   --color-live: var(--live);
   --color-fault: var(--fault);
 
+  /*
+    Two families carry the interface and a third carries raw output. Urbanist
+    draws the headings, Instrument Sans everything a person reads as text, and
+    JetBrains Mono only what the machine wrote. Mono still means raw.
+  */
+  --font-display: var(--font-urbanist), var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 
-  /* 12, 13, 14 body, 16, 20, 26, 34. Body 1.5, headings 1.2. */
-  --text-caption: 12px;
-  --text-caption--line-height: 1.5;
-  --text-small: 13px;
-  --text-small--line-height: 1.5;
-  --text-body: 14px;
-  --text-body--line-height: 1.5;
-  --text-lead: 16px;
-  --text-lead--line-height: 1.5;
-  --text-title: 20px;
-  --text-title--line-height: 1.2;
-  --text-heading: 26px;
-  --text-heading--line-height: 1.2;
-  --text-display: 34px;
-  --text-display--line-height: 1.2;
+  /*
+    One scale, two tiers.
 
-  /* Radius follows hierarchy, never one value for everything. */
-  --radius-input: 4px;
-  --radius-panel: 8px;
-  --radius-overlay: 12px;
+    Marketing surfaces breathe: 16, 18, 20, 32, 48 and a hero that lands
+    between 56 and 60 px on a desktop. The workspace stays dense, because a
+    ledger bar and a diff list are read by scanning: 13, 14, 15, 18, 24, 32.
+    A token belongs to one tier or the other, which is what stops a landing
+    page from quietly picking up a 13 px caption.
+
+    Headings are about 1.15, body 1.5, and the hero tighter still because a
+    60 px line needs less air between lines than a 16 px one.
+  */
+
+  /* Workspace tier. */
+  --text-caption: 13px;
+  --text-caption--line-height: 1.5;
+  --text-small: 14px;
+  --text-small--line-height: 1.5;
+  --text-body: 15px;
+  --text-body--line-height: 1.5;
+  --text-title: 24px;
+  --text-title--line-height: 1.15;
+
+  /* Shared by both tiers: 18 is a workspace subheading and marketing body. */
+  --text-lead: 18px;
+  --text-lead--line-height: 1.5;
+
+  /* Marketing tier. */
+  --text-note: 16px;
+  --text-note--line-height: 1.5;
+  --text-subhead: 20px;
+  --text-subhead--line-height: 1.2;
+  --text-heading: 32px;
+  --text-heading--line-height: 1.15;
+  --text-heading--letter-spacing: -0.01em;
+  --text-display: 48px;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.015em;
+  /* 36 px on a phone, 56 at 1024, 60 from about 1130 up. */
+  --text-hero: clamp(2.25rem, 1.2rem + 3.6vw, 3.75rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.02em;
+
+  /*
+    Radius follows hierarchy, never one value for everything. Card and overlay
+    are the same measurement on purpose: a card and a sheet are the same object
+    at two depths, so they should read as the same shape.
+  */
+  --radius-input: 8px;
+  --radius-panel: 12px;
+  --radius-card: 16px;
+  --radius-overlay: 16px;
+  --radius-pill: 9999px;
+
+  /* One elevation. Marketing cards and every overlay, nothing else. */
+  --shadow-soft: var(--elevation);
 
   /* 4px base gives 4, 8, 12, 16, 24, 32, 48 from the standard scale. */
   --spacing: 4px;
@@ -92,6 +141,68 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+  Headings are Urbanist, text is Instrument Sans.
+
+  Two families rather than one, because a single family at a single weight made
+  every screen read at the same volume. Urbanist carries the headings: wider
+  apertures and a taller x-height than the interface face, which is what lets a
+  60 px hero look drawn rather than enlarged.
+
+  Under 20 px it goes back to Instrument Sans, which is what the second block
+  enforces. Both faces were rendered side by side at 15, 18, 20 and 24 px
+  before this was written down. At 15 px Urbanist 700 sets narrower than
+  Instrument Sans 600 at the same size, with a smaller x-height and counters in
+  a, e and g that close up, and the punctuation almost disappears. At 20 px and
+  up it is the better of the two by a distance. So the dense tier is Instrument
+  Sans all the way down and the display face starts at 20. See the decision log.
+*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display {
+  font-family: var(--font-display);
+}
+
+:is(h1, h2, h3, h4, h5, h6):is(.text-caption, .text-small, .text-body, .text-lead) {
+  font-family: var(--font-sans);
+}
+
+/*
+  A screenshot follows the theme the same way the tokens do.
+
+  The landing page shows one real screen, and it exists as two files. A
+  <picture> with a prefers-color-scheme source would be simpler and would be
+  wrong here: the theme on this site can be forced with the toggle, so a
+  visitor holding forced light would get a dark screenshot on a light page.
+  These are the same three selectors the tokens above use, so the picture and
+  the palette can never disagree. Both images are lazy, so the hidden one is
+  never fetched.
+*/
+[data-shot="dark"] {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) [data-shot="light"] {
+    display: none;
+  }
+  :root:not([data-theme="light"]) [data-shot="dark"] {
+    display: block;
+  }
+}
+
+[data-theme="dark"] [data-shot="light"] {
+  display: none;
+}
+
+[data-theme="dark"] [data-shot="dark"] {
+  display: block;
 }
 
 /* Focus is always visible, and always in blueprint. */
