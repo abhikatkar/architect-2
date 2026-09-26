@@ -117,12 +117,12 @@ function JevResultView({ result }: { result: JevResult }) {
               */}
               {a.confidence !== null ? (
                 <p className="text-caption text-graphite">
-                  Confidence {pct(a.confidence)}
+                  Confidence {pct(a.confidence)}.
                   {a.confidence < 0.6 ? (
                     <span className="text-cost">
                       {" "}
-                      . Jev was not clearly decided here, so this one would go to
-                      a person rather than through automatically.
+                      Jev was not clearly decided here, so this one would go to a
+                      person rather than through automatically.
                     </span>
                   ) : null}
                 </p>
