@@ -130,6 +130,14 @@ export default async function LandingPage() {
             projects are real; build, agents, code and deploy flows are
             simulated.
           </p>
+          <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-caption">
+            <Link href="/privacy" className="text-blueprint underline">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-blueprint underline">
+              Terms
+            </Link>
+          </p>
         </div>
       </footer>
     </div>

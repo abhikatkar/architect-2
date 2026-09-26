@@ -64,6 +64,16 @@ export default async function LoginPage(props: PageProps<"/login">) {
             Try the demo, no account needed
           </Link>
         </div>
+
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-caption text-graphite">
+          <span>Signing in stores your name, email and picture.</span>
+          <Link href="/privacy" className="text-blueprint underline">
+            What is stored
+          </Link>
+          <Link href="/terms" className="text-blueprint underline">
+            Terms
+          </Link>
+        </p>
       </main>
     </div>
   );

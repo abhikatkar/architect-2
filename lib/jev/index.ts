@@ -30,9 +30,15 @@ import { RECORDED, hasRecorded } from "./recorded";
  *    it is described as exactly that.
  */
 
-/** The documented cost ceiling. See D38. */
-export const RATE_LIMIT_PER_IP_PER_HOUR = 10;
-export const DAILY_CALL_CAP = 300;
+/**
+ * The documented cost ceiling. See D38.
+ *
+ * Defined in ./limits so the terms page can state the same numbers without
+ * importing this server-only module.
+ */
+import { RATE_LIMIT_PER_IP_PER_HOUR, DAILY_CALL_CAP } from "./limits";
+
+export { RATE_LIMIT_PER_IP_PER_HOUR, DAILY_CALL_CAP };
 
 const MAX_CUSTOM_INPUT = 500;
 
