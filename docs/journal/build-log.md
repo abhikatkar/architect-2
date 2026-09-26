@@ -67,7 +67,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 23:05 | Fixed the stale model names in the agent config files, published the measured Jev numbers, retested the deployment | 35 min | Claude Code, curl against production | The three decision agents no longer claim to run on a language model. The deployment still rejects its key after a second re-entry, and the retest nearly fooled me: with recorded.ts now populated, a failed call returns real answers, so the outcome field is the only thing that tells the truth |
 
-**Day total so far:** 11 h 55 min across 7 commits.
+| 02:10 | Fix pass 2 from the round 2 review: the Grounding Checker contradiction, signed results, nine demo fixes, and the diagrams | 4 h 15 min | Claude Code, Chrome over CDP, Supabase MCP, archify | The contradiction was our criteria, not the model: 0.71 to 0.14 on the same input once the question named timing words. Added a rendered-page check after finding the App preview default had been "fixed" twice while a dead function did nothing. Reproduced the diagram toolbar overlap at 1491x812 and recorded the trade rather than taking the labels back down |
+
+**Day total so far:** 16 h 10 min across 9 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

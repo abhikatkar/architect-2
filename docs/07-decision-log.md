@@ -649,3 +649,25 @@ Format: date, decision, evidence, alternatives rejected.
   result"; and the tampered values are still displayed, just never called live.
 - **Rejected:** only documenting the hole, which was the original plan. A reviewer who can forge "Live
   result" in one URL edit has found a real hole in an honesty claim, whoever wrote the URL.
+
+### D45. 2026-09-27: Readable labels beat a tidy toolbar, and the trade is recorded
+- **Decision:** the architecture diagram is laid out for label size, not for fitting a short laptop
+  viewport. Node context text went from **6.2px to 7.7px** at a 1440px desktop, a 24% increase, by merging
+  `projects` and `profiles` into one node, moving to four rows, and narrowing the canvas from 1340 to 1060.
+- **What it cost, measured rather than glossed:** the page is 898px tall at the round 2 reviewer's 812px
+  viewport, so it scrolls by 86px, and the viewer's floating toolbar then covers the rightmost guided-view
+  chip. Reproduced with Chrome at 1491x812: no overlap at 0% or 33% scroll, 769px of overlap at 66%, and
+  5,690px at the bottom.
+- **Why it is not "fixed":** the overlap is caused by the page scrolling at all. Removing the scroll means a
+  wider canvas, and a wider canvas means smaller labels, which is the thing the same review asked to
+  improve. Cutting a guided view does not help either: the chip row spans the full width, so whichever chip
+  is last ends up under the toolbar. Tested, and it moved the problem from "03" to "02".
+- **What was done instead:** the trade is stated on the diagrams index, the reader is told scrolling up
+  clears it, and the diagram is contained with no scroll at all at 1440x900 and above, which is what the
+  delivery check enforces.
+- **Phone gets a still, not a broken canvas.** These are desktop canvases; at 390px the toolbar clips left
+  and the nodes run off right. Below 640px the index serves a generated still of the whole diagram, from
+  `scripts/diagram-stills.mjs`, so it cannot drift from the diagram it represents, with the interactive
+  version one tap away for anyone who wants it.
+- **Rejected:** shrinking the labels back to fit one laptop height, which optimises for a screenshot over a
+  reader. Also rejected: hand-drawing a phone version, which would drift the first time the code changed.

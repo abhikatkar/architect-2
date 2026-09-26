@@ -5,9 +5,13 @@
 Three interactive diagrams, generated from the JSON sources in [architecture/](architecture/) and served
 from `/architecture/` on the running app. Open them locally from `public/architecture/`.
 
+Start at **[/architecture](../app/architecture/page.tsx)** on the running app, which links to all three and
+back to the demo, and which serves a generated still below 640px rather than sending a phone to a canvas
+built for a desktop.
+
 | Diagram | What it answers | Source |
 |---|---|---|
-| [System architecture](../public/architecture/architecture.html) | What runs, what is staged, and where the trust boundaries are. Every node is marked Real or Simulated, and 23 of them link to the exact file and lines at the commit the diagram was generated from | [architecture.json](architecture/architecture.json) |
+| [System architecture](../public/architecture/architecture.html) | What runs, what is staged, and where the trust boundaries are. Every node is marked Real or Simulated, and 22 source links are verified against the commit the diagram was generated from | [architecture.json](architecture/architecture.json) |
 | [Agent workflow](../public/architecture/agent-workflow.html) | The four Northwind agents in order, each labeled with the kind of model it runs on and why | [agent-workflow.json](architecture/agent-workflow.json) |
 | [Jev call sequence](../public/architecture/jev-call-sequence.html) | One "Test this agent" call end to end: the rate limit checked first, the Gateway call, the log write, and the recorded fallback | [jev-call-sequence.json](architecture/jev-call-sequence.json) |
 

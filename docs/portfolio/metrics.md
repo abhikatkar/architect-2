@@ -71,9 +71,10 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Metric | Value | Source |
 |---|---|---|
 | Generated diagrams | 3, from JSON committed in [docs/architecture/](../architecture/) | `archify deliver` |
-| Source links verified against the pinned commit | **23**, all in the architecture diagram | the delivery receipt, `evidence.references` |
+| Source links verified against the pinned commit | **22**, all in the architecture diagram | the delivery receipt, `evidence.references` |
+| Smallest node text at a 1440px desktop | **7.7px**, up from 6.2px after the round 2 review | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Pinned revision | `a2ea7a2` | [D42](../07-decision-log.md) |
-| Nodes marked Real | 11 | the diagram |
+| Nodes marked Real | 10 | the diagram |
 | Nodes marked Simulated | 1, `lib/seed` | the diagram |
 | Containment checked at | 1440x900, 1600x1000, 1920x1080 and 2048x1320, light and dark | `archify visual-check`, all pass |
 

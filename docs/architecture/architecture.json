@@ -7,8 +7,8 @@
     "quality_profile": "showcase",
     "output": "public/architecture/architecture.html",
     "viewBox": [
-      1340,
-      660
+      1060,
+      530
     ],
     "repository": {
       "url": "https://github.com/abhikatkar/architect-2",
@@ -24,8 +24,7 @@
           "proxy",
           "routes",
           "sbauth",
-          "projects",
-          "profiles"
+          "projects"
         ],
         "note": "Google sign in, the guard on /app, and the two tables scoped to their owner."
       },
@@ -61,11 +60,11 @@
       "label": "Browser",
       "sublabel": "Real: HTML and form posts",
       "pos": [
-        30,
-        270
+        45,
+        170
       ],
       "size": [
-        160,
+        150,
         68
       ],
       "sources": [
@@ -89,11 +88,11 @@
       "label": "Proxy guard",
       "sublabel": "Real: protects /app",
       "pos": [
-        285,
-        130
+        305,
+        170
       ],
       "size": [
-        160,
+        150,
         68
       ],
       "brand": "next-js",
@@ -112,11 +111,11 @@
       "label": "lib/seed fixtures",
       "sublabel": "Simulated: 1 project, 4 agents",
       "pos": [
-        545,
-        30
+        555,
+        70
       ],
       "size": [
-        170,
+        160,
         68
       ],
       "sources": [
@@ -140,11 +139,11 @@
       "label": "Route handlers",
       "sublabel": "Real: auth, projects, build",
       "pos": [
-        545,
-        130
+        555,
+        170
       ],
       "size": [
-        170,
+        160,
         68
       ],
       "sources": [
@@ -174,11 +173,11 @@
       "label": "POST /jev/run",
       "sublabel": "Real: outside the guard",
       "pos": [
-        285,
-        410
+        305,
+        290
       ],
       "size": [
-        160,
+        150,
         68
       ],
       "sources": [
@@ -196,11 +195,11 @@
       "label": "lib/jev",
       "sublabel": "Real: server only, holds key",
       "pos": [
-        545,
-        410
+        555,
+        290
       ],
       "size": [
-        170,
+        160,
         68
       ],
       "sources": [
@@ -230,11 +229,11 @@
       "label": "Supabase Auth",
       "sublabel": "Real: Google OAuth",
       "pos": [
-        835,
-        30
+        815,
+        70
       ],
       "size": [
-        175,
+        165,
         68
       ],
       "brand": "supabase",
@@ -256,15 +255,15 @@
     {
       "id": "projects",
       "type": "database",
-      "label": "projects",
-      "sublabel": "Real: RLS, owner scoped",
+      "label": "projects + profiles",
+      "sublabel": "Real: both RLS, owner scoped",
       "pos": [
-        835,
-        130
+        815,
+        170
       ],
       "size": [
-        175,
-        68
+        165,
+        76
       ],
       "brand": "postgresql",
       "sources": [
@@ -272,7 +271,13 @@
           "path": "supabase/migrations/20260925150000_projects.sql",
           "line": 37,
           "end_line": 64,
-          "label": "RLS policies"
+          "label": "projects RLS"
+        },
+        {
+          "path": "supabase/migrations/20260925200000_profiles.sql",
+          "line": 24,
+          "end_line": 49,
+          "label": "profiles RLS"
         },
         {
           "path": "lib/projects.ts",
@@ -283,45 +288,16 @@
       ]
     },
     {
-      "id": "profiles",
-      "type": "database",
-      "label": "profiles",
-      "sublabel": "Real: RLS, depth preference",
-      "pos": [
-        835,
-        225
-      ],
-      "size": [
-        175,
-        68
-      ],
-      "brand": "postgresql",
-      "sources": [
-        {
-          "path": "supabase/migrations/20260925200000_profiles.sql",
-          "line": 24,
-          "end_line": 49,
-          "label": "RLS policies"
-        },
-        {
-          "path": "lib/profiles.ts",
-          "line": 1,
-          "end_line": 56,
-          "label": "data access"
-        }
-      ]
-    },
-    {
       "id": "jevcalls",
       "type": "database",
       "label": "jev_calls",
       "sublabel": "Real: definer functions only",
       "pos": [
-        835,
-        330
+        815,
+        290
       ],
       "size": [
-        175,
+        165,
         76
       ],
       "brand": "postgresql",
@@ -352,11 +328,11 @@
       "label": "Vercel AI Gateway",
       "sublabel": "Real: AI_GATEWAY_API_KEY",
       "pos": [
-        835,
-        510
+        555,
+        430
       ],
       "size": [
-        175,
+        160,
         68
       ],
       "brand": "vercel",
@@ -375,11 +351,11 @@
       "label": "Jev",
       "sublabel": "Real: typesafe-ai/jev",
       "pos": [
-        1110,
-        510
+        815,
+        430
       ],
       "size": [
-        175,
+        165,
         68
       ],
       "sources": [
@@ -417,7 +393,6 @@
       "wraps": [
         "sbauth",
         "projects",
-        "profiles",
         "jevcalls"
       ]
     },
@@ -464,14 +439,7 @@
       "from": "routes",
       "to": "projects",
       "label": "own rows only",
-      "labelDy": 13
-    },
-    {
-      "id": "routes-profiles",
-      "from": "routes",
-      "to": "profiles",
-      "label": "depth preference",
-      "labelSegment": 1
+      "labelDy": 12
     },
     {
       "id": "browser-jevrun",
@@ -498,7 +466,8 @@
       "from": "libjev",
       "to": "gateway",
       "label": "evaluate",
-      "variant": "emphasis"
+      "variant": "emphasis",
+      "labelDy": 28
     },
     {
       "id": "gateway-jev",
@@ -513,18 +482,16 @@
       "dot": "emerald",
       "title": "Real",
       "items": [
-        "Google sign in and the guard on /app",
-        "projects and profiles, row level security proven with two users",
-        "Jev decisions: 22 live calls, median 430 ms, $0.000017 each",
-        "jev_calls: anon may insert through a definer function, never select"
+        "Google sign in, and the guard on /app",
+        "projects and profiles: RLS proven with two real users",
+        "Jev decisions, signed so an edited URL cannot read as live"
       ]
     },
     {
       "dot": "amber",
       "title": "Simulated",
       "items": [
-        "Builds, previews, deploys and agent runs are read from lib/seed",
-        "Costs and versions are derived from those fixtures, not measured",
+        "Builds, previews, deploys and agent runs read from lib/seed",
         "No code is generated, executed or shipped anywhere"
       ]
     },
@@ -532,9 +499,9 @@
       "dot": "rose",
       "title": "Why the key stays server side",
       "items": [
-        "lib/jev is server-only, so no client import can reach the key",
-        "/jev/run sits outside the guard so the signed out demo still works",
-        "Rate limit 10 per IP per hour, cap 300 per day, both proven"
+        "lib/jev is server-only, so no client import reaches the key",
+        "/jev/run sits outside the guard, so the demo works signed out",
+        "10 calls per IP per hour, 300 per day, both proven"
       ]
     }
   ]

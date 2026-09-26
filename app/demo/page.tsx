@@ -54,6 +54,9 @@ export default async function DemoPage(props: PageProps<"/demo">) {
             <Link href="/demo?tab=app&build=failed&pane=canvas" className="text-blueprint underline">
               See one fail
             </Link>
+            <Link href="/architecture" className="text-blueprint underline">
+              See the architecture
+            </Link>
             <Link href="/login" className="text-blueprint underline">
               Sign in to build your own
             </Link>
