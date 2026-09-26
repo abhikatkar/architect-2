@@ -428,7 +428,7 @@ queues: [billing, technical, account]`,
   },
 
   /*
-    Copy that is rendered somewhere. Five keys were removed on 2026-09-27:
+    Copy that is rendered somewhere. Five keys were removed on 2026-09-26:
     stageFailed, loopStopped, platformRetry and stalePreview were duplicates of
     strings the build screen and the preview already render from `failure` and
     from the version numbers, and estimateOverCap is now arithmetic at the plan

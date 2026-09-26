@@ -234,7 +234,7 @@ Format: date, decision, evidence, alternatives rejected.
   wanted a browser download when the machine already has Chrome.
 
 ### D22. 2026-09-25: The Code tab is read-only on phones
-> **Narrowed by [D48](#d48-2026-09-27-the-code-tab-is-read-only-at-every-width-and-says-so) on 2026-09-27.**
+> **Narrowed by [D48](#d48-2026-09-26-the-code-tab-is-read-only-at-every-width-and-says-so) on 2026-09-26.**
 > The phone rule below stands. The clause promising a full editor from 640 px up does not: the Code tab is
 > read-only at every width in this submission, and the Edit control says so.
 
@@ -332,7 +332,7 @@ Format: date, decision, evidence, alternatives rejected.
   writer, and everything else is derived from elapsed time. The linter caught two violations of this in the
   first version, and the fix made the component simpler rather than more complex.
 
-- **Extended 2026-09-27 by [D51](#d51-2026-09-27-sheets-are-server-rendered-overlays-with-keyboard-help-on-top).**
+- **Extended 2026-09-26 by [D51](#d51-2026-09-26-sheets-are-server-rendered-overlays-with-keyboard-help-on-top).**
   The rule is not "no client JavaScript", it is **works without JavaScript, better with it**. The theme
   toggle already worked this way: the form still posts with scripting off, and the client version only makes
   it instant. Sheets follow the same shape. A client component may be added when the feature is complete
@@ -616,8 +616,8 @@ Format: date, decision, evidence, alternatives rejected.
   status table exists to prevent.
 
 ### D43. 2026-09-26: A grounding check ships only when it is confident, and the bar is an error budget
-> **Superseded by [D46](#d46-2026-09-27-the-090-grounding-bar-was-wrong-and-six-real-drafts-showed-it) on
-> 2026-09-27.** The principle below holds: a grounding answer needs a bar, and 0.5 is not one. The number
+> **Superseded by [D46](#d46-2026-09-26-the-090-grounding-bar-was-wrong-and-six-real-drafts-showed-it) on
+> 2026-09-26.** The principle below holds: a grounding answer needs a bar, and 0.5 is not one. The number
 > does not. 0.90 was derived from an error budget that assumed a calibrated probability, and six labeled
 > drafts showed a fully faithful draft only reaches 0.83, so the bar rejected correct answers. The bar is
 > **0.60**. This entry is kept unedited because the reasoning it records is what went wrong.
@@ -650,7 +650,7 @@ Format: date, decision, evidence, alternatives rejected.
   real finding, which is that a loosely worded criterion gets a loosely reasoned answer. Also rejected:
   keeping the 0.5 default, which is what produced the contradiction.
 
-### D44. 2026-09-27: The Jev result in the URL is signed, so it cannot be forged
+### D44. 2026-09-26: The Jev result in the URL is signed, so it cannot be forged
 - **Decision:** the result carried back in the query string is signed with HMAC-SHA256 using a server-only
   `JEV_RESULT_SECRET`. A result with a missing, edited or transplanted signature renders as **"Unverified
   result"** and never as "Live result".
@@ -667,7 +667,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** only documenting the hole, which was the original plan. A reviewer who can forge "Live
   result" in one URL edit has found a real hole in an honesty claim, whoever wrote the URL.
 
-### D45. 2026-09-27: Readable labels beat a tidy toolbar, and the trade is recorded
+### D45. 2026-09-26: Readable labels beat a tidy toolbar, and the trade is recorded
 - **Decision:** the architecture diagram is laid out for label size, not for fitting a short laptop
   viewport. Node context text went from **6.2px to 7.7px** at a 1440px desktop, a 24% increase, by merging
   `projects` and `profiles` into one node, moving to four rows, and narrowing the canvas from 1340 to 1060.
@@ -689,7 +689,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** shrinking the labels back to fit one laptop height, which optimises for a screenshot over a
   reader. Also rejected: hand-drawing a phone version, which would drift the first time the code changed.
 
-### D46. 2026-09-27: The 0.90 grounding bar was wrong, and six real drafts showed it
+### D46. 2026-09-26: The 0.90 grounding bar was wrong, and six real drafts showed it
 - **Decision:** the grounding bar moves from **0.90 to 0.60**, set from a small labeled set rather than from
   arithmetic on an assumption.
 - **What went wrong with D43.** The 0.90 bar was derived from an error budget: at a bar of p, roughly
@@ -726,7 +726,7 @@ Format: date, decision, evidence, alternatives rejected.
   checker that never passes anything. Also rejected: rewording the criteria until the faithful draft cleared
   0.90, which is fitting the evidence to the conclusion.
 
-### D47. 2026-09-27: Skipped version numbers are accounted for, not explained away
+### D47. 2026-09-26: Skipped version numbers are accounted for, not explained away
 - **Decision:** the five numbers the deploy list skips (v2, v4, v7, v10, v13) are recorded as builds that
   never deployed, each charged **$0.00**, with a reason, and included in the month's total.
 - **Why the cost matters and not just the absence.** "Some builds did not deploy" answers where the numbers
@@ -740,7 +740,7 @@ Format: date, decision, evidence, alternatives rejected.
   no gaps, that no number is both deployed and discarded, that every discarded build costs exactly $0.00 and
   carries a reason, and that the published total equals deployed plus discarded.
 
-### D48. 2026-09-27: The Code tab is read-only at every width, and says so
+### D48. 2026-09-26: The Code tab is read-only at every width, and says so
 - **Decision:** the Code tab browses files, reads diffs and accepts or reverts changes. It does not edit, at
   any width. An **Edit** control sits where an editor would open and reads "In the full product this opens an
   editor. This demo is read-only."
@@ -759,7 +759,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** shipping the editor as the one exception to D25, which would pull the whole workspace shell
   into the client bundle to type into a file that does not exist.
 
-### D49. 2026-09-27: Accept and revert live in the address, and a request has no verdict of its own
+### D49. 2026-09-26: Accept and revert live in the address, and a request has no verdict of its own
 - **Decision:** a verdict is per file, held in two dot separated id lists in the URL, and a request's verdict
   is **derived** from its files: all accepted, all reverted, part accepted, or not decided yet.
 - **Why derived.** A stored request verdict can disagree with the files under it, and the last three reviews
@@ -774,7 +774,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Honesty requirement:** both controls carry the words "demo action" and say the verdict is not saved,
   beside the control rather than in a footnote.
 
-### D50. 2026-09-27: One real change sits beside the simulated ones, generated from git
+### D50. 2026-09-26: One real change sits beside the simulated ones, generated from git
 - **Decision:** the Code tab shows simulated changes for the demo app, and exactly one real one: commit
   `b8ba98a` from this repository, the change that tightened the grounding criteria after a live call
   disagreed with the demo. It is captured by `scripts/capture-real-change.mjs` from `git show`, never typed.
@@ -787,7 +787,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Kept apart from the simulated ones:** its own panel, its own label, its own live check result, and never
   a row in the same list. A reader should never have to work out which numbers are real.
 
-### D51. 2026-09-27: Sheets are server-rendered overlays, with keyboard help on top
+### D51. 2026-09-26: Sheets are server-rendered overlays, with keyboard help on top
 - **Decision:** a consent or confirm sheet is an overlay that exists only when its query parameter is
   present. The backdrop and Close are links that remove the parameter, so it opens, closes and shares as a
   link, and the whole thing renders on the server.
@@ -799,14 +799,14 @@ Format: date, decision, evidence, alternatives rejected.
   and close, and focus returns to whatever opened it because the close links carry a fragment pointing at
   the trigger's id. With scripting on, a small client component adds Escape to close, moves focus to the
   heading on open, and traps Tab inside. That is the same bargain as the theme toggle, and it is now the
-  written rule in [D27](#d27-2026-09-25-where-the-no-javascript-rule-stops).
+  written rule in [D27](#d27-2026-09-25-where-the-no-javascript-rule-stops-and-what-replaces-it).
 - **What is still missing without JavaScript**, said plainly rather than left to be found: no Escape key and
   no focus trap. The sheet carries `role="dialog"`, `aria-modal`, a labelled heading and a visible Close, so
   it is usable, but a keyboard user without scripting can tab past it into the page behind.
 - **Rejected:** a client component that owns whether the sheet is open, which would put the workspace shell
   in the browser bundle to decide something a query parameter already decides.
 
-### D52. 2026-09-27: Nothing is written before its confirm, and the screen proves it
+### D52. 2026-09-26: Nothing is written before its confirm, and the screen proves it
 - **Decision:** every action that would write outside Architect states exactly what it would write, counted
   from real data, and does nothing until its confirm. This is the answer to the finding that a GitHub repo
   was created and set to auto-sync without anyone pressing Push.
@@ -819,7 +819,7 @@ Format: date, decision, evidence, alternatives rejected.
   is easy to write a screen that announces success on open, and that is exactly what the teardown found.
 - **Rejected:** a disabled confirm button, which says the same thing less clearly than a sentence.
 
-### D53. 2026-09-27: The import report comes before the estimate, and before any charge
+### D53. 2026-09-26: The import report comes before the estimate, and before any charge
 - **Decision:** import is repo, branch, folder, **report**, then Import. The compatibility report names the
   detected framework, the support level as a word and not only a colour, what Architect would add or change,
   and what it would leave alone.
@@ -832,7 +832,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **The unsupported level is shown even though no seed repo uses it**, because a support scale that only
   ever shows its two good outcomes teaches the reader the wrong thing.
 
-### D54. 2026-09-27: Safe defaults, each one tied to the finding it answers
+### D54. 2026-09-26: Safe defaults, each one tied to the finding it answers
 - **Decision:** the repository is private by default, sync is two way by default, Marketplace is off by
   default with the note about who pays beside it, and admin is an invite with roles rather than a server
   environment variable.
@@ -844,7 +844,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** a settings page listing these as options with no defaults, which would move the decision
   back onto the person least equipped to make it, which is what the products in the teardown do.
 
-### D55. 2026-09-27: The framework picker says what Architect cannot manage
+### D55. 2026-09-26: The framework picker says what Architect cannot manage
 - **Decision:** screen 11 offers Lyzr, GitAgent, LangGraph, CrewAI and the OpenAI Agents SDK, and every one
   of them carries a list of what Architect does **not** manage for it, beside the list of what it does.
 - **Why it exists at all.** The brief asks for a platform where you can "build agents in any framework".
@@ -860,7 +860,7 @@ Format: date, decision, evidence, alternatives rejected.
 - **It also closes a gap between two docs.** F5 was P0 while the screen it needs was P1, so the flow could
   not be completed as written. Recorded as 15 of 15 P0 plus this one P1.
 
-### D56. 2026-09-27: Copy that nothing renders is deleted, and an invariant keeps it that way
+### D56. 2026-09-26: Copy that nothing renders is deleted, and an invariant keeps it that way
 - **Decision:** five unused strings in the demo fixture were removed rather than wired up, and a check now
   reads the sources and fails if any `copy` key is unread.
 - **Four were duplicates.** `loopStopped` and `platformRetry` were exact copies of strings the build screen

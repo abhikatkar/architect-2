@@ -287,7 +287,7 @@ check(
   `${diffIds.length} ids, dot separated in the address`,
 );
 
-// Superseded on 2026-09-27: the consent copy no longer carries counts at all,
+// Superseded on 2026-09-26: the consent copy no longer carries counts at all,
 // so there is nothing in it to compare. The sheet derives them from this tree
 // and from the change list, which the rendered check asserts on the page, and
 // "the consent copy carries no counts" below keeps them from creeping back.

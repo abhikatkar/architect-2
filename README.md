@@ -33,6 +33,11 @@ If you only have a few minutes, these five in order:
 making live calls to a decision model. Everything else is simulated and labeled, screen by screen, in the
 table below.
 
+**If you sign in:** Google's consent screen shows the Supabase project domain rather than "Architect 2.0",
+because brand verification is optional for a concept like this one and was not requested. The app asks for
+nothing beyond the default name, email and picture, and [what it stores is listed in full](app/privacy/page.tsx)
+at [/privacy](https://architect-2-zeta.vercel.app/privacy).
+
 **How honest it is, mechanically:** 55 invariants over the fixtures and 71 assertions against served HTML
 gate every commit. They exist because three review rounds caught contradictions that reading the code had
 missed.

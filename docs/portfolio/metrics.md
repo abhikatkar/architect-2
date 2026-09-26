@@ -76,6 +76,7 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
 | Consistency invariants | **55** | `scripts/consistency-check.mjs` |
 | Rendered-page assertions | **71** | `scripts/rendered-check.mjs` |
+| Links checked in docs and README | **208**, all resolving, anchors included | `scripts/link-check.mjs` |
 | Screens built | **15 of 15 P0, plus 1 P1** (screen 11, the framework picker) | [screen-inventory.md](../design/screen-inventory.md) |
 | Unused copy strings | **0.** Five were removed as duplicates and an invariant now fails the build if a key is unread | `scripts/consistency-check.mjs` |
 | Files browsable in the Code tab | **42**, the same number the GitHub consent line counts | `lib/seed/code.ts`, asserted equal |

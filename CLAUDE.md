@@ -23,10 +23,16 @@ Dummy flows are acceptable for everything else, but they must look and feel real
 - At the end of every task, append an entry to docs/journal/build-log.md (date, work done, time spent,
   tools used, outcome). If any number in docs/portfolio/metrics.md changed, update it in the same commit.
   Metrics are measured facts with a source. Never estimate a number to fill a row, leave it pending.
+- Dates in docs, decision log entries and page copy come from the system clock, never from memory or
+  inference: run `TZ=Asia/Kolkata date +%F` and use that. Thirteen decision log entries and two legal pages
+  were dated a day ahead because the date was guessed, and correcting them broke three anchors, because a
+  decision log anchor contains the entry's date.
 - Before every commit run both checks, and do not commit on a failure:
   scripts/consistency-check.mjs over the fixtures, and scripts/rendered-check.mjs against a running build.
   The rendered check exists because two review rounds reported the same bug as "still broken" after it was
   marked fixed: reading the source passed, the served page did not. Assert against the page, not the code.
+  Run scripts/link-check.mjs too whenever a heading or a link changes: it validates every relative path and
+  every anchor in docs/ and the README against the headings that actually exist.
 
 ## Stack
 Next.js (App Router, TypeScript), Tailwind, Supabase (auth + Postgres), deployed on Vercel.

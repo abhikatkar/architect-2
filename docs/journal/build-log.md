@@ -83,7 +83,9 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 
 | 16:40 | Corrected the date on the two legal pages and moved it into one constant | 10 min | Claude Code | Both pages said 27 September and today is the 26th. The same wrong date is on 13 decision log entries, flagged rather than changed, because their headings are linked by anchor |
 
-**Day total so far:** 31 h 10 min across 16 commits.
+| 17:05 | Corrected 22 wrong dates across the docs, added a link checker, showed who is signed in on /app | 45 min | Claude Code, Chrome over CDP | The link checker found a dead anchor on its first run that had nothing to do with the dates: a reference to D27 written with a truncated slug in slice 6, broken since. 208 of 208 links resolve now |
+
+**Day total so far:** 31 h 55 min across 17 commits.
 
 **Note on the teardown:** the test itself ran 12:06 to 13:04 IST, before this repo's build sessions. The
 38 minutes above covers only the write-up, not the hour of testing.

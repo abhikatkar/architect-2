@@ -46,6 +46,15 @@ export default async function HomePage(props: PageProps<"/app">) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Google puts it under one of two keys depending on the provider response.
+  const meta = user.user_metadata ?? {};
+  const avatar =
+    typeof meta.avatar_url === "string"
+      ? meta.avatar_url
+      : typeof meta.picture === "string"
+        ? meta.picture
+        : null;
+
   const projects = await listProjects();
 
   return (
@@ -58,14 +67,48 @@ export default async function HomePage(props: PageProps<"/app">) {
             before anything runs.
           </p>
         </div>
-        <form action="/auth/signout" method="post" className="ml-auto">
-          <button
-            type="submit"
-            className="min-h-11 rounded-input border border-rule px-3 text-body text-graphite"
-          >
-            Sign out
-          </button>
-        </form>
+        {/*
+          Who is signed in, shown rather than assumed.
+
+          Sign-in is one of the two things in this product that are actually
+          real, and until now the only evidence it had worked was that you were
+          not on the login page. The email comes from the session, and the
+          picture from the Google account, which is what the privacy page says
+          is stored.
+        */}
+        <div className="ml-auto flex flex-wrap items-center gap-3">
+          <span className="flex min-w-0 items-center gap-2">
+            {avatar ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={avatar}
+                alt=""
+                width={28}
+                height={28}
+                className="size-7 flex-none rounded-full border border-rule"
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="flex size-7 flex-none items-center justify-center rounded-full border border-rule text-caption text-graphite"
+              >
+                {(user.email ?? "?").slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <span className="min-w-0">
+              <span className="block text-caption text-graphite">Signed in as</span>
+              <span className="block truncate text-small">{user.email}</span>
+            </span>
+          </span>
+          <form action="/auth/signout" method="post">
+            <button
+              type="submit"
+              className="min-h-11 rounded-input border border-rule px-3 text-body text-graphite"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </header>
 
       {error ? (
