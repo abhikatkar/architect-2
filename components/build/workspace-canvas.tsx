@@ -1,6 +1,6 @@
 import { LayerCanvas } from "@/components/workspace/canvas";
 import { CodeCanvas } from "@/components/code/code-canvas";
-import type { AppliedState } from "@/lib/seed/totals";
+import { type AppliedState, previewChat } from "@/lib/seed/totals";
 import { DeployCanvas } from "@/components/deploy/deploy-canvas";
 import { FrameworkSheet } from "@/components/agents/framework-sheet";
 import { verifyJevResult } from "@/lib/jev/sign";
@@ -33,6 +33,7 @@ type Props = {
   panel: "terminal" | "logs" | "checks";
   sheet: string;
   rollback: string;
+  promote: string;
   framework: string;
   basePath: string;
   query: (patch: Record<string, string>) => string;
@@ -62,6 +63,7 @@ export function WorkspaceCanvas({
   panel,
   sheet,
   rollback,
+  promote,
   framework,
   basePath,
   query,
@@ -89,6 +91,7 @@ export function WorkspaceCanvas({
         mode={build === "failed" ? "failed" : "running"}
         finishAction={finishAction}
         doneHref={query({ build: "done", tab: "app", pane: "canvas" })}
+        failedBuildPolicy={project.copy.failedBuildPolicy}
         preferDetails={preferDetails}
       />
     );
@@ -157,7 +160,7 @@ export function WorkspaceCanvas({
       <AppPreview
         device={device}
         deviceHref={(d) => query({ device: d })}
-        chat={project.previewChat}
+        chat={previewChat(project, applied.fixApplied)}
         conversations={project.conversations}
         counts={project.counts}
         previewVersion={applied.previewVersion}
@@ -186,6 +189,7 @@ export function WorkspaceCanvas({
         applied={applied}
         sheet={sheet}
         rollback={rollback}
+        promote={promote}
         query={query}
       />
     );

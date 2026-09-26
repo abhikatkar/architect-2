@@ -33,9 +33,31 @@ const CARRIED = [
   // so a sheet is a shareable link and nothing client side decides it.
   "sheet",
   "rollback",
+  // Which version a promotion targets. Empty means the one in preview, so the
+  // ordinary case keeps the parameter out of the address.
+  "promote",
   // Screen 11: which framework the picker has selected.
   "framework",
 ] as const;
+
+/**
+ * What to clear when moving to a different view of the workspace.
+ *
+ * A tab, the trace, a build replay: each is a different view, and whatever
+ * overlay or selection belonged to the last one does not belong to it. Written
+ * once because it was written twice and the second copy was missing three keys,
+ * which is how clicking Agents with the rollback sheet open produced a link
+ * carrying sheet=rollback into a screen that has no sheets. Round 4, finding 5.
+ */
+export const VIEW_PATCH = {
+  pane: "canvas",
+  why: "",
+  build: "",
+  sheet: "",
+  rollback: "",
+  promote: "",
+  framework: "",
+} as const;
 
 type Search = Record<string, string | string[] | undefined>;
 
@@ -93,6 +115,7 @@ export function workspaceUrl(
   const revert = first(searchParams.revert) ?? "";
   const sheet = first(searchParams.sheet) ?? "";
   const rollback = first(searchParams.rollback) ?? "";
+  const promote = first(searchParams.promote) ?? "";
   const framework = first(searchParams.framework) ?? "";
 
   const current: Record<string, string> = {
@@ -115,6 +138,7 @@ export function workspaceUrl(
     revert,
     sheet,
     rollback,
+    promote,
     framework,
   };
 
@@ -146,6 +170,7 @@ export function workspaceUrl(
     revert,
     sheet,
     rollback,
+    promote,
     framework,
     query,
   };

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Clarifier, Plan } from "@/lib/seed/types";
+import { crossesCap } from "@/lib/seed/totals";
 
 function money(n: number) {
   return `$${n.toFixed(2)}`;
@@ -43,16 +44,17 @@ export function PlanReview({
   const { low, high, minutesLow, minutesHigh } = plan.estimate;
 
   /*
-    Would this build cross the cap?
+    What this build would use, and whether that crosses the cap.
 
-    The gate has always shown "of your $5.00 cap" without ever checking, and in
-    this project's own state it would: $3.37 spent, up to $2.00 more, against a
-    $5.00 cap. The fixture used to carry a sentence about this with the overage
-    written into it, computed against the other state, so the number was wrong
-    half the time. It is arithmetic on three numbers, so it is arithmetic here.
+    The gate showed "of your $5.00 cap" without ever checking, so the check is
+    arithmetic on three numbers rather than a sentence with a number in it. It
+    used to be given the month's whole spend while reviewing the first build,
+    which counted this build's own cost as already spent: the review found
+    "$3.37 already spent" on the gate for v1. What has been spent before a
+    version is derived by the caller now, and before the first one it is $0.00.
   */
   const over = +(spent + high - cap).toFixed(2);
-  const crossesCap = over > 0;
+  const crosses = crossesCap(spent, high, cap);
 
   const buildLabel = `Build, ${money(low)} to ${money(high)} of your ${money(cap)} cap`;
 
@@ -142,7 +144,9 @@ export function PlanReview({
               will see the cost climb as it runs.
             </p>
 
-            {crossesCap ? (
+            {/* One derived sentence, both branches, always shown, so the cap
+                is never mentioned without being checked. */}
+            {crosses ? (
               <p className="max-w-[72ch] text-caption text-cost">
                 This build may cost up to{" "}
                 <span className="font-mono">{money(high)}</span>, which with the{" "}
@@ -151,7 +155,15 @@ export function PlanReview({
                 cap by <span className="font-mono">{money(over)}</span>. Raise
                 the cap or build anyway.
               </p>
-            ) : null}
+            ) : (
+              <p className="max-w-[72ch] text-caption text-graphite">
+                <span className="font-mono">{money(spent)}</span> spent this
+                month so far, so this build would use up to{" "}
+                <span className="font-mono">{money(high)}</span> of your{" "}
+                <span className="font-mono">{money(cap)}</span> cap.
+                {spent === 0 ? " This is the first build of this project." : ""}
+              </p>
+            )}
 
             {action ? (
               <form action={action} method="post">

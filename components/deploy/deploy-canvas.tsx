@@ -6,15 +6,93 @@ import {
   type AppliedState,
   appliedPending,
   checksPassed,
-  ledgerSpend,
+  deployAction,
+  newerThanProduction,
   pendingChanges,
+  productionDeploys,
   revertedBy,
   rollbackTargets,
+  rowsTotal,
   versionForPending,
+  whereIs,
 } from "@/lib/seed/totals";
+import type { ChangeRequest, Version } from "@/lib/seed/types";
 import { Sheet, SheetTrigger, DemoNote } from "@/components/ui/sheet";
+import { DemoButton, DemoSwitch } from "@/components/ui/demo-button";
 
 const money = (n: number) => `$${n.toFixed(2)}`;
+
+/**
+ * Where a version is, in a word, never by colour alone (D20).
+ *
+ * "Not deployed" is about now. A version that was in production before says so,
+ * because otherwise the one row offering a rollback reads exactly like the six
+ * that offer nothing.
+ */
+function Where({
+  version,
+  previewVersion,
+  liveLabel,
+}: {
+  version: Version;
+  previewVersion: string;
+  liveLabel: string;
+}) {
+  const state = whereIs(version, previewVersion);
+  if (state === "production") return <span className="text-live">production, live</span>;
+  if (state === "preview") return <span className="text-blueprint">preview</span>;
+  if (version.wasLive) {
+    return <span className="text-graphite">was live before {liveLabel}</span>;
+  }
+  return <span className="text-graphite">not deployed</span>;
+}
+
+/**
+ * The one control a version row offers.
+ *
+ * Written once and rendered twice, by the phone list and the table. They used
+ * to carry their own copies of this logic, which is how they came to offer a
+ * rollback to eight versions that had never been in production.
+ */
+function RowAction({
+  version,
+  action,
+  query,
+  withId,
+}: {
+  version: Version;
+  action: ReturnType<typeof deployAction>;
+  query: (patch: Record<string, string>) => string;
+  /** Only the table carries the id, so the document has no duplicate. */
+  withId?: boolean;
+}) {
+  if (action === "live") {
+    return <span className="text-caption text-graphite">already live</span>;
+  }
+  if (action === "none") {
+    return (
+      <span className="text-caption text-graphite">
+        never live, older than production
+      </span>
+    );
+  }
+  const rollback = action === "rollback";
+  const target = `${rollback ? "rollback" : "promote"}-${version.label}`;
+  return (
+    <Link
+      id={withId ? target : undefined}
+      data-return-to={target}
+      href={query(
+        rollback
+          ? { sheet: "rollback", rollback: version.label }
+          : { sheet: "promote", promote: version.label },
+      )}
+      className="text-caption text-blueprint underline"
+    >
+      {rollback ? "Roll back" : "Promote"}
+    </Link>
+  );
+}
 
 /**
  * Screen 16, Deploy, and the two sheets that open from it.
@@ -37,22 +115,44 @@ export function DeployCanvas({
   applied,
   sheet,
   rollback,
+  promote,
   query,
 }: {
   project: DemoProject;
   applied: AppliedState;
   sheet: string;
   rollback: string;
+  promote: string;
   query: (patch: Record<string, string>) => string;
 }) {
-  const { changes, accepted } = applied;
+  const { changes, accepted, rows } = applied;
   const landed = appliedPending(changes, accepted);
   const preview = applied.previewVersion;
   const spend = applied.spend;
   const live = project.versions.find((v) => v.live);
+  const liveLabel = live?.label ?? "v0";
   const targets = rollbackTargets(project);
   const rollbackTo = targets.find((v) => v.label === rollback);
   const reverts = rollbackTo ? revertedBy(project, rollbackTo.label) : [];
+
+  /*
+    Promotion has a target, and it defaults to what is in preview.
+
+    Every row newer than production can be promoted, so the row control and the
+    header button open the same sheet with a different target, rather than the
+    header owning the only promotion in the product.
+  */
+  const promotable = newerThanProduction(rows, liveLabel);
+  const promoteTo =
+    promotable.find((v) => v.label === promote) ??
+    promotable.find((v) => v.label === preview) ??
+    promotable[promotable.length - 1];
+  // What that promotion would put in front of people: everything up to it.
+  const promoteBrings = promoteTo
+    ? promotable.filter(
+        (v) => Number(v.label.slice(1)) <= Number(promoteTo.label.slice(1)),
+      )
+    : [];
   const passed = checksPassed(CHECKS);
   const fileCount = codeFiles(project).length;
 
@@ -68,7 +168,24 @@ export function DeployCanvas({
         </div>
       </div>
 
-      {/* Two environments, read from the version list rather than stored. */}
+      {/*
+        The word "deploy" appears once on this screen and means what it says.
+
+        The footer counts builds, because 5 of this month's were discarded and
+        most of the rest were never deployed anywhere. Production deploys are a
+        different, much smaller number, and conflating the two is what made the
+        footer read "9 deploys" above a table where 7 rows said "not deployed".
+      */}
+      <p className="max-w-[72ch] text-caption text-graphite">
+        <span className="font-mono">{productionDeploys(project)}</span> deploys
+        to production this month, out of{" "}
+        <span className="font-mono">{applied.builds}</span> builds.{" "}
+        {rollbackTargets(project).length === 1
+          ? `${rollbackTargets(project)[0].label} was live before ${liveLabel}, so it is the one version a rollback can go back to.`
+          : `${rollbackTargets(project).length} of them were live before ${liveLabel}.`}
+      </p>
+
+      {/* Two environments, derived from what is live and what is in preview. */}
       <div className="grid min-w-0 gap-3 sm:grid-cols-2">
         <section className="min-w-0 rounded-panel border border-rule p-4">
           <p className="text-caption text-graphite">Preview</p>
@@ -92,7 +209,10 @@ export function DeployCanvas({
       </div>
 
       <div className="flex min-w-0 flex-wrap items-center gap-3">
-        <SheetTrigger id="promote-trigger" href={query({ sheet: "promote" })}>
+        <SheetTrigger
+          id="promote-trigger"
+          href={query({ sheet: "promote", promote: "" })}
+        >
           Deploy {preview} to production
         </SheetTrigger>
         <SheetTrigger
@@ -153,29 +273,23 @@ export function DeployCanvas({
         <h3 className="text-lead font-semibold">Versions</h3>
         <div className="mt-3 min-w-0 overflow-x-auto">
           <ul className="flex flex-col gap-2 sm:hidden">
-            {project.versions.map((v) => (
+            {rows.map((v) => (
               <li key={v.id} className="min-w-0 rounded-input border border-rule p-3">
                 <p className="flex flex-wrap items-baseline gap-x-2">
                   <span className="font-mono text-small">{v.label}</span>
                   <span className="font-mono text-caption text-cost">{money(v.cost)}</span>
                   <span className="text-caption">
-                    {v.live ? (
-                      <span className="text-live">production, live</span>
-                    ) : (
-                      <span className="text-graphite">{v.environment ?? "not deployed"}</span>
-                    )}
+                    <Where version={v} previewVersion={preview} liveLabel={liveLabel} />
                   </span>
                 </p>
                 <p className="mt-1 min-w-0 text-small">{v.change}</p>
-                {!v.live ? (
-                  <Link
-                    data-return-to={`rollback-${v.label}`}
-                    href={query({ sheet: "rollback", rollback: v.label })}
-                    className="mt-1 inline-flex min-h-11 items-center text-caption text-blueprint underline"
-                  >
-                    Roll back to {v.label}
-                  </Link>
-                ) : null}
+                <p className="mt-1 flex min-h-11 items-center">
+                  <RowAction
+                    version={v}
+                    action={deployAction(v, liveLabel)}
+                    query={query}
+                  />
+                </p>
               </li>
             ))}
           </ul>
@@ -187,11 +301,11 @@ export function DeployCanvas({
                 <th className="border-b border-rule py-2 pr-4 font-medium">Change</th>
                 <th className="border-b border-rule py-2 pr-4 font-medium">Cost</th>
                 <th className="border-b border-rule py-2 pr-4 font-medium">Where</th>
-                <th className="border-b border-rule py-2 font-medium">Roll back</th>
+                <th className="border-b border-rule py-2 font-medium">Action</th>
               </tr>
             </thead>
             <tbody>
-              {project.versions.map((v) => (
+              {rows.map((v) => (
                 <tr key={v.id}>
                   <td className="border-b border-rule py-2 pr-4 font-mono">{v.label}</td>
                   <td className="border-b border-rule py-2 pr-4">{v.change}</td>
@@ -199,28 +313,33 @@ export function DeployCanvas({
                     {money(v.cost)}
                   </td>
                   <td className="border-b border-rule py-2 pr-4">
-                    {v.live ? (
-                      <span className="text-live">production, live</span>
-                    ) : (
-                      <span className="text-graphite">{v.environment ?? "not deployed"}</span>
-                    )}
+                    <Where version={v} previewVersion={preview} liveLabel={liveLabel} />
                   </td>
                   <td className="border-b border-rule py-2">
-                    {v.live ? (
-                      <span className="text-caption text-graphite">already live</span>
-                    ) : (
-                      <Link
-                        id={`rollback-${v.label}`}
-                        data-return-to={`rollback-${v.label}`}
-                        href={query({ sheet: "rollback", rollback: v.label })}
-                        className="text-caption text-blueprint underline"
-                      >
-                        Roll back
-                      </Link>
-                    )}
+                    <RowAction
+                      version={v}
+                      action={deployAction(v, liveLabel)}
+                      query={query}
+                      withId
+                    />
                   </td>
                 </tr>
               ))}
+              {/* The rows are the total. Round 4 found a stated total of $3.43
+                  above rows that summed to $3.37, because v15 was not here. */}
+              <tr>
+                <td className="py-2 pr-4 text-caption text-graphite">
+                  {rows.length} versions
+                </td>
+                <td className="py-2 pr-4 text-caption text-graphite">
+                  plus {project.discarded.length} discarded at {money(0)}
+                </td>
+                <td className="py-2 pr-4 font-mono text-cost">
+                  {money(rowsTotal(rows, project))}
+                </td>
+                <td className="py-2 pr-4" />
+                <td className="py-2" />
+              </tr>
             </tbody>
           </table>
         </div>
@@ -229,13 +348,11 @@ export function DeployCanvas({
           <p className="max-w-[72ch] text-caption text-graphite">
             A version number is taken when a build starts, so the list skips{" "}
             {project.discarded.map((d) => d.label).join(", ")}:{" "}
-            {project.discarded.length} of the{" "}
-            {project.versions.length + project.discarded.length} builds this
-            month never reached deploy. Each is charged{" "}
-            <span className="font-mono text-cost">{money(0)}</span>, because the
-            platform did not deliver a working app. They are inside the{" "}
-            <span className="font-mono text-cost">{money(ledgerSpend(project))}</span>{" "}
-            total, adding nothing to it.
+            {project.discarded.length} of the {applied.builds} builds this month
+            never produced a version. {project.copy.failedBuildPolicy} They are
+            inside the{" "}
+            <span className="font-mono text-cost">{money(spend)}</span> total,
+            adding nothing to it.
           </p>
           <ul className="mt-2 flex flex-col gap-1">
             {project.discarded.map((d) => (
@@ -249,22 +366,23 @@ export function DeployCanvas({
         </div>
       </section>
 
-      {sheet === "promote" ? (
+      {sheet === "promote" && promoteTo ? (
         <Sheet
           id="promote"
-          title={`Deploy ${preview} to production`}
-          note={`${live?.label ?? "Nothing"} is live now. This would put ${preview} in front of everyone who uses the app.`}
-          closeHref={query({ sheet: "" })}
-          returnTo="promote-trigger"
+          title={`Deploy ${promoteTo.label} to production`}
+          note={`${live?.label ?? "Nothing"} is live now. This would put ${promoteTo.label} in front of everyone who uses the app.`}
+          closeHref={query({ sheet: "", promote: "" })}
+          /* The header button and every promotable row open this, so the
+             return target is whichever one was used. */
+          returnTo={promote === promoteTo.label ? `promote-${promoteTo.label}` : "promote-trigger"}
           footer={
             <>
-              <span className="inline-flex min-h-11 cursor-default items-center rounded-input bg-blueprint px-4 text-body text-paper">
+              <DemoButton
+                id="promote-confirm"
+                note="Demo action. Nothing is deployed, and nothing here has been written yet."
+              >
                 Deploy to production
-              </span>
-              <DemoNote>
-                Demo action. Nothing is deployed, and nothing here has been
-                written yet.
-              </DemoNote>
+              </DemoButton>
             </>
           }
         >
@@ -272,7 +390,7 @@ export function DeployCanvas({
             <section className="min-w-0">
               <h3 className="text-body font-medium">What changes</h3>
               <ul className="mt-1 flex flex-col gap-1">
-                {revertedBy(project, live?.label ?? "v0").map((v) => (
+                {promoteBrings.map((v) => (
                   <li key={v.id} className="flex flex-wrap gap-x-2 text-small">
                     <span className="font-mono text-caption text-graphite">{v.label}</span>
                     <span className="min-w-0">{v.change}</span>
@@ -309,14 +427,13 @@ export function DeployCanvas({
 
             <section className="min-w-0">
               <h3 className="text-body font-medium">Publish</h3>
-              <p className="mt-1 flex flex-wrap items-center gap-x-2 text-small">
-                <span className="rounded-input border border-rule px-2 py-0.5 text-caption">
-                  {PUBLISH.marketplace ? "on" : "off"}
-                </span>
-                <span>List on Marketplace</span>
-              </p>
-              <p className="mt-1 max-w-[72ch] text-caption text-graphite">
-                {project.copy.marketplaceNote}
+              <p className="mt-1 flex min-w-0 flex-wrap items-center gap-2 text-small">
+                <DemoSwitch
+                  id="marketplace"
+                  label="List on Marketplace"
+                  on={PUBLISH.marketplace}
+                  note={project.copy.marketplaceNote}
+                />
               </p>
             </section>
 
@@ -343,9 +460,13 @@ export function DeployCanvas({
                 <span className="inline-flex min-h-11 items-center rounded-input border border-rule px-3 text-caption text-graphite">
                   Role: admin
                 </span>
-                <span className="inline-flex min-h-11 cursor-default items-center rounded-input border border-rule px-3 text-caption">
+                <DemoButton
+                  id="invite-confirm"
+                  variant="quiet"
+                  note="Demo action. No invite is sent."
+                >
                   Send invite
-                </span>
+                </DemoButton>
               </div>
               <p className="mt-1 max-w-[72ch] text-caption text-graphite">
                 Admin is an invite here. In today&apos;s Architect it is a server
@@ -371,25 +492,30 @@ export function DeployCanvas({
           title={`Roll back to ${rollbackTo.label}`}
           note={`${rollbackTo.change}. This would become what people see, in one step.`}
           closeHref={query({ sheet: "", rollback: "" })}
-          /* Its trigger is one of nine table links rather than a single
-             control, so the target is named after the version it rolls back
-             to. Both the phone list and the table carry it. */
+          /* Its trigger is a table link rather than a single control, so the
+             target is named after the version it rolls back to. Both the phone
+             list and the table carry it. */
           returnTo={`rollback-${rollbackTo.label}`}
           footer={
             <>
-              <span className="inline-flex min-h-11 cursor-default items-center rounded-input bg-blueprint px-4 text-body text-paper">
+              <DemoButton
+                id="rollback-confirm"
+                note="Demo action. Nothing is rolled back."
+              >
                 Roll back to {rollbackTo.label}
-              </span>
-              <DemoNote>Demo action. Nothing is rolled back.</DemoNote>
+              </DemoButton>
             </>
           }
         >
           <div className="flex min-w-0 flex-col gap-3">
             <div className="min-w-0">
-              <h3 className="text-body font-medium">What reverts</h3>
+              <h3 className="text-body font-medium">
+                What reverts in production
+              </h3>
               {reverts.length === 0 ? (
                 <p className="mt-1 text-small text-graphite">
-                  Nothing. {rollbackTo.label} is already the newest version.
+                  Nothing. {rollbackTo.label} is the newest version that has
+                  been live.
                 </p>
               ) : (
                 <ul className="mt-1 flex flex-col gap-1">
@@ -402,11 +528,32 @@ export function DeployCanvas({
                 </ul>
               )}
             </div>
+            {/*
+              This list used to name every later version, including ones that
+              had only ever been in preview, directly above the line saying
+              they stay in preview. A version that was never live does not
+              change when production moves, so it is not in the list at all.
+            */}
             <p className="max-w-[72ch] text-small text-graphite">
               After this, <span className="font-mono">{rollbackTo.label}</span>{" "}
-              is live and <span className="font-mono">{preview}</span> stays in
-              preview. Only versions that exist can be chosen, which is why this
-              list is built from the version table rather than typed.
+              is live.{" "}
+              {newerThanProduction(rows, liveLabel).length > 0 ? (
+                <>
+                  <span className="font-mono">
+                    {newerThanProduction(rows, liveLabel)
+                      .map((v) => v.label)
+                      .join(" and ")}
+                  </span>{" "}
+                  {newerThanProduction(rows, liveLabel).length === 1
+                    ? "stays in preview and is not affected, because it has never been live."
+                    : "stay in preview and are not affected, because they have never been live."}
+                </>
+              ) : (
+                "Nothing is waiting in preview."
+              )}{" "}
+              Only versions that have been in production can be rolled back to,
+              which is why this list is built from the version table rather
+              than typed.
             </p>
           </div>
         </Sheet>
@@ -416,7 +563,7 @@ export function DeployCanvas({
         <GithubSheet
           project={project}
           fileCount={fileCount}
-          changeCount={changes.length}
+          changes={changes}
           closeHref={query({ sheet: "" })}
         />
       ) : null}
@@ -435,12 +582,12 @@ export function DeployCanvas({
 function GithubSheet({
   project,
   fileCount,
-  changeCount,
+  changes,
   closeHref,
 }: {
   project: DemoProject;
   fileCount: number;
-  changeCount: number;
+  changes: ChangeRequest[];
   closeHref: string;
 }) {
   return (
@@ -452,36 +599,69 @@ function GithubSheet({
       returnTo="github-trigger"
       footer={
         <>
-          <span className="inline-flex min-h-11 cursor-default items-center rounded-input bg-blueprint px-4 text-body text-paper">
+          <DemoButton
+            id="github-confirm"
+            note="Demo action. No repository is created and nothing is pushed."
+          >
             Connect and push
-          </span>
-          <DemoNote>
-            Demo action. No repository is created and nothing is pushed.
-          </DemoNote>
+          </DemoButton>
         </>
       }
     >
       <div className="flex min-w-0 flex-col gap-4">
         <section className="min-w-0">
-          <h3 className="text-body font-medium">Repository</h3>
-          <ul className="mt-1 flex flex-col gap-1">
-            <li className="flex flex-wrap items-baseline gap-x-2 text-small">
-              <span className="rounded-input border border-blueprint px-2 py-0.5 text-caption text-blueprint">
-                selected
-              </span>
-              <span className="font-mono">northwind-helpline</span>
-              <span className="text-caption text-graphite">
-                New repository under your account
-              </span>
-            </li>
-            <li className="flex flex-wrap items-baseline gap-x-2 text-small text-graphite">
-              <span className="rounded-input border border-rule px-2 py-0.5 text-caption">
-                option
-              </span>
-              <span className="font-mono">northwind/helpline-app</span>
-              <span className="text-caption">A repository you already own</span>
-            </li>
+          <h3 className="text-body font-medium" id="repo-choice-label">
+            Repository
+          </h3>
+          <ul
+            role="radiogroup"
+            aria-labelledby="repo-choice-label"
+            aria-describedby="repo-choice-note"
+            className="mt-1 flex flex-col gap-1"
+          >
+            {[
+              {
+                id: "repo-new",
+                name: "northwind-helpline",
+                what: "New repository under your account",
+                checked: true,
+              },
+              {
+                id: "repo-existing",
+                name: "northwind/helpline-app",
+                what: "A repository you already own",
+                checked: false,
+              },
+            ].map((r) => (
+              <li key={r.id} className="min-w-0">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={r.checked}
+                  aria-disabled="true"
+                  className={`flex min-h-11 w-full min-w-0 cursor-not-allowed flex-wrap items-baseline gap-x-2 rounded-input px-1 text-left text-small ${
+                    r.checked ? "" : "text-graphite"
+                  }`}
+                >
+                  <span
+                    className={`rounded-input border px-2 py-0.5 text-caption ${
+                      r.checked
+                        ? "border-blueprint text-blueprint"
+                        : "border-rule"
+                    }`}
+                  >
+                    {r.checked ? "selected" : "option"}
+                  </span>
+                  <span className="font-mono">{r.name}</span>
+                  <span className="text-caption">{r.what}</span>
+                </button>
+              </li>
+            ))}
           </ul>
+          <DemoNote id="repo-choice-note">
+            Demo action. The choice cannot be changed here, and no repository is
+            created either way.
+          </DemoNote>
         </section>
 
         <section className="min-w-0">
@@ -516,20 +696,39 @@ function GithubSheet({
               Push <span className="font-mono">{fileCount}</span> files
             </li>
             <li>
-              Create <span className="font-mono">{changeCount}</span> commits
+              Create <span className="font-mono">{changes.length}</span> commits
             </li>
           </ul>
+          {/*
+            Named, not just counted.
+
+            The sheet said "3 commits" while the only hashes on the screen were
+            two that arrive from the editor, so the three it meant appeared
+            nowhere. These are the same hashes the Code tab lists, in the same
+            order, because they are the same list.
+          */}
+          <ul className="mt-1 flex flex-col gap-0.5">
+            {changes.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-baseline gap-x-2 text-caption">
+                <span className="font-mono text-graphite">{c.id}</span>
+                <span className="min-w-0">{c.message}</span>
+              </li>
+            ))}
+          </ul>
           <p className="mt-2 max-w-[72ch] text-caption text-graphite">
-            Counted from the file tree and the change list on the Code tab, so
-            this is what is actually there rather than a sentence someone typed.
-            Nothing is written until you confirm.
+            Counted and named from the file tree and the change list on the Code
+            tab, so this is what is actually there rather than a sentence
+            someone typed. Nothing is written until you confirm.
           </p>
         </section>
 
         <section className="min-w-0">
           <h3 className="text-body font-medium">After connecting</h3>
           <p className="mt-1 max-w-[72ch] text-caption text-graphite">
-            Both directions, which is the part that was one way before.
+            Both directions, which is the part that was one way before. The ones
+            marked &quot;into Architect&quot; are commits you made in your own
+            editor, so they are not in Architect&apos;s change list above: that
+            is what two-way means.
           </p>
           <ul className="mt-2 flex flex-col gap-1">
             {SYNC_LOG.map((c) => (

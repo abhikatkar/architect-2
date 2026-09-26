@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { WorkspaceShell } from "@/components/workspace/shell";
 import { Conversation } from "@/components/workspace/conversation";
 import { WorkspaceCanvas } from "@/components/build/workspace-canvas";
-import { workspaceUrl } from "@/lib/workspace-url";
+import { VIEW_PATCH, workspaceUrl } from "@/lib/workspace-url";
 import { currentTheme } from "@/lib/theme";
 import { DEMO_PROJECT } from "@/lib/seed/northwind";
 import { appliedState } from "@/lib/seed/totals";
@@ -19,7 +19,7 @@ const BASE = "/demo";
 export default async function DemoPage(props: PageProps<"/demo">) {
   const searchParams = await props.searchParams;
   const {
-    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, file, diff, panel, accept, revert, sheet, rollback, framework, query,
+    layer, pane, build, device, agent, depth, why, fixApplied, jev, jevResult, jevSig, file, diff, panel, accept, revert, sheet, rollback, promote, framework, query,
   } =
     workspaceUrl(BASE, searchParams, "guided", "app", "canvas");
   const theme = await currentTheme();
@@ -46,10 +46,18 @@ export default async function DemoPage(props: PageProps<"/demo">) {
       readOnly
       banner={
         <div className="border-b border-rule bg-blueprint/10 px-4 py-2 sm:px-6">
+          {/*
+            These go through query(), like every other link in the workspace.
+
+            They were hand written, so following one dropped the applied fix and
+            reset the whole page to v14 and $3.37. The same bug as the tab links
+            in slice 5, in the one place a reviewer is most likely to click.
+            See D57: state is carried, never rebuilt.
+          */}
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption">
             <span>You are reading a finished project. Nothing here changes.</span>
             <Link
-              href="/demo?tab=agents&why=r-104&pane=canvas"
+              href={query({ ...VIEW_PATCH, tab: "agents", why: DEMO_PROJECT.runs[0].id })}
               className="text-blueprint underline"
             >
               Why did it do that?
@@ -57,10 +65,16 @@ export default async function DemoPage(props: PageProps<"/demo">) {
             <Link href="/demo/plan" className="text-blueprint underline">
               See the plan gate
             </Link>
-            <Link href="/demo?tab=app&build=running&pane=canvas" className="text-blueprint underline">
+            <Link
+              href={query({ ...VIEW_PATCH, tab: "app", build: "running" })}
+              className="text-blueprint underline"
+            >
               Watch a build
             </Link>
-            <Link href="/demo?tab=app&build=failed&pane=canvas" className="text-blueprint underline">
+            <Link
+              href={query({ ...VIEW_PATCH, tab: "app", build: "failed" })}
+              className="text-blueprint underline"
+            >
               See one fail
             </Link>
             <Link href="/demo/import" className="text-blueprint underline">
@@ -103,6 +117,7 @@ export default async function DemoPage(props: PageProps<"/demo">) {
           panel={panel}
           sheet={sheet}
           rollback={rollback}
+          promote={promote}
           framework={framework}
           basePath={BASE}
           query={query}

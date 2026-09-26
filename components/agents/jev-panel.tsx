@@ -1,4 +1,5 @@
 import {
+  ACT_ALONE_BAR,
   JEV_AGENTS,
   JEV_MODEL,
   JEV_PLAIN_EXPLAINER,
@@ -39,6 +40,9 @@ export function JevPanel({
     ([key]) => key !== spec.inputField,
   );
   const examples = examplesFor(agentId);
+  // The fixed field the examples carry their own copy of. For the checker that
+  // is the source article; the other two agents have nothing like it.
+  const sourceKey = fixedFields.find(([key]) => key === "source")?.[0];
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
@@ -61,27 +65,48 @@ export function JevPanel({
               <p className="max-w-[72ch] text-small">{value}</p>
             </div>
           ))}
-          <p className="mt-2 text-caption text-graphite">
-            Sent with every run and not editable here, so you can see what the
-            answer was checked against.
+          <p className="mt-2 max-w-[72ch] text-caption text-graphite">
+            {spec.fixedNote ??
+              "Sent with every run and not editable here, so a result can be checked against what it ran on."}
           </p>
         </div>
       ) : null}
 
-      {spec.passThreshold !== undefined ? (
-        <div className="min-w-0 rounded-input border border-rule p-3">
-          <p className="text-caption text-graphite">Before it is sent</p>
-          <p className="max-w-[72ch] text-small">
-            An answer only reaches a customer unread if the checker is at least{" "}
-            <span className="font-medium">{pct(spec.passThreshold)}</span> sure
-            every detail is supported. Below that it goes to a person.
-          </p>
-          <p className="mt-1 max-w-[72ch] text-caption text-graphite">
-            Same bar the other agents use before acting alone. Checked against{" "}
-            {examples.length} drafts we labeled by hand: see below.
-          </p>
-        </div>
-      ) : null}
+      {/*
+        The bar is stated on every agent, not only the checker.
+
+        The Intake inspector said a result "would go to a person" without ever
+        saying at what point, because this block only rendered for the agent
+        with a passThreshold while the confidence path carried its own copy of
+        the same 0.6. One constant, one sentence, framed per agent.
+      */}
+      <div className="min-w-0 rounded-input border border-rule p-3">
+        <p className="text-caption text-graphite">
+          {spec.passThreshold !== undefined
+            ? "Before it is sent"
+            : "Before it acts alone"}
+        </p>
+        <p className="max-w-[72ch] text-small">
+          {spec.passThreshold !== undefined ? (
+            <>
+              An answer only reaches a customer unread if the checker is at
+              least <span className="font-medium">{pct(ACT_ALONE_BAR)}</span>{" "}
+              sure every detail is supported. Below that it goes to a person.
+            </>
+          ) : (
+            <>
+              This agent acts on its own choice only if Jev is at least{" "}
+              <span className="font-medium">{pct(ACT_ALONE_BAR)}</span> sure of
+              it. Below that the message goes to a person instead.
+            </>
+          )}
+        </p>
+        <p className="mt-1 max-w-[72ch] text-caption text-graphite">
+          {spec.passThreshold !== undefined
+            ? `The same bar the other agents use before acting alone. Checked against ${examples.length} drafts we labeled by hand: see below.`
+            : "The same bar the Grounding Checker uses, so this is one rule in the product rather than two."}
+        </p>
+      </div>
 
       <form action="/jev/run" method="post" className="flex flex-col gap-2">
         <input type="hidden" name="agent" value={agentId} />
@@ -142,10 +167,25 @@ export function JevPanel({
                     <p className="mt-1 max-w-[72ch] font-mono text-caption">
                       {e.state[spec.inputField]}
                     </p>
+                    {/*
+                      Each example carries its own source, and three of these
+                      are about refunds while the sample above is about credits.
+                      Without this, "Refund requests are reviewed by our support
+                      team" read as an unrelated claim passing at 78%, which
+                      argues against the very thing the screen is showing.
+                    */}
+                    {sourceKey && e.state[sourceKey] ? (
+                      <p className="max-w-[72ch] text-caption text-graphite">
+                        <span>checked against:</span>{" "}
+                        <span className="font-mono">{e.state[sourceKey]}</span>
+                        {e.state[sourceKey] !== spec.sampleState[sourceKey] ? (
+                          <span> (a different article from the sample above)</span>
+                        ) : null}
+                      </p>
+                    ) : null}
                     <p className={`text-caption ${passes ? "text-live" : "text-cost"}`}>
                       {pct(p)}, {passes ? "sent as it is" : "goes to a person"}
                       <span className="text-graphite">
-                        {" "}
                         . We expected it to {e.expected === "pass" ? "be sent" : "go to a person"}.
                       </span>
                     </p>
@@ -243,11 +283,11 @@ function JevResultView({
               {a.confidence !== null ? (
                 <p className="text-caption text-graphite">
                   Confidence {pct(a.confidence)}.
-                  {a.confidence < 0.6 ? (
+                  {a.confidence < ACT_ALONE_BAR ? (
                     <span className="text-cost">
                       {" "}
-                      Jev was not clearly decided here, so this one would go to a
-                      person rather than through automatically.
+                      Below the {pct(ACT_ALONE_BAR)} bar, so this one would go to
+                      a person rather than through automatically.
                     </span>
                   ) : null}
                 </p>

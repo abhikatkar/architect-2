@@ -264,24 +264,24 @@ queues: [billing, technical, account]`,
       label: "v1",
       change: "First build",
       cost: 1.46,
-      environment: "preview",
       estimate: { low: 1.2, high: 2.0 },
     },
-    { id: "v3", label: "v3", change: "Plainer escalation wording", cost: 0.14, environment: null },
-    { id: "v5", label: "v5", change: "Filter the inbox by status", cost: 0.21, environment: null },
-    { id: "v6", label: "v6", change: "Search within conversations", cost: 0.3, environment: null },
-    { id: "v8", label: "v8", change: "Admin dashboard counts", cost: 0.38, environment: null },
-    { id: "v9", label: "v9", change: "Full transcript view", cost: 0.19, environment: null },
-    { id: "v11", label: "v11", change: "Mark resolved from the list", cost: 0.16, environment: null },
+    { id: "v3", label: "v3", change: "Plainer escalation wording", cost: 0.14 },
+    { id: "v5", label: "v5", change: "Filter the inbox by status", cost: 0.21 },
+    { id: "v6", label: "v6", change: "Search within conversations", cost: 0.3 },
+    // The only version other than v12 that was ever in production, which is
+    // what makes it the one thing a rollback can target. Nothing derives this.
+    { id: "v8", label: "v8", change: "Admin dashboard counts", cost: 0.38, wasLive: true },
+    { id: "v9", label: "v9", change: "Full transcript view", cost: 0.19 },
+    { id: "v11", label: "v11", change: "Mark resolved from the list", cost: 0.16 },
     {
       id: "v12",
       label: "v12",
       change: "Escalation reasons",
       cost: 0.22,
-      environment: "production",
       live: true,
     },
-    { id: "v14", label: "v14", change: "Invoice download links", cost: 0.31, environment: "preview" },
+    { id: "v14", label: "v14", change: "Invoice download links", cost: 0.31 },
     // v15 is deliberately absent. It does not exist until the reliability fix
     // is applied, so listing it would count $0.06 the user has not spent.
   ],
@@ -304,6 +304,15 @@ queues: [billing, technical, account]`,
   ],
 
 
+  /*
+    Three repositories, one per support level.
+
+    Both of the first two carried the same estimate, "3 to 6 min, $0.60 to
+    $1.10", although one is a full import and one is a partial one, which are
+    not the same job. And the legend defined a third level that nothing
+    demonstrated, so the one answer a developer most wants, "what happens if my
+    repo is not supported", was the one the screen could not show.
+  */
   imports: [
     {
       repo: "northwind/billing-portal",
@@ -311,13 +320,26 @@ queues: [billing, technical, account]`,
       subfolder: "apps/web",
       detected: "Next.js 16",
       support: "full",
+      estimate: { low: 0.6, high: 1.1, minutesLow: 3, minutesHigh: 6 },
     },
     {
       repo: "northwind/billing-api",
       branch: "main",
       detected: "Flask (Python)",
       support: "partial",
+      // More work, not less: the agents need a service of their own because
+      // Architect will not touch the Python routes.
+      estimate: { low: 0.9, high: 1.6, minutesLow: 5, minutesHigh: 9 },
       note: "Architect can add agents and a new interface, but will not modify your Python routes.",
+    },
+    {
+      repo: "northwind/legacy-desk",
+      branch: "trunk",
+      detected: "Rails 5 with a bespoke asset pipeline",
+      support: "unsupported",
+      // No estimate on purpose. The screen says so rather than quoting a price
+      // for something that would not run.
+      note: "Architect cannot run this app's build, so it cannot host a preview. Nothing would be imported and nothing would be charged.",
     },
   ],
 
@@ -445,5 +467,14 @@ queues: [billing, technical, account]`,
       "If published, people who use your app spend your credits. Off by default.",
     firstBuildEstimate:
       "First build for this kind of app: about 6 to 10 min, $1.20 to $2.00.",
+    /*
+      One charging policy, one sentence, rendered on both screens that state it.
+
+      The failure screen said "Spent $0.71" while Deploy said failed builds are
+      charged $0.00, which are two policies. They are now one sentence read from
+      here, so the two screens cannot describe different products.
+    */
+    failedBuildPolicy:
+      "A failed build is charged $0.00, because the platform did not deliver a working app.",
   },
 };

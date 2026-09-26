@@ -22,6 +22,14 @@ type Props = {
   /** Signed in: the route that records completion. Demo: null, nothing is written. */
   finishAction: string | null;
   doneHref: string;
+  /**
+   * The one sentence stating what a failed build costs.
+   *
+   * Passed in rather than written here, because Deploy states the same policy
+   * and the two used to disagree: this screen read "Spent $0.71" while Deploy
+   * said a failed build is charged $0.00. One string, two screens. See D60.
+   */
+  failedBuildPolicy: string;
   preferDetails?: boolean;
 };
 
@@ -44,6 +52,7 @@ export function BuildProgress({
   mode,
   finishAction,
   doneHref,
+  failedBuildPolicy,
   preferDetails,
 }: Props) {
   const failIndex = stages.findIndex((s) => s.name === failure.stageName);
@@ -200,10 +209,25 @@ export function BuildProgress({
         })}
       </ol>
 
+      {/*
+        A failed build is not a charge. The number is still shown, because
+        hiding what the stages consumed would be the other kind of dishonesty,
+        but it is labelled "used" and the policy follows it in the same words
+        Deploy uses.
+      */}
       <p className="mt-3 border-t border-rule pt-2 text-caption text-graphite">
-        {finished ? "Spent" : "Spent so far"}{" "}
-        <span className="font-mono text-cost">{money(spent)}</span>
-        {finished && !failedNow ? ", inside the estimate of $1.20 to $2.00." : "."}
+        {failedNow ? (
+          <>
+            <span className="font-mono text-cost">{money(spent)}</span> used, not
+            charged because the build failed. {failedBuildPolicy}
+          </>
+        ) : (
+          <>
+            {finished ? "Spent" : "Spent so far"}{" "}
+            <span className="font-mono text-cost">{money(spent)}</span>
+            {finished ? ", inside the estimate of $1.20 to $2.00." : "."}
+          </>
+        )}
       </p>
 
       {failedNow ? (

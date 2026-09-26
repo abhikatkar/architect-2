@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ImportExample, SupportLevel } from "@/lib/seed/types";
-import { DemoNote } from "@/components/ui/sheet";
+import { DemoButton } from "@/components/ui/demo-button";
 
 /**
  * Screen 15. Pick a repo, then read the compatibility report before anything
@@ -172,20 +172,31 @@ export function ImportReport({
         </ul>
 
         <h3 className="mt-4 text-body font-medium">Estimate</h3>
+        {/* Per repository. A partial import is more work than a full one, not
+            the same work, and both used to quote one hardcoded figure. */}
         <p className="mt-1 text-small">
-          {current.support === "unsupported" ? (
-            <span className="text-graphite">
-              No estimate. Nothing would run.
-            </span>
-          ) : (
+          {current.estimate ? (
             <>
-              <span className="font-mono">about 3 to 6 min</span> and{" "}
-              <span className="font-mono text-cost">$0.60 to $1.10</span>
+              <span className="font-mono">
+                about {current.estimate.minutesLow} to{" "}
+                {current.estimate.minutesHigh} min
+              </span>{" "}
+              and{" "}
+              <span className="font-mono text-cost">
+                ${current.estimate.low.toFixed(2)} to $
+                {current.estimate.high.toFixed(2)}
+              </span>
               <span className="text-graphite">
-                {" "}
                 . First import of this repository, so the estimate may vary.
+                {current.support === "partial"
+                  ? " More than a full import, because the agents need a service of their own."
+                  : ""}
               </span>
             </>
+          ) : (
+            <span className="text-graphite">
+              No estimate, and nothing charged. Nothing would run.
+            </span>
           )}
         </p>
 
@@ -201,13 +212,12 @@ export function ImportReport({
       </section>
 
       <div className="flex min-w-0 flex-wrap items-center gap-3">
-        <span className="inline-flex min-h-11 cursor-default items-center rounded-input bg-blueprint px-4 text-body text-paper">
+        <DemoButton
+          id="import-confirm"
+          note="Demo action. Nothing is imported and nothing is charged. In the real product this is the first step that costs anything."
+        >
           Import {current.repo}
-        </span>
-        <DemoNote>
-          Demo action. Nothing is imported and nothing is charged. In the real
-          product this is the first step that costs anything.
-        </DemoNote>
+        </DemoButton>
       </div>
     </main>
   );

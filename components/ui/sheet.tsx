@@ -123,9 +123,22 @@ export function SheetTrigger({
   );
 }
 
-/** Said next to every confirm, so nothing looks like it wrote something. */
-export function DemoNote({ children }: { children: React.ReactNode }) {
+/**
+ * Said next to every confirm, so nothing looks like it wrote something.
+ *
+ * Takes an id so a DemoButton can point its `aria-describedby` here, which is
+ * what makes the note part of the control rather than text near it.
+ */
+export function DemoNote({
+  id,
+  children,
+}: {
+  id?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <span className="max-w-[72ch] text-caption text-graphite">{children}</span>
+    <span id={id} className="max-w-[72ch] text-caption text-graphite">
+      {children}
+    </span>
   );
 }

@@ -8,6 +8,7 @@ import {
   changedFileCount,
   removedLines,
   requestVerdict,
+  versionForPending,
 } from "@/lib/seed/totals";
 import { DiffView } from "./diff-view";
 import { BottomPanel } from "./bottom-panel";
@@ -94,7 +95,16 @@ function Tree({
   );
 }
 
-function Verdict({ state }: { state: ReturnType<typeof requestVerdict> | "accepted" | "reverted" | "open" }) {
+function Verdict({
+  state,
+  version,
+}: {
+  state: ReturnType<typeof requestVerdict>;
+  /** Set when the change shipped, so the chip can say where it went. */
+  version?: string | null;
+}) {
+  if (state === "landed")
+    return <span className="text-live">ok accepted, in {version}</span>;
   if (state === "accepted") return <span className="text-live">ok accepted</span>;
   if (state === "reverted") return <span className="text-fault">x reverted</span>;
   if (state === "mixed") return <span className="text-cost">part accepted</span>;
@@ -264,9 +274,17 @@ export function CodeCanvas({
                 return (
                   <li key={change.id} className="min-w-0 border-t border-rule pt-3 first:border-0 first:pt-0">
                     <p className="flex flex-wrap items-baseline gap-x-2">
+                      {/* The hash, always. It used to read "pending" here
+                          while Deploy showed 7be0d15 for the same change. */}
                       <span className="font-mono text-caption text-graphite">
-                        {change.version ? change.id : "pending"}
+                        {change.id}
                       </span>
+                      {change.version ? null : (
+                        <span className="text-caption text-graphite">
+                          pending, becomes{" "}
+                          {versionForPending(project, changes, change.id)}
+                        </span>
+                      )}
                       <span className="min-w-0 text-body font-medium">{change.message}</span>
                       <span className="text-caption text-graphite">
                         {changedFileCount(change)}{" "}
@@ -274,7 +292,7 @@ export function CodeCanvas({
                       </span>
                       <span className="text-caption text-graphite">{change.ago}</span>
                       <span className="text-caption">
-                        <Verdict state={verdict} />
+                        <Verdict state={verdict} version={change.version} />
                       </span>
                     </p>
                     <p className="mt-0.5 max-w-[72ch] text-caption text-graphite">
@@ -297,26 +315,43 @@ export function CodeCanvas({
                           <span className="text-caption text-live">+{addedLines(d)}</span>
                           <span className="text-caption text-fault">-{removedLines(d)}</span>
                           <span className="text-caption">
-                            <Verdict state={stateOf(d.id)} />
+                            <Verdict
+                              state={change.version ? "landed" : stateOf(d.id)}
+                              version={change.version}
+                            />
                           </span>
-                          <Link
-                            href={verdictHref(d.id, "accept")}
-                            prefetch={false}
-                            className="inline-flex min-h-11 items-center rounded-input border border-rule px-2 text-caption"
-                          >
-                            Accept
-                          </Link>
-                          <Link
-                            href={verdictHref(d.id, "revert")}
-                            prefetch={false}
-                            className="inline-flex min-h-11 items-center rounded-input border border-rule px-2 text-caption"
-                          >
-                            Revert
-                          </Link>
+                          {/* A file that shipped is not waiting for a verdict,
+                              so it is not offered one. */}
+                          {change.version ? null : (
+                            <>
+                              <Link
+                                href={verdictHref(d.id, "accept")}
+                                prefetch={false}
+                                className="inline-flex min-h-11 items-center rounded-input border border-rule px-2 text-caption"
+                              >
+                                Accept
+                              </Link>
+                              <Link
+                                href={verdictHref(d.id, "revert")}
+                                prefetch={false}
+                                className="inline-flex min-h-11 items-center rounded-input border border-rule px-2 text-caption"
+                              >
+                                Revert
+                              </Link>
+                            </>
+                          )}
                         </li>
                       ))}
                     </ul>
 
+                    {change.version ? (
+                      <p className="mt-2 max-w-[72ch] text-caption text-graphite">
+                        Shipped in{" "}
+                        <span className="font-mono">{change.version}</span>.
+                        There is nothing to decide: rolling this back is a
+                        deploy action, on the Deploy tab.
+                      </p>
+                    ) : (
                     <p className="mt-2 flex flex-wrap items-center gap-2">
                       <Link
                         href={bulkHref(change, "accept")}
@@ -337,6 +372,7 @@ export function CodeCanvas({
                         the page address.
                       </span>
                     </p>
+                    )}
                   </li>
                 );
               })}

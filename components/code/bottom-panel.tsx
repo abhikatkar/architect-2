@@ -3,7 +3,7 @@ import { CHECKS, LOGS, TERMINAL } from "@/lib/seed/code";
 import { checksPassed } from "@/lib/seed/totals";
 import { REAL_CHANGE } from "@/lib/seed/real-change";
 import { JEV_EXAMPLES } from "@/lib/jev/examples";
-import { GROUNDING_PASS_THRESHOLD } from "@/lib/jev/questions";
+import { ACT_ALONE_BAR } from "@/lib/jev/questions";
 
 const TABS = [
   { id: "terminal", label: "Terminal" },
@@ -34,7 +34,7 @@ export function BottomPanel({
   const graded = JEV_EXAMPLES.filter((e) => e.agentId === "grounding-checker");
   const correct = graded.filter((e) => {
     const p = e.answers.find((a) => a.key === "grounded")?.probability ?? 0;
-    return (p >= GROUNDING_PASS_THRESHOLD) === (e.expected === "pass");
+    return (p >= ACT_ALONE_BAR) === (e.expected === "pass");
   }).length;
 
   return (
@@ -129,7 +129,7 @@ export function BottomPanel({
                 <span className="text-live">ok pass</span>{" "}
                 <span className="text-graphite">
                   {correct} of {graded.length} labeled drafts land on the side we
-                  expected, at a bar of {Math.round(GROUNDING_PASS_THRESHOLD * 100)}%
+                  expected, at a bar of {Math.round(ACT_ALONE_BAR * 100)}%
                 </span>
               </p>
               <a

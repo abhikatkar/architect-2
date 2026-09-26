@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const OPTIONS = [
   { value: "light", label: "Light" },
@@ -23,6 +23,13 @@ type Choice = (typeof OPTIONS)[number]["value"];
  * reviewer clicked 2 to 3 times before it moved. The theme is CSS keyed off one
  * attribute, so there is no reason to wait for a server to change it.
  *
+ * A click that lands before this component hydrates is handled by the inline
+ * script in the root layout, which does the same three things in the capture
+ * phase. Round 4 found that window: the click was posting the form and taking
+ * 5 to 6 seconds, which reads as ignored. This component keeps the same
+ * behaviour for every click after hydration, and the two cannot both run,
+ * because the capture handler prevents the submit this one listens for.
+ *
  * "Auto" clears the cookie and hands the decision back to prefers-color-scheme,
  * which is what a visitor who never touches this keeps.
  */
@@ -36,6 +43,28 @@ export function ThemeToggle({
   // Seeded from the server so the first paint matches, then owned here. After
   // a click this is the truth and the cookie is being made to agree with it.
   const [choice, setChoice] = useState<Choice>(current);
+
+  /*
+    Follow the document, rather than assuming this component handled the click.
+
+    The capture handler in the root layout runs for every click, including ones
+    after hydration, and it prevents the submit this component listens for. So
+    the document attribute is the truth and this reflects it: on the event the
+    handler dispatches, and once on mount for a click that happened before this
+    component existed.
+  */
+  useEffect(() => {
+    const sync = () => {
+      const attr = document.documentElement.getAttribute("data-theme");
+      setChoice(attr === "dark" || attr === "light" ? attr : "system");
+    };
+    window.addEventListener("architect:theme", sync);
+    const frame = requestAnimationFrame(sync);
+    return () => {
+      window.removeEventListener("architect:theme", sync);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
   function apply(value: Choice) {
     const root = document.documentElement;
@@ -59,7 +88,11 @@ export function ThemeToggle({
     <form
       action="/theme"
       method="post"
+      /* How the inline capture handler in the layout finds this form. */
+      data-theme-form
       className="flex items-center gap-0.5 rounded-input border border-rule p-0.5"
+      /* Reached only if the inline handler is not there, since it prevents
+         this submit. Kept so the fast path does not depend on one script tag. */
       onSubmit={(event) => {
         const submitter = (event.nativeEvent as SubmitEvent)
           .submitter as HTMLButtonElement | null;

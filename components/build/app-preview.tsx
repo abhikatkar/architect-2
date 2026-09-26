@@ -132,6 +132,24 @@ export function AppPreview({
                     {t.from === "customer" ? "Customer" : "Helpline"}
                   </span>
                   <span className="block">{t.text}</span>
+                  {t.groundedAfterFix ? (
+                    /* The fix landed, so this answer is the corrected one. It
+                       says which version answers it, because the version in
+                       the frame header is the same claim. */
+                    <span className="mt-1 flex flex-wrap items-center gap-2">
+                      <span className="text-caption text-live">
+                        ok grounded, answered after the fix
+                      </span>
+                      {whyHref ? (
+                        <Link
+                          href={whyHref}
+                          className="inline-flex min-h-11 items-center rounded-input border border-blueprint px-2 text-caption text-blueprint"
+                        >
+                          See what changed
+                        </Link>
+                      ) : null}
+                    </span>
+                  ) : null}
                   {t.escalated ? (
                     <span className="mt-1 flex flex-wrap items-center gap-2">
                       <span className="text-caption text-fault">

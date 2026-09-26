@@ -23,7 +23,12 @@ export function LedgerBar({
   const spend = applied.spend;
   const preview = applied.previewVersion;
   const pct = Math.min(100, Math.round((spend / ledger.cap) * 100));
-  const buildCount = applied.deploys;
+  // Builds, not deploys. 7 of the 9 rows on Deploy were never deployed, and
+  // accepting a change deploys nothing, so "deploys" was the wrong noun for
+  // this number in both states. Two numbers, because one cannot be read
+  // unambiguously against a table with a different number of rows. See D58.
+  const builds = applied.builds;
+  const kept = applied.versionsKept;
 
   return (
     <footer className="border-t border-rule bg-paper px-4 py-2 sm:px-6">
@@ -49,11 +54,8 @@ export function LedgerBar({
           )}
         </span>
 
-        {/* Deploys, not builds: 14 builds were started this month and 9 of them
-            deployed. Calling 9 "builds" was the wrong noun once the other 5
-            were written down. */}
         <span className="text-graphite">
-          {buildCount} {buildCount === 1 ? "deploy" : "deploys"} this month
+          {builds} {builds === 1 ? "build" : "builds"}, {kept} kept this month
         </span>
 
         {/* Spend is cost-colored because it is money. Nothing else may be. */}

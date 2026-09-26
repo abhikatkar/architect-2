@@ -51,8 +51,8 @@ flowchart LR
 
 ## F3 A build goes wrong
 1. During Interface, a check fails. The stage turns `fault` with a plain cause: "A page could not load because a package is missing."
-2. Architect retries automatically once. If the same failure repeats 3 times, it stops: "Stopped after 3 identical failures. No further credits used." Charges for retries caused by the platform are shown as $0.00.
-3. Actions: **Try a different approach** (shows new estimate), **Roll back to v3**, or **Details** (persona B sees the error log and the failing file).
+2. Architect retries automatically once. If the same failure repeats 3 times, it stops: "Stopped after 3 identical failures. No further credits used." A failed build is charged $0.00, and the screen shows what the finished stages used beside that rule, in the same words Deploy uses.
+3. Actions: **Try a different approach** (shows new estimate) or **Details** (persona B sees the error log and the failing file). No rollback is offered: this is the first build, so there is nothing behind it, and a rollback only ever targets a version that was in production ([D59](07-decision-log.md#d59-2026-09-26-a-rollback-goes-back-to-something-that-was-live)).
 4. A stale preview is never shown as current: if the preview is out of date, it says so and offers **Refresh preview**.
 
 ## F4 Why did it do that? (signature flow)

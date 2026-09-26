@@ -28,14 +28,14 @@ const base = process.argv[2] ?? "http://127.0.0.1:3131";
   Every sheet in the product, with the control that opens it.
 
   The rollback trigger is the interesting one. It is not a single control: it is
-  one "Roll back" link per version, rendered twice, once in the phone list and
-  once in the table, so only one of the two is visible at a given width. It is
-  found by data attribute for that reason.
+  a "Roll back" link on the one version that was in production, rendered twice,
+  once in the phone list and once in the table, so only one of the two is
+  visible at a given width. It is found by data attribute for that reason.
 */
 const SHEETS = [
   ["promote", "/demo?tab=deploy&pane=canvas&sheet=promote", "promote-trigger"],
   ["github", "/demo?tab=deploy&pane=canvas&sheet=github", "github-trigger"],
-  ["rollback", "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11", "rollback-v11"],
+  ["rollback", "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v8", "rollback-v8"],
   ["framework", "/demo?tab=agents&pane=canvas&sheet=framework", "add-agent-trigger"],
 ];
 

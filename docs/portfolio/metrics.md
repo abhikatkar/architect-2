@@ -74,9 +74,10 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Source links verified against the pinned commit | **22**, all in the architecture diagram, re-derived at the final commit | the delivery receipt, `evidence.references` |
 | Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
-| Consistency invariants | **58** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **97** | `scripts/rendered-check.mjs` |
-| Surfaces required to agree on one page | **15 to 16 readings** per URL state, over 5 states and 3 tabs | `scripts/rendered-check.mjs`, section 28 |
+| Consistency invariants | **87** | `scripts/consistency-check.mjs` |
+| Rendered-page assertions | **138** | `scripts/rendered-check.mjs` |
+| Surfaces required to agree on one page | **17 to 18 readings** per URL state, over 5 states and 3 tabs, plus the version rows added up from the HTML | `scripts/rendered-check.mjs`, section 28 |
+| Theme switch, first click before hydration | **16 ms**, 5 of 5, against **1470 to 1522 ms** for the same click before this fix | `scripts/theme-check.mjs`, throttled to 400 ms latency |
 | Sheet focus and keyboard checks | **8 of 8**, four sheets at 1280px and 390px, measured in a browser | `scripts/focus-check.mjs` |
 | Links checked in docs and README | **213**, all resolving, anchors included | `scripts/link-check.mjs` |
 | Screens built | **15 of 15 P0, plus 1 P1** (screen 11, the framework picker) | [screen-inventory.md](../design/screen-inventory.md) |
@@ -95,9 +96,16 @@ code around the `evaluate` call and includes network time to the Gateway.
 
 | Metric | Value | Source |
 |---|---|---|
-| Median latency | **556 ms**, range 464 ms to 778 ms, over 9 calls | wall clock measured around the `evaluate` call |
+| **Median latency, every live call the app has made** | **453 ms**, range 189 ms to 733 ms, over **27 calls**, all on 2026-09-26 | the `latency_ms` column of the `jev_calls` table the app writes to |
+| Median latency in the verification run | **556 ms**, range 464 ms to 778 ms, over 9 calls | wall clock measured around the `evaluate` call |
 | Median excluding the first call | **529 ms.** A run's first call carries connection setup | same |
 | Earlier run, for contrast | **430 ms** over 15 calls fired back to back, before the Gateway began returning 503s and advertising a 5 request window | same, kept rather than averaged away |
+
+The first row is the one figure quoted anywhere a single number is needed, including the README. The rows
+under it are individual runs, each with its own sample, kept because they are what was measured and because
+the spread between them is the real finding. Round 4 found the README quoting three of them at once, as
+"about 430 ms", "median 556 ms" and "368, 463 and 192 ms", which reads as three different claims.
+
 | Input tokens per call | 482 intake, 422 grounding checker, 371 escalation router. Identical on every repeat of the same input | provider `usage.inputTokens` |
 | **Cost per call** | **$0.0000179** at the mean of 425 input tokens, so about **56,000 calls per dollar** | 425 tokens times $0.000000042, the Gateway's own price |
 | Cost change from tightening the grounding criteria | $0.000017 to $0.0000179, because the question grew from 363 to 422 tokens | same arithmetic |

@@ -65,8 +65,14 @@ Spend this month, both states, because the demo has two:
 - **$3.43** once the F4 reliability fix is applied, which creates v15 and adds its $0.06.
 
 There are two ways to apply that fix, from the trace and by accepting its file in the Code tab, and they are
-one change: either produces $3.43, v15 in preview and 10 deploys, and reverting the file produces $3.37, v14
-and 9 again. See [D57](../07-decision-log.md#d57-2026-09-26-one-applied-state-computed-once-per-request).
+one change: either produces $3.43, v15 in preview, and a v15 row in the version table, and reverting the file
+produces $3.37 and v14 again. The table is the total in both states, because the rows come from the same
+derivation. See [D57](../07-decision-log.md#d57-2026-09-26-one-applied-state-computed-once-per-request) and
+[D58](../07-decision-log.md#d58-2026-09-26-where-a-version-is-is-derived-what-was-live-is-recorded).
+
+The month reads as **14 builds, 9 kept** by default and 15 builds, 10 kept once the fix is applied. Separately,
+**2 of those versions have been in production**, v8 and then v12, which is the only number on any screen the
+word "deploy" is used for.
 
 Neither number is written down in the fixtures. Both are summed from the version list at render time, so
 this table is a description of what the code computes rather than a second place to keep it. See D36.

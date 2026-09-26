@@ -45,7 +45,17 @@ export type JevAnswer = {
  * unsupported drafts came back at 0.02 to 0.13, faithful ones at 0.78 to 0.83.
  * See D46 for the numbers and why the first derivation was wrong.
  */
-export const GROUNDING_PASS_THRESHOLD = 0.6;
+export const ACT_ALONE_BAR = 0.6;
+/*
+  Named for what it governs rather than for one agent.
+
+  It is the bar for any decision the product will act on alone: a grounding
+  probability before an answer is sent unread, and a choice confidence before a
+  message is routed without a person. It was called GROUNDING_PASS_THRESHOLD,
+  and the confidence path had its own hardcoded 0.6 beside it, which is two
+  copies of one rule and the reason the Intake inspector never named the bar it
+  was applying.
+*/
 
 /** One line a cold reader can understand, shown next to "Decision model". */
 export const JEV_PLAIN_EXPLAINER =
@@ -131,6 +141,14 @@ type AgentSpec = {
   /** Human labels for the state fields, so the inspector can show them. */
   stateLabels: Record<string, string>;
   /**
+   * What the fields the visitor cannot edit are for, in this agent's terms.
+   *
+   * The panel used the Grounding Checker's wording for all three, so the
+   * Escalation Router said its reason field was "what the answer was checked
+   * against". It is not a source, it is why the message was escalated.
+   */
+  fixedNote?: string;
+  /**
    * Boolean answers only. At or above this the answer ships, below it the
    * answer goes to a person. Recorded in D43.
    */
@@ -161,7 +179,9 @@ export const JEV_AGENTS: Record<JevAgentId, AgentSpec> = {
       draft: "Draft answer, checked",
       source: "Source article, fixed",
     },
-    passThreshold: GROUNDING_PASS_THRESHOLD,
+    fixedNote:
+      "Sent with every run and not editable here, so you can see what the answer was checked against.",
+    passThreshold: ACT_ALONE_BAR,
   },
   "escalation-router": {
     label: "Escalation Router",
@@ -177,5 +197,7 @@ export const JEV_AGENTS: Record<JevAgentId, AgentSpec> = {
       message: "Escalated message",
       reason: "Why it was escalated, fixed",
     },
+    fixedNote:
+      "Sent with every run and not editable here. The router sees why the answer was held back, which is what decides the queue.",
   },
 };

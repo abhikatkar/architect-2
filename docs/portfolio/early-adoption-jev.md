@@ -50,7 +50,8 @@ return `outcome: live` with a valid signature on `architect-2-zeta.vercel.app` a
 
 | Measured | Value | How |
 |---|---|---|
-| Median latency | **556 ms**, range 464 ms to 778 ms | 9 calls, 3 per agent, all successful |
+| **Median latency, every live call** | **453 ms**, range 189 ms to 733 ms | 27 calls in `jev_calls`, all on 2026-09-26, the figure quoted elsewhere |
+| Median latency in the verification run | **556 ms**, range 464 ms to 778 ms | 9 calls, 3 per agent, all successful |
 | Median excluding the first call | 529 ms. A run's first call carries connection setup | same run |
 | Input tokens per call | 482 intake, 422 grounding checker, 371 escalation router, identical on every repeat | provider `usage.inputTokens` |
 | **Cost per call** | **$0.0000179** at the mean of 425 tokens, about **56,000 calls per dollar** | 425 times $0.000000042, the Gateway's published price |

@@ -3,11 +3,12 @@ import type {
   DemoProject,
   DiffRow,
   FileDiff,
+  Version,
 } from "./types";
-import { changeRequests, FIX_CHANGE_ID } // The .ts extension is deliberate: the consistency check imports this module
+// The .ts extension is deliberate: the consistency check imports this module
 // directly under plain Node, which does not resolve extensionless paths. The
 // bundler resolves it either way.
-from "./code.ts";
+import { changeRequests, FIX_CHANGE_ID } from "./code.ts";
 
 /**
  * Every total in the product, derived from its parts.
@@ -69,6 +70,24 @@ export function spendThrough(p: DemoProject, index: number): number {
   return round(p.stages.slice(0, index).reduce((sum, s) => sum + s.cost, 0));
 }
 
+/**
+ * The preview conversation, after the fix has or has not been applied.
+ *
+ * The trace already claims the fix was re-run on the same question and came
+ * back grounded 5 times out of 5. The preview went on showing the escalated
+ * answer anyway, so the one screen a visitor looks at first contradicted the
+ * screen that explained it. The grounded answer is not new copy: it is
+ * p.fix.after, the same string the trace shows as the corrected reply.
+ */
+export function previewChat(p: DemoProject, fixApplied: boolean) {
+  if (!fixApplied) return p.previewChat;
+  return p.previewChat.map((turn) =>
+    turn.escalated
+      ? { from: turn.from, text: p.fix.after, groundedAfterFix: true }
+      : turn,
+  );
+}
+
 /** Total conversations, which is the status counts added up. */
 export function conversationTotal(p: DemoProject): number {
   return p.counts.open + p.counts.resolved + p.counts.escalated;
@@ -102,7 +121,12 @@ export function requestVerdict(
   change: ChangeRequest,
   accepted: string[],
   reverted: string[],
-): "accepted" | "reverted" | "mixed" | "open" {
+): "landed" | "accepted" | "reverted" | "mixed" | "open" {
+  // A change with a version shipped, which is a verdict already. The Code tab
+  // showed the changes behind the live and preview versions as "not decided
+  // yet", as though two versions had been deployed without anyone agreeing to
+  // them. Round 4.
+  if (change.version) return "landed";
   const ids = change.diffs.map((d) => d.id);
   const a = ids.filter((id) => accepted.includes(id)).length;
   const r = ids.filter((id) => reverted.includes(id)).length;
@@ -201,15 +225,90 @@ export function spendAfter(
   return round(base + added);
 }
 
-/** Versions a rollback can target: the ones that exist and are not already live. */
-export function rollbackTargets(p: DemoProject) {
-  return p.versions.filter((v) => !v.live);
+/* Where a version is, and what you can do with it. All derived. See D58, D59. */
+
+const numberOf = (label: string) => Number(String(label).slice(1));
+
+/**
+ * Where a version is now.
+ *
+ * Production if it is live, preview if it is the newest thing built, nowhere
+ * otherwise. This used to be a stored field, which is how v1 and v14 both came
+ * to claim "preview" and how v14 kept claiming it after v15 existed.
+ */
+export function whereIs(
+  v: Version,
+  previewVersion: string,
+): "production" | "preview" | "none" {
+  if (v.live) return "production";
+  if (v.label === previewVersion) return "preview";
+  return "none";
 }
 
-/** What reverts if you roll back to a given version. */
+/**
+ * What the one control on a version's row offers.
+ *
+ * A rollback goes back to something that was live before. A promotion puts
+ * something live that never has been. Offering "Roll back" on a version that
+ * was never in production, which is what this screen did for eight of its nine
+ * rows, describes an action the word does not mean.
+ */
+export function deployAction(
+  v: Version,
+  liveLabel: string,
+): "live" | "rollback" | "promote" | "none" {
+  if (v.live) return "live";
+  if (v.wasLive) return "rollback";
+  return numberOf(v.label) > numberOf(liveLabel) ? "promote" : "none";
+}
+
+/** Versions a rollback can target: the ones that were in production before. */
+export function rollbackTargets(p: DemoProject) {
+  return p.versions.filter((v) => !v.live && v.wasLive);
+}
+
+/**
+ * What reverts if you roll back to a given version.
+ *
+ * Only versions that were in production count. Listing preview-only versions
+ * here produced the contradiction the review found: v14 named under "What
+ * reverts" directly above a line saying v14 stays in preview. Nothing about a
+ * version that was never live changes when production moves.
+ */
 export function revertedBy(p: DemoProject, target: string) {
-  const targetNumber = Number(target.slice(1));
-  return p.versions.filter((v) => Number(v.label.slice(1)) > targetNumber);
+  return p.versions.filter(
+    (v) => (v.live || v.wasLive) && numberOf(v.label) > numberOf(target),
+  );
+}
+
+/** What a promotion would put in front of people: everything newer than live. */
+export function newerThanProduction(rows: Version[], liveLabel: string) {
+  return rows.filter((v) => numberOf(v.label) > numberOf(liveLabel));
+}
+
+/** Deploys to production this month, which is the only honest use of the word. */
+export function productionDeploys(p: DemoProject): number {
+  return p.versions.filter((v) => v.live || v.wasLive).length;
+}
+
+/**
+ * Spend before a given version existed.
+ *
+ * The plan gate showed the month's whole spend as "already spent" while
+ * reviewing the first build, which counted that build's own cost against it.
+ * Before v1 nothing has been spent, and this says so by summing what came
+ * earlier rather than by special casing the first one.
+ */
+export function spentBefore(p: DemoProject, label: string): number {
+  const earlier = [...p.versions, ...p.discarded].filter(
+    (v) => numberOf(v.label) < numberOf(label),
+  );
+  return round(earlier.reduce((sum, v) => sum + v.cost, 0));
+}
+
+/** Whether a build would cross the cap. Arithmetic, so the gate never guesses. */
+export function crossesCap(spent: number, high: number, cap: number): boolean {
+  return round(spent + high) > cap;
 }
 
 /*
@@ -238,8 +337,18 @@ export type AppliedState = {
   fixApplied: boolean;
   /** What is in preview once everything accepted is counted. */
   previewVersion: string;
-  /** Deploys this month, which one more version increases by one. */
-  deploys: number;
+  /**
+   * Every version that exists, including one created by an accepted change.
+   *
+   * The Deploy table renders exactly this, so its rows sum to the spend below.
+   * The table used to render p.versions, which could never contain v15, so the
+   * screen stated a total its own rows contradicted.
+   */
+  rows: Version[];
+  /** Builds this month: every version number taken, kept or discarded. */
+  builds: number;
+  /** Of those, how many produced a version that still exists. */
+  versionsKept: number;
   /** Spend this month, summed from the versions plus anything accepted. */
   spend: number;
 };
@@ -278,13 +387,39 @@ export function appliedState(
   const changes = changeRequests(p, fixApplied);
   const landed = appliedPending(changes, accepted);
 
+  /*
+    An accepted change is a version, so it is a row like any other.
+
+    Its number comes from its position in the pending list, its cost is the
+    change's own, and its description is the request. Nothing about it is
+    special once it is here, which is why the total can simply sum the rows.
+  */
+  const rows: Version[] = [
+    ...p.versions,
+    ...landed.map((c) => ({
+      id: c.id,
+      label: versionForPending(p, changes, c.id),
+      change: c.message,
+      cost: c.cost ?? 0,
+    })),
+  ];
+
   return {
     changes,
     accepted,
     reverted,
     fixApplied,
     previewVersion: previewAfter(p, changes, accepted),
-    deploys: p.versions.length + landed.length,
+    rows,
+    builds: buildsAttempted(p) + landed.length,
+    versionsKept: rows.length,
     spend: spendAfter(p, changes, accepted),
   };
+}
+
+/** The rows added up, which must equal the spend the same state reports. */
+export function rowsTotal(rows: Version[], p: DemoProject): number {
+  const built = rows.reduce((sum, v) => sum + v.cost, 0);
+  const discarded = p.discarded.reduce((sum, v) => sum + v.cost, 0);
+  return round(built + discarded);
 }

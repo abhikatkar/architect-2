@@ -20,8 +20,10 @@ If you only have a few minutes, these five in order:
    screen the whole thesis rests on: an agent misbehaved, here is the trace, here is the exact phrase that
    was not in the source, here is the fix and what it costs.
 3. **Run a real agent.** On the Agents tab, open the Grounding Checker and press Run this agent. That is a
-   live call to a decision model, not a simulation: about 430 ms and $0.000017, and the result is signed so
-   an edited address cannot pass a fake result off as live.
+   live call to a decision model, not a simulation: **median 453 ms over 27 live calls on 2026-09-26**, range
+   189 to 733 ms, and about $0.0000179 a call. The result is signed, so an edited address cannot pass a fake
+   result off as live. That figure is every live call the app has made, read from the `jev_calls` table it
+   writes to, not a best run.
 4. **[The Code tab](https://architect-2-zeta.vercel.app/demo?tab=code&pane=canvas&diff=d6).** Diffs grouped
    by the request that caused them, accept or revert per file, and one real commit from this repository
    sitting beside the simulated ones.
@@ -56,13 +58,12 @@ This repo documents the full zero-to-one process, not just the code.
 6. **[Product strategy](docs/05-product-strategy.md):** thesis, positioning, and what I cut
 7. **[User flows](docs/06-user-flows.md)**
 8. **[Decision log](docs/07-decision-log.md):** every major decision, dated, with the evidence behind it
-9. **[Architecture](docs/08-architecture.md):** my stack, how it maps to Lyzr's backend, and three interactive diagrams: [system architecture](public/architecture/architecture.html) with every node marked Real or Simulated and linked to its source, the [agent workflow](public/architecture/agent-workflow.html), and the [Jev call sequence](public/architecture/jev-call-sequence.html)
-10. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md)**
-11. **[Design](docs/design/):** the [design system](docs/design/design-system.md), the [screen inventory](docs/design/screen-inventory.md), and the [seed content](docs/design/content-and-seed-data.md) behind the build
-12. **[Build log](docs/journal/build-log.md):** what was done each day, and how long it took
-13. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md):** the north star metric, one input metric per principle, and what comes next
-14. **[Measured numbers](docs/portfolio/metrics.md):** every hard number, each with the command that produced it
-15. **[Early adoption write-up](docs/portfolio/early-adoption-jev.md):** the decision model, what it cost, and the bar that was wrong
+9. **[Architecture](docs/08-architecture.md):** my stack, how it maps to Lyzr's backend, and three interactive diagrams, each on a page that links back to the demo: [system architecture](https://architect-2-zeta.vercel.app/architecture/architecture) with every node marked Real or Simulated and linked to its source, the [agent workflow](https://architect-2-zeta.vercel.app/architecture/agent-workflow), and the [Jev call sequence](https://architect-2-zeta.vercel.app/architecture/jev-call-sequence). The generated files themselves are in [public/architecture/](public/architecture/)
+10. **[Design](docs/design/):** the [design system](docs/design/design-system.md), the [screen inventory](docs/design/screen-inventory.md), and the [seed content](docs/design/content-and-seed-data.md) behind the build
+11. **[Build log](docs/journal/build-log.md):** what was done each day, and how long it took
+12. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md):** the north star metric, one input metric per principle, and what comes next
+13. **[Measured numbers](docs/portfolio/metrics.md):** every hard number, each with the command that produced it
+14. **[Early adoption write-up](docs/portfolio/early-adoption-jev.md):** the decision model, what it cost, and the bar that was wrong
 
 ## What is functional vs simulated
 
@@ -70,7 +71,7 @@ This repo documents the full zero-to-one process, not just the code.
 |---|---|
 | Authentication | **Functional.** Google sign-in via Supabase, verified end to end on the production deployment: sign in, `/app` shows the signed-in email, sign out, and `/app` then redirects to `/login?next=/app` |
 | Database | **Functional.** `projects` and `profiles` tables in Supabase, each with row level security and four policies scoping every row to its owner. Verified with two real users on both tables: each sees only their own row, and cross-user updates and deletes affect 0 rows. Projects round-trip end to end, and the onboarding depth preference visibly changes the workspace. Results in [D26](docs/07-decision-log.md) and [D35](docs/07-decision-log.md) |
-| Jev decision model | **Functional.** The three decision agents (Intake, Grounding Checker, Escalation Router) make real calls to [Jev](https://vercel.com/ai-gateway/models/jev), TypeSafe AI's decision model, through Vercel AI Gateway. Verified on the production deployment on 2026-09-26: all three returned `outcome: live` with a valid signature and rendered "Live result", at 368 ms, 463 ms and 192 ms. Median 556 ms and about $0.0000179 per call, measured by `scripts/jev-latency.mjs` and reproducible. Confirmed against real responses rather than the docs: a boolean returns no confidence, and the low confidence path fires on ordinary input. The result carried in the URL is **HMAC signed**, so an edited address renders as "Unverified result" and never as live ([D44](docs/07-decision-log.md)). A grounding answer ships only at **60%** confidence, a bar set from 6 drafts labeled by hand before they were run, not from one example ([D46](docs/07-decision-log.md), which corrects [D43](docs/07-decision-log.md)). Rate limit, daily cap and the call log are proven separately, and the rate limit was observed firing on the deployment during this verification rather than only in a test. Detail in [early-adoption-jev.md](docs/portfolio/early-adoption-jev.md) and [metrics.md](docs/portfolio/metrics.md) |
+| Jev decision model | **Functional.** The three decision agents (Intake, Grounding Checker, Escalation Router) make real calls to [Jev](https://vercel.com/ai-gateway/models/jev), TypeSafe AI's decision model, through Vercel AI Gateway. Verified on the production deployment on 2026-09-26: all three returned `outcome: live` with a valid signature and rendered "Live result". **Median 453 ms over the 27 live calls in the `jev_calls` table, range 189 to 733 ms, all on 2026-09-26**, and about $0.0000179 per call. One figure from every call the app has logged, rather than a figure per run: three earlier numbers in this README disagreed with each other because each came from a different sample. Confirmed against real responses rather than the docs: a boolean returns no confidence, and the low confidence path fires on ordinary input. The result carried in the URL is **HMAC signed**, so an edited address renders as "Unverified result" and never as live ([D44](docs/07-decision-log.md)). A grounding answer ships only at **60%** confidence, a bar set from 6 drafts labeled by hand before they were run, not from one example ([D46](docs/07-decision-log.md), which corrects [D43](docs/07-decision-log.md)). Rate limit, daily cap and the call log are proven separately, and the rate limit was observed firing on the deployment during this verification rather than only in a test. Detail in [early-adoption-jev.md](docs/portfolio/early-adoption-jev.md) and [metrics.md](docs/portfolio/metrics.md) |
 | Everything else | **Simulated.** All 15 P0 screens are built, including the GitHub consent sheet, repo import with its compatibility report, and deploy with promote, rollback, domain, publish and access. Nothing behind them writes anywhere: no repository is created, no domain verified, no invite sent and nothing deployed. Every confirm says so next to itself, and a rendered check fails the build if any of those screens claims something happened before its confirm ([D52](docs/07-decision-log.md)) |
 
 ## Stack

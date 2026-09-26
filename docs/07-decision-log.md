@@ -734,8 +734,10 @@ Format: date, decision, evidence, alternatives rejected.
   is entitled to know that 5 of the 14 builds behind it are in there at zero, rather than quietly missing.
   The rule is the same one the failed build stage already follows: the platform did not deliver a working
   app, so the platform does not charge for it.
-- **The footer noun changed with it.** It said "9 builds this month" against 14 builds, of which 9 deployed.
-  It now says 9 deploys.
+- **The footer noun changed with it,** and changed again. It said "9 builds this month" against 14 builds, of
+  which 9 were kept, so it became "9 deploys". Round 4 showed that was worse, because 7 of those 9 rows read
+  "not deployed": it now counts both numbers, "14 builds, 9 kept". See
+  [D58](#d58-2026-09-26-where-a-version-is-is-derived-what-was-live-is-recorded).
 - **Checked, not asserted:** invariants cover that every number from 1 to the highest is accounted for with
   no gaps, that no number is both deployed and discarded, that every discarded build costs exactly $0.00 and
   carries a reason, and that the published total equals deployed plus discarded.
@@ -925,3 +927,94 @@ Format: date, decision, evidence, alternatives rejected.
   these modules directly under `node --experimental-strip-types`, which does not resolve extensionless paths.
   So that one import is written `./code.ts`, and `allowImportingTsExtensions` is set in `tsconfig.json`. The
   alternative was a checker that cannot import what it checks.
+
+### D58. 2026-09-26: Where a version is, is derived. What was live, is recorded
+- **Decision:** a version carries no field saying where it is. Production is whatever is `live`, preview is
+  whatever the applied state says is newest, and everything else is nowhere. What is stored instead is
+  history, which cannot be derived: `live` for the version in production now and `wasLive` for one that was
+  in production before it.
+- **What the stored field did.** `environment: "preview" | "production" | null` was a fact about the present
+  written into nine rows. v1 and v14 both claimed "preview", v14 went on claiming it after v15 existed, and
+  v15 could never claim it, because it is not in the list until the fix is applied. Same shape as
+  [D36](#d36-2026-09-26-any-number-that-is-a-sum-is-derived-never-written-down-beside-its-parts): a derived
+  value kept beside its parts.
+- **The table is the total.** The rows now come from the applied state, so an accepted change is a row like
+  any other, and the screen's stated spend is a sum of the rows above it. Round 4 found "$3.43, summed from
+  the versions above" sitting above rows that summed to $3.37, with the note under them still reading "5 of
+  the 14 builds" and "inside the $3.37 total".
+- **And the footer counts builds.** It said "9 deploys this month" while 7 of the 9 rows read "not deployed",
+  and it moved to 10 after accepting a change that deploys nothing.
+  [D47](#d47-2026-09-26-skipped-version-numbers-are-accounted-for-not-explained-away) had replaced "builds"
+  with "deploys" for the opposite reason, and the honest answer is that they are two different numbers: 14
+  builds this month, 9 of them kept, and **2 deploys to production**, which is stated on Deploy where there
+  is room to explain it.
+- **Asserted:** in four states, the rows sum to the stated spend, the row count matches the footer's "kept",
+  and exactly one row is marked preview. The rendered check reads the cost column out of the HTML and adds
+  it up, because that is the only way to catch a table that disagrees with its own total.
+
+### D59. 2026-09-26: A rollback goes back to something that was live
+- **Decision:** the control on a version's row is derived from production history. Live means no control.
+  A version that was in production offers **Roll back**. A version newer than production offers **Promote**.
+  A version that was never live and is older than production offers neither, and says why.
+- **The finding:** a rollback was offered to v1 through v11, none of which had ever been deployed, and to
+  v14, which is newer than production. "Roll back to v6" describes an action the word does not mean.
+- **The contradiction it also fixes:** the v11 sheet listed v14 under "What reverts" and then said v14 stays
+  in preview. Both cannot be true. What reverts is now only what was in production, so the list and the
+  sentence are the same fact, and the sheet says plainly that a version which was never live is unaffected.
+- **Promotion has a target.** Every promotable row opens the same sheet with its own version, rather than the
+  header owning the only promotion on the screen. One more carried parameter, `promote`, defaulting to
+  whatever is in preview so the ordinary case keeps it out of the address.
+- **Asserted:** exactly one version offers a rollback and it is the one with history, everything newer than
+  production offers a promotion, what reverts never names a version the same sheet says stays in preview, and
+  a rollback to a version that was never live opens nothing.
+
+### D60. 2026-09-26: One charging policy, one sentence, two screens
+- **Decision:** a failed build is charged $0.00. The failure screen shows what the finished stages consumed
+  and says it is not charged, in the same sentence Deploy uses, read from one string in the fixture.
+- **The finding:** the failure screen read "Spent $0.71" while Deploy said failed builds are charged $0.00
+  "because the platform did not deliver a working app". Two policies for one event, on two screens a reviewer
+  sees minutes apart.
+- **Why not hide the $0.71.** It is what the stages actually consumed, and a screen that shows nothing there
+  invites the opposite question. It reads "$0.71 used, not charged because the build failed", which is both
+  numbers and the rule between them.
+- **Also settled here:** the plan gate no longer counts the month's whole spend as "already spent" while
+  reviewing the first build, which included that build's own $1.46. What has been spent before a version is
+  derived, and before the first one it is $0.00. The cap is still checked on every render, in one sentence
+  with two branches, so the gate can never mention the cap without having checked it.
+
+### D61. 2026-09-26: The theme switch answers before the page has hydrated
+- **Decision:** the fast path is a capture-phase click handler registered by an inline script at the top of
+  the body, not only by the client component. It flips one attribute and writes the cookie in the background.
+  The component still exists and behaves identically after hydration, and the form still posts with scripting
+  off entirely.
+- **Measured, because the reports disagreed about what was wrong.** Round 3 called it a 4 to 6 second button.
+  Round 4 called the first click after a load ignored, 4 times in 5. Neither was a dead control:
+  [scripts/theme-check.mjs](../scripts/theme-check.mjs) clicks Dark as soon as it is painted, on a throttled
+  connection, and timed the change at **1470 to 1522 ms on production, 5 of 5 over a 400 ms bar**. The click
+  was falling through to the form post and waiting for a round trip. After the fix, the same measurement is
+  **5 of 5 within 16 ms**, including a click while `readyState` was still `loading`.
+- **Why the document and not the component.** Hydration is exactly the window that was broken, so a fix that
+  waits for hydration fixes nothing. The script is nine lines and does the same three things the component
+  does.
+- **One owner.** The capture handler prevents the submit the component listens for, so it handles every click,
+  before and after hydration, and the component follows the document through an event it dispatches rather
+  than assuming it handled the click itself.
+
+### D62. 2026-09-26: A control that does nothing is still a control
+- **Decision:** every confirm in the demo is a real `<button>` with `aria-disabled="true"` and the demo note
+  as its `aria-describedby`. The Marketplace setting is a `role="switch"` with `aria-checked`, and the
+  repository choice is a `radiogroup`.
+- **The finding:** seven controls were styled `<span>`s. Deploy to production, Roll back, Connect and push,
+  Import, Send invite, the Marketplace toggle and the repository option could not be focused, did nothing,
+  and said nothing about why. The only focusable control in a sheet was Close.
+- **`aria-disabled`, not `disabled`.** A disabled button leaves the tab order, so a keyboard user finds
+  nothing where a control should be. This way they reach it and hear what it would do, which is the whole
+  point of labelling these as demo actions.
+- **Also here:** each worked example now shows the source it was checked against. Three of the six are about
+  refunds while the sample above them is about credits, so against the visible source "Refund requests are
+  reviewed by our support team" read as an unrelated claim passing at 78%, which argues against the thesis
+  the screen exists to make. The data was already in the fixture and simply was not rendered.
+- **And the bar is named where it is applied.** The Intake inspector said a result "would go to a person"
+  without ever saying at what point, because the sentence stating the bar only rendered for the Grounding
+  Checker while the confidence path carried its own hardcoded `0.6`. One constant,
+  `ACT_ALONE_BAR`, named for what it governs rather than for one agent.

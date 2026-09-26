@@ -22,7 +22,7 @@ import {
   JEV_AGENT_IDS,
   JEV_MODEL,
   JEV_AGENTS,
-  GROUNDING_PASS_THRESHOLD,
+  ACT_ALONE_BAR,
 } from "../lib/jev/questions.ts";
 import { JEV_EXAMPLES } from "../lib/jev/examples.ts";
 import { changeRequests, codeFiles, CHECKS, FIX_CHANGE_ID } from "../lib/seed/code.ts";
@@ -31,12 +31,21 @@ import { GROUNDING_QUESTIONS } from "../lib/jev/questions.ts";
 import { addedLines, allDiffIds, appliedState, changedFileCount } from "../lib/seed/totals.ts";
 import {
   appliedPending,
+  crossesCap,
+  deployAction,
+  newerThanProduction,
   pendingChanges,
   previewAfter,
+  previewChat,
+  productionDeploys,
+  requestVerdict,
   revertedBy,
   rollbackTargets,
+  rowsTotal,
   spendAfter,
+  spentBefore,
   versionForPending,
+  whereIs,
 } from "../lib/seed/totals.ts";
 import { DOMAINS, MEMBERS, PUBLISH, ROLES } from "../lib/seed/deploy.ts";
 import { CAPABILITIES, FRAMEWORKS, notManaged } from "../lib/seed/frameworks.ts";
@@ -200,7 +209,7 @@ check(
       p.versions.reduce((sum, v) => sum + v.cost, 0) +
         p.discarded.reduce((sum, v) => sum + v.cost, 0),
     ),
-  `${money(ledgerSpend(p))} over ${buildsAttempted(p)} builds, ${p.versions.length} of them deployed`,
+  `${money(ledgerSpend(p))} over ${buildsAttempted(p)} builds, ${p.versions.length} of them kept`,
 );
 
 // 16. An agent's config file names the model it actually calls.
@@ -239,14 +248,14 @@ check(
 const graded = JEV_EXAMPLES.filter((e) => e.agentId === "grounding-checker");
 const wrong = graded.filter((e) => {
   const primary = e.answers.find((a) => a.key === JEV_AGENTS[e.agentId].primary);
-  const passes = (primary?.probability ?? 0) >= GROUNDING_PASS_THRESHOLD;
+  const passes = (primary?.probability ?? 0) >= ACT_ALONE_BAR;
   return passes !== (e.expected === "pass");
 });
 
 check(
   "the grounding bar puts every worked example on its expected side",
   graded.length >= 6 && wrong.length === 0,
-  `${graded.length} examples, ${wrong.length} on the wrong side of ${GROUNDING_PASS_THRESHOLD}`,
+  `${graded.length} examples, ${wrong.length} on the wrong side of ${ACT_ALONE_BAR}`,
 );
 
 check(
@@ -344,20 +353,22 @@ check(
   const reverted = appliedState(p, true, FIX_DIFF, FIX_DIFF);
   const sameNumbers = (a, b) =>
     a.previewVersion === b.previewVersion &&
-    a.deploys === b.deploys &&
+    a.builds === b.builds &&
+    a.versionsKept === b.versionsKept &&
     a.spend === b.spend &&
     a.fixApplied === b.fixApplied;
 
   check(
     "the trace route and the Code tab route are the same change",
     sameNumbers(viaTrace, viaCode) && sameNumbers(viaTrace, both),
-    `${viaTrace.previewVersion}, ${viaTrace.deploys} deploys, ${money(viaTrace.spend)} by either route`,
+    `${viaTrace.previewVersion}, ${viaTrace.builds} builds, ${money(viaTrace.spend)} by either route`,
   );
   check(
     "applying the fix by either route actually moves every number",
     viaTrace.fixApplied &&
       viaTrace.previewVersion === p.fix.newVersion &&
-      viaTrace.deploys === p.versions.length + 1 &&
+      viaTrace.builds === buildsAttempted(p) + 1 &&
+      viaTrace.versionsKept === p.versions.length + 1 &&
       viaTrace.spend === round(ledgerSpend(p) + p.fix.cost),
     `${p.ledger.previewVersion} to ${viaTrace.previewVersion}, ${money(ledgerSpend(p))} to ${money(viaTrace.spend)}`,
   );
@@ -365,9 +376,10 @@ check(
     "reverting the file takes the fix back out, whichever route applied it",
     !reverted.fixApplied &&
       reverted.previewVersion === p.ledger.previewVersion &&
-      reverted.deploys === p.versions.length &&
+      reverted.builds === buildsAttempted(p) &&
+      reverted.versionsKept === p.versions.length &&
       reverted.spend === ledgerSpend(p),
-    `back to ${reverted.previewVersion}, ${reverted.deploys} deploys, ${money(reverted.spend)}`,
+    `back to ${reverted.previewVersion}, ${reverted.builds} builds, ${money(reverted.spend)}`,
   );
 }
 
@@ -564,6 +576,183 @@ check(
   !/\d/.test(p.copy.githubConsent),
   "counts come from the tree and the change list",
 );
+
+
+/*
+  29. The Deploy table is the spend.
+
+  Round 4 found "$3.43, summed from the versions above" above rows that summed
+  to $3.37, because the row list could not contain v15. The rows are now the one
+  list, so the total is a sum of what is on the screen in every state.
+*/
+for (const [label, fix, accept, revert] of [
+  ["default", false, "", ""],
+  ["fix applied", true, "", ""],
+  ["accepted in the Code tab", false, FIX_DIFF, ""],
+  ["accepted then reverted", true, FIX_DIFF, FIX_DIFF],
+]) {
+  const a = appliedState(p, fix, accept, revert);
+  check(
+    `the rows on Deploy sum to the spend, ${label}`,
+    rowsTotal(a.rows, p) === a.spend,
+    `${a.rows.length} rows and ${p.discarded.length} discarded make ${money(a.spend)}`,
+  );
+  check(
+    `the builds count and the rows agree, ${label}`,
+    a.builds === a.rows.length + p.discarded.length &&
+      a.versionsKept === a.rows.length,
+    `${a.builds} builds, ${a.versionsKept} kept`,
+  );
+  check(
+    `exactly one version is in preview, ${label}`,
+    a.rows.filter((v) => whereIs(v, a.previewVersion) === "preview").length === 1,
+    `${a.previewVersion}, and no other row claims it`,
+  );
+}
+
+check(
+  "a version in production is never also the one in preview",
+  p.versions.every(
+    (v) => !(v.live && whereIs(v, p.ledger.previewVersion) === "preview"),
+  ),
+  `${p.ledger.productionVersion} live, ${p.ledger.previewVersion} in preview`,
+);
+
+/*
+  30. A rollback goes back to something that was live. A promotion does not.
+
+  Every version that was never in production was offered a "Roll back", which
+  describes an action the word does not mean, and v14 was offered one although
+  it is newer than production.
+*/
+{
+  const live = p.versions.find((v) => v.live);
+  const actions = p.versions.map((v) => [v.label, deployAction(v, live.label)]);
+  const of = (kind) => actions.filter(([, a]) => a === kind).map(([l]) => l);
+
+  check(
+    "exactly one version is live, and it is the one the ledger names",
+    of("live").length === 1 && of("live")[0] === p.ledger.productionVersion,
+    `${p.ledger.productionVersion}`,
+  );
+  check(
+    "a rollback is offered only to versions that were in production",
+    of("rollback").every((l) => p.versions.find((v) => v.label === l).wasLive) &&
+      of("rollback").length === rollbackTargets(p).length,
+    `${of("rollback").join(", ") || "none"}`,
+  );
+  check(
+    "a version newer than production is promoted, not rolled back",
+    of("promote").every((l) => Number(l.slice(1)) > Number(live.label.slice(1))) &&
+      of("promote").includes(p.ledger.previewVersion),
+    `${of("promote").join(", ")} newer than ${live.label}`,
+  );
+  check(
+    "a version that was never live and is older offers neither",
+    of("none").every(
+      (l) =>
+        !p.versions.find((v) => v.label === l).wasLive &&
+        Number(l.slice(1)) < Number(live.label.slice(1)),
+    ),
+    `${of("none").length} versions offer no action`,
+  );
+  check(
+    "production deploys are counted from what was live, not from the rows",
+    productionDeploys(p) === 1 + rollbackTargets(p).length,
+    `${productionDeploys(p)} deploys to production this month`,
+  );
+
+  for (const target of rollbackTargets(p)) {
+    const reverts = revertedBy(p, target.label).map((v) => v.label);
+    const staying = newerThanProduction(
+      appliedState(p, true, "", "").rows,
+      live.label,
+    ).map((v) => v.label);
+    check(
+      `what reverts on a rollback to ${target.label} never names a preview version`,
+      reverts.every((l) => !staying.includes(l)) &&
+        reverts.every((l) => {
+          const v = p.versions.find((x) => x.label === l);
+          return v?.live || v?.wasLive;
+        }),
+      `reverts ${reverts.join(", ") || "nothing"}, while ${staying.join(" and ")} stay in preview`,
+    );
+  }
+}
+
+/* 31. A change that shipped has a verdict already, and a hash on every screen. */
+{
+  const landedChanges = changeRequests(p);
+  check(
+    "every change carries a hash, pending or landed",
+    landedChanges.every((c) => /^[0-9a-f]{7}$/.test(c.id)),
+    landedChanges.map((c) => c.id).join(", "),
+  );
+  check(
+    "a landed change reads as accepted rather than undecided",
+    landedChanges
+      .filter((c) => c.version)
+      .every((c) => requestVerdict(c, [], []) === "landed"),
+    `${landedChanges.filter((c) => c.version).length} landed, in ${landedChanges
+      .filter((c) => c.version)
+      .map((c) => c.version)
+      .join(" and ")}`,
+  );
+  check(
+    "the pending change is the only one without a version",
+    landedChanges.filter((c) => !c.version).length === 1,
+    `${FIX_CHANGE_ID} pending, becomes ${versionForPending(p, landedChanges, FIX_CHANGE_ID)}`,
+  );
+}
+
+/* 32. The fix reaches the app, and the plan gate counts the right spend. */
+check(
+  "the preview conversation escalates until the fix is applied",
+  previewChat(p, false).some((t) => t.escalated) &&
+    !previewChat(p, true).some((t) => t.escalated),
+  "escalated by default, answered after the fix",
+);
+
+check(
+  "the answer shown after the fix is the corrected answer, not new copy",
+  previewChat(p, true).some((t) => t.text === p.fix.after),
+  "fix.after, the same string the trace shows",
+);
+
+check(
+  "nothing has been spent before the first build",
+  spentBefore(p, p.versions[0].label) === 0 &&
+    !crossesCap(0, p.plan.estimate.high, p.ledger.cap),
+  `${money(0)} before ${p.versions[0].label}, so the cap is whole`,
+);
+
+check(
+  "the cap check still fires on the state where it is true",
+  crossesCap(ledgerSpend(p), p.plan.estimate.high, p.ledger.cap),
+  `${money(ledgerSpend(p))} plus up to ${money(p.plan.estimate.high)} passes ${money(p.ledger.cap)}`,
+);
+
+/* 33. Import: one estimate per repository, and a level nothing demonstrated. */
+{
+  const byLevel = new Map(p.imports.map((i) => [i.support, i]));
+  check(
+    "every support level the legend defines has an example",
+    ["full", "partial", "unsupported"].every((l) => byLevel.has(l)),
+    p.imports.map((i) => i.support).join(", "),
+  );
+  check(
+    "a partial import costs more than a full one, and says so",
+    byLevel.get("partial").estimate.high > byLevel.get("full").estimate.high &&
+      byLevel.get("partial").estimate.minutesHigh >
+        byLevel.get("full").estimate.minutesHigh,
+    `full up to ${money(byLevel.get("full").estimate.high)}, partial up to ${money(byLevel.get("partial").estimate.high)}`,
+  );
+  check(
+    "an unsupported repository quotes no price at all",
+    byLevel.get("unsupported").estimate === undefined,
+    "no estimate, nothing charged",
+  );
+}
 
 const failedCount = results.filter((r) => !r.ok).length;
 for (const r of results) {

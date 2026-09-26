@@ -155,12 +155,19 @@ async function raw(path) {
     text.includes("First build, v1"),
     '"First build, v1"',
   );
-  // Deploys, not builds: 14 numbers were taken this month and 9 deployed, so
-  // calling 9 of them "builds" became the wrong noun (round 3).
+  /*
+    The footer's noun.
+
+    Round 3 changed "builds" to "deploys" because 14 builds sat above 9 rows.
+    Round 4 found the replacement worse: 7 of those 9 rows read "not deployed",
+    and accepting a change moved the count although it deploys nothing. It
+    counts builds and says how many were kept, which is two numbers because one
+    cannot be read unambiguously against a table of a different length.
+  */
   check(
-    "the footer counts deploys and matches the rows on Deploy",
-    text.includes("9 deploys this month") && !/\d+ builds this month/.test(text),
-    "9 rows, 9 deploys",
+    "the footer counts builds and how many were kept, not deploys",
+    /14 builds, 9 kept this month/.test(text) && !/deploys this month/.test(text),
+    "14 builds, 9 kept",
   );
 }
 
@@ -356,11 +363,36 @@ async function raw(path) {
     text.includes("ok accepted"),
     "accept=d6",
   );
-  const { html: mixed } = await get("/demo?tab=code&pane=canvas&accept=d1&revert=d2");
+  /*
+    A change that shipped reads as accepted, and cannot be re-decided.
+
+    Round 4 found a41c9e2 and c93f7a0, the changes behind the live and the
+    preview version, reading "not decided yet", as though two versions had been
+    deployed without anyone agreeing to them. Passing their file ids in the
+    address changes nothing, which is what this asserts.
+  */
+  const { html: landed } = await get("/demo?tab=code&pane=canvas&accept=d1&revert=d2");
+  const landedText = visibleText(landed);
+  // Sliced per change, because the pending one below them is legitimately
+  // undecided and a whole-page search would pass on its text.
+  const blockOf = (hash) => {
+    const start = landedText.indexOf(hash);
+    const rest = landedText.slice(start + hash.length);
+    const next = rest.search(/[0-9a-f]{7}(?![0-9a-f])/);
+    return next === -1 ? rest : rest.slice(0, next);
+  };
   check(
-    "a part accepted request says so rather than claiming either",
-    visibleText(mixed).includes("part accepted"),
-    "derived from its files, never stored",
+    "a change that shipped reads as accepted, with the version it shipped in",
+    blockOf("a41c9e2").includes("ok accepted, in v12") &&
+      blockOf("c93f7a0").includes("ok accepted, in v14") &&
+      !blockOf("a41c9e2").includes("not decided yet") &&
+      !blockOf("c93f7a0").includes("not decided yet"),
+    "a41c9e2 in v12, c93f7a0 in v14",
+  );
+  check(
+    "and its files are not offered a verdict at all",
+    landedText.includes("Shipped in") && !landedText.includes("Accept all 3"),
+    "no accept or revert on a shipped file",
   );
   const { html: junk } = await get("/demo?tab=code&pane=canvas&accept=nonsense");
   check(
@@ -439,7 +471,7 @@ async function raw(path) {
   for (const path of [
     "/demo?tab=deploy&pane=canvas&sheet=promote",
     "/demo?tab=deploy&pane=canvas&sheet=github",
-    "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11",
+    "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v8",
     "/demo/import",
   ]) {
     const text = visibleText((await get(path)).html);
@@ -610,18 +642,28 @@ async function raw(path) {
   );
 }
 
-// 27. The plan gate warns before a build crosses the cap.
+/*
+  27. The plan gate states the cap against what has actually been spent.
+
+  It used to be handed the month's whole spend while reviewing the first build,
+  so it read "$3.37 already spent" about a build that had not run and whose own
+  $1.46 was inside that figure. Before the first version, nothing has been
+  spent. The cap is still checked, in the same derived sentence, and the over
+  branch is proven by invariant on the state where it is true.
+*/
 {
   const text = visibleText((await get("/demo/plan")).html);
   check(
-    "the plan gate warns that this build would pass the cap",
-    /would pass your \$5\.00 cap by \$0\.37/.test(text),
-    "$3.37 spent plus up to $2.00 against a $5.00 cap",
+    "the plan gate counts nothing spent before the first build",
+    /\$0\.00 spent this month so far/.test(text) &&
+      text.includes("This is the first build of this project"),
+    "$0.00, not the month's $3.37",
   );
   check(
-    "and the warning is arithmetic, not a sentence with a number in it",
-    text.includes("already spent") && text.includes("Raise the cap or build anyway"),
-    "derived from three fixtures",
+    "and it still states the cap this build would use",
+    /would use up to \$2\.00 of your \$5\.00 cap/.test(text) &&
+      !text.includes("would pass your"),
+    "checked, and it does not cross",
   );
 }
 
@@ -668,7 +710,8 @@ async function raw(path) {
     take(/Preview is now on (v\d+)/g, "conversation rail", "version", String);
     take(/Deploy (v\d+) to production/g, "deploy control", "version", String);
     take(/Applied as (v\d+) in preview/g, "why panel", "version", String);
-    take(/(\d+) deploys? this month/g, "ledger bar", "deploys", Number);
+    take(/(\d+) builds, (?:\d+) kept this month/g, "ledger bar", "builds", Number);
+    take(/(\d+) versions plus \d+ discarded at/g, "table total row", "versionsKept", Number);
     take(/\$(\d+\.\d\d) of \$5\.00/g, "spend", "spend", Number);
     return found;
   };
@@ -693,39 +736,79 @@ async function raw(path) {
     // tabs give at least the ledger's version, count and spend on each.
     const counts = {
       version: all.filter((r) => r.key === "version").length,
-      deploys: all.filter((r) => r.key === "deploys").length,
+      builds: all.filter((r) => r.key === "builds").length,
       spend: all.filter((r) => r.key === "spend").length,
+      versionsKept: all.filter((r) => r.key === "versionsKept").length,
     };
     check(
       `every surface is still reporting its numbers, ${state.label}`,
-      counts.version >= 6 && counts.deploys === 3 && counts.spend >= 4,
-      `${counts.version} version, ${counts.deploys} deploy count, ${counts.spend} spend readings`,
+      counts.version >= 6 &&
+        counts.builds === 3 &&
+        counts.spend >= 4 &&
+        counts.versionsKept === 1,
+      `${counts.version} version, ${counts.builds} build count, ${counts.spend} spend, ${counts.versionsKept} row count readings`,
     );
 
     const expected = {
       version: want.previewVersion,
-      deploys: want.deploys,
+      builds: want.builds,
       spend: want.spend,
+      versionsKept: want.versionsKept,
     };
     const wrong = all.filter((r) => r.value !== expected[r.key]);
     check(
       `one preview version, one deploy count, one spend, ${state.label}`,
       wrong.length === 0,
       wrong.length === 0
-        ? `${expected.version}, ${expected.deploys} deploys, $${expected.spend.toFixed(2)}, agreed by ${all.length} readings`
+        ? `${expected.version}, ${expected.builds} builds, ${expected.versionsKept} kept, $${expected.spend.toFixed(2)}, agreed by ${all.length} readings`
         : wrong
             .map((r) => `${r.surface} said ${r.value}, not ${expected[r.key]}`)
             .join("; "),
     );
+
+    /*
+      The rows, added up from the page.
+
+      This is the assertion round 4's blocker needed: the total was right, the
+      footer was right, and the table under them summed to something else.
+      Reading the cost column out of the HTML is the only way to catch that.
+    */
+    {
+      const deployHtml = (await get(`/demo?tab=deploy&pane=canvas${q}`)).html;
+      const costs = [
+        ...deployHtml.matchAll(
+          /<td class="border-b border-rule py-2 pr-4 font-mono text-cost">\s*\$(\d+\.\d\d)\s*<\/td>/g,
+        ),
+      ].map((m) => Number(m[1]));
+      const summed = +costs.reduce((a, b) => a + b, 0).toFixed(2);
+      check(
+        `the version rows add up to the total the screen states, ${state.label}`,
+        costs.length === want.versionsKept && summed === want.spend,
+        `${costs.length} rows summing to $${summed.toFixed(2)} against a stated $${want.spend.toFixed(2)}`,
+      );
+      check(
+        `the row for what is in preview exists and is the only one, ${state.label}`,
+        // Twice, because the phone list and the table both render every row and
+        // one of them is hidden by CSS at any width.
+        (deployHtml.match(/>preview</g) ?? []).length === 2 &&
+          deployHtml.includes(`>${want.previewVersion}</td>`),
+        `${want.previewVersion} is the only row marked preview, in both lists`,
+      );
+    }
 
     // The two verdict surfaces have to tell the same story as the numbers.
     const codeText = visibleText((await get(`/demo?tab=code&pane=canvas${q}`)).html);
     const whyText = visibleText(
       (await get(`/demo?tab=agents&why=${project.runs[0].id}&pane=canvas${q}`)).html,
     );
+    /*
+      Scoped to the pending change, because the two that shipped always read as
+      accepted now. The pending one's own line is what tracks the fix state.
+    */
+    const pendingLine = codeText.match(/7be0d15[^|]{0,180}/)?.[0] ?? "";
     check(
       `the Code tab and the trace agree on whether the fix landed, ${state.label}`,
-      codeText.includes("ok accepted") === want.fixApplied &&
+      pendingLine.includes("ok accepted") === want.fixApplied &&
         /Applied as v\d+ in preview/.test(whyText) === want.fixApplied,
       want.fixApplied
         ? "accepted in the Code tab, applied in the trace"
@@ -746,7 +829,7 @@ async function raw(path) {
   const SHEETS = [
     ["promote", "/demo?tab=deploy&pane=canvas&sheet=promote", "promote-trigger"],
     ["github", "/demo?tab=deploy&pane=canvas&sheet=github", "github-trigger"],
-    ["rollback", "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11", "rollback-v11"],
+    ["rollback", "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v8", "rollback-v8"],
     ["framework", "/demo?tab=agents&pane=canvas&sheet=framework", "add-agent-trigger"],
   ];
 
@@ -768,16 +851,22 @@ async function raw(path) {
   // Both copies of the rollback link, because only one is visible at a time and
   // the client picks the visible one.
   const { html: deploy } = await get("/demo?tab=deploy&pane=canvas");
-  const rollbackTargets = (deploy.match(/data-return-to="rollback-v\d+"/g) ?? []).length;
+  /*
+    One rollback target and one promotion target, each named twice because the
+    phone list and the table both render every row. Before, every row that was
+    not live offered a rollback, including eight that had never been live.
+  */
+  const backTargets = (deploy.match(/data-return-to="rollback-v\d+"/g) ?? []).length;
+  const upTargets = (deploy.match(/data-return-to="promote-v\d+"/g) ?? []).length;
   check(
-    "each rollback link names itself, in the phone list and the table",
-    rollbackTargets === 16,
-    `${rollbackTargets} return targets for 8 versions, twice over`,
+    "each version's own control names itself, in the phone list and the table",
+    backTargets === 2 && upTargets === 2,
+    `${backTargets / 2} rollback and ${upTargets / 2} promote targets, each rendered twice`,
   );
 
   // Changing tab closes whatever was open rather than carrying it along.
   const openSheet = await get(
-    "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11",
+    "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v8",
   );
   const tabLinks = (openSheet.html.match(/href="\/demo\?[^"]*tab=agents[^"]*"/g) ?? []);
   check(
@@ -794,6 +883,284 @@ async function raw(path) {
     "the sign-in page has a title of its own",
     /<title>Sign in \| Architect 2\.0<\/title>/.test(html),
     "not the root layout's title",
+  );
+}
+
+/*
+  31. A rollback goes back to something that was live.
+
+  Round 4: a rollback was offered to v1 through v11, none of which had ever been
+  in production, and to v14, which is newer than production and is a promotion.
+  The v11 sheet then listed v14 under "What reverts" and said in the next
+  sentence that v14 stays in preview.
+*/
+{
+  const { html } = await get("/demo?tab=deploy&pane=canvas");
+  const text = visibleText(html);
+  check(
+    "only a version that was in production offers a rollback",
+    (html.match(/>Roll back</g) ?? []).length === 2 &&
+      html.includes('id="rollback-v8"'),
+    "v8 only, in the phone list and the table",
+  );
+  check(
+    "a version newer than production offers a promotion instead",
+    (html.match(/>Promote</g) ?? []).length === 2 &&
+      html.includes('id="promote-v14"'),
+    "v14 is promoted, not rolled back",
+  );
+  check(
+    "and a version that was never live and is older offers neither",
+    (text.match(/never live, older than production/g) ?? []).length === 12,
+    "6 versions, in both lists",
+  );
+  check(
+    "the screen states the real number of production deploys",
+    /2 deploys to production this month, out of 14 builds/.test(text),
+    "2 of 14, which is what the word means",
+  );
+
+  const sheet = visibleText(
+    (await get("/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v8")).html,
+  );
+  check(
+    "what reverts on a rollback is what was in production",
+    // The list itself, between its heading and the sentence after it.
+    /What reverts in production(.*?)After this/.test(sheet) &&
+      sheet.match(/What reverts in production(.*?)After this/)[1].includes("v12") &&
+      !sheet.match(/What reverts in production(.*?)After this/)[1].includes("v14"),
+    "v12 reverts, v14 is not in the list",
+  );
+  check(
+    "and the sheet does not contradict itself about preview",
+    /v14 stays in preview and is not affected, because it has never been live/.test(
+      sheet,
+    ),
+    "one claim about v14, not two",
+  );
+  const missing = await get("/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v11");
+  check(
+    "a rollback to a version that was never live opens nothing",
+    !missing.html.includes('role="dialog"'),
+    "v11 was never in production",
+  );
+}
+
+/*
+  32. The commits the consent sheet would create are the ones the Code tab lists.
+
+  The sheet said "3 commits" while the only hashes anywhere near it were two
+  that arrive from the editor, so the three it meant appeared on no screen.
+*/
+{
+  const sheet = visibleText(
+    (await get("/demo?tab=deploy&pane=canvas&sheet=github")).html,
+  );
+  const code = visibleText((await get("/demo?tab=code&pane=canvas")).html);
+  const hashes = ["7be0d15", "a41c9e2", "c93f7a0"];
+  check(
+    "the consent sheet names the three commits it would create",
+    hashes.every((h) => sheet.includes(h)),
+    hashes.join(", "),
+  );
+  check(
+    "and every one of them is on the Code tab",
+    hashes.every((h) => code.includes(h)),
+    "the same list, not a second one",
+  );
+  check(
+    "the commits arriving from the editor are labelled as such",
+    sheet.includes("commits you made in your own editor"),
+    "3f21a0c and 9d4e7b1 are not Architect's",
+  );
+}
+
+/*
+  33. The fix reaches the app preview.
+
+  After applying it the trace claimed the question had been re-run and came back
+  grounded, while the App tab still showed the escalated answer with "Why did it
+  do that?" beside it.
+*/
+{
+  const before = visibleText((await get("/demo?tab=app&pane=canvas")).html);
+  const after = visibleText(
+    (await get("/demo?tab=app&pane=canvas&fix=applied")).html,
+  );
+  check(
+    "the preview escalates the credit question until the fix is applied",
+    before.includes("I do not have a reliable answer for that") &&
+      before.includes("Escalated to a human"),
+    "the escalated answer, and why",
+  );
+  check(
+    "and answers it once the fix is applied",
+    after.includes("Your credit will be applied at the next billing cycle.") &&
+      !after.includes("Escalated to a human") &&
+      after.includes("grounded, answered after the fix"),
+    "the corrected answer, on v15",
+  );
+  check(
+    "the version in the preview frame follows the same state",
+    after.includes("v15") && before.includes("v14"),
+    "v14 before, v15 after",
+  );
+}
+
+/*
+  34. The banner carries the state it was clicked from.
+
+  Following "Why did it do that?" with the fix applied reset the whole page to
+  v14 and $3.37, because the banner links were written by hand.
+*/
+{
+  const { html } = await get("/demo?tab=app&pane=canvas&fix=applied");
+  const banner = html.slice(0, html.indexOf("Sign in to build your own"));
+  const links = [...banner.matchAll(/href="(\/demo\?[^"]*)"/g)].map((m) =>
+    m[1].replace(/&amp;/g, "&"),
+  );
+  check(
+    "every banner link into the workspace carries the applied fix",
+    links.length >= 3 && links.every((h) => h.includes("fix=applied")),
+    `${links.length} links, all carrying fix=applied`,
+  );
+  const carried = await get("/demo?tab=agents&why=r-104&pane=canvas&fix=applied");
+  check(
+    "and following one keeps the page on v15",
+    visibleText(carried.html).includes("Preview v15"),
+    "the trace opens without resetting the state",
+  );
+}
+
+/*
+  35. One charging policy, in the same words on both screens.
+
+  The failure screen read "Spent $0.71" while Deploy said a failed build is
+  charged $0.00, which are two different products.
+*/
+{
+  const POLICY =
+    "A failed build is charged $0.00, because the platform did not deliver a working app.";
+  const failed = visibleText((await get("/demo?tab=app&build=failed&pane=canvas")).html);
+  const deploy = visibleText((await get("/demo?tab=deploy&pane=canvas")).html);
+  check(
+    "the failure screen states what a failed build costs",
+    failed.includes("$0.71 used, not charged because the build failed") &&
+      failed.includes(POLICY),
+    "$0.71 used, $0.00 charged",
+  );
+  check(
+    "and Deploy states it in the same words",
+    deploy.includes(POLICY),
+    "one string, two screens",
+  );
+  check(
+    "neither screen says a failed build was spent",
+    !failed.includes("Spent $0.71"),
+    "used, not spent",
+  );
+}
+
+/*
+  36. The confirm controls are controls.
+
+  Seven of them were styled spans: unfocusable, inert, and silent about it.
+*/
+{
+  for (const [where, path, id] of [
+    ["promote", "/demo?tab=deploy&pane=canvas&sheet=promote", "promote-confirm"],
+    ["rollback", "/demo?tab=deploy&pane=canvas&sheet=rollback&rollback=v8", "rollback-confirm"],
+    ["github", "/demo?tab=deploy&pane=canvas&sheet=github", "github-confirm"],
+    ["invite", "/demo?tab=deploy&pane=canvas&sheet=promote", "invite-confirm"],
+    ["import", "/demo/import", "import-confirm"],
+  ]) {
+    const { html } = await get(path);
+    const button = html.match(
+      new RegExp(`<button[^>]*id="${id}"[^>]*>`),
+    )?.[0];
+    check(
+      `the ${where} confirm is a button that says it does nothing`,
+      Boolean(button) &&
+        button.includes('aria-disabled="true"') &&
+        button.includes(`aria-describedby="${id}-note"`) &&
+        html.includes(`id="${id}-note"`),
+      "a real button, with the demo note as its description",
+    );
+  }
+  const { html } = await get("/demo?tab=deploy&pane=canvas&sheet=promote");
+  check(
+    "the Marketplace setting is a switch that says which way it is set",
+    /<button[^>]*role="switch"[^>]*aria-checked="false"[^>]*aria-disabled="true"/.test(
+      html.replace(/\s+/g, " "),
+    ),
+    "off, and it says so to a screen reader",
+  );
+  const github = await get("/demo?tab=deploy&pane=canvas&sheet=github");
+  check(
+    "the repository choice is a radio group rather than two chips",
+    github.html.includes('role="radiogroup"') &&
+      (github.html.match(/role="radio"/g) ?? []).length === 2 &&
+      github.html.includes('aria-checked="true"'),
+    "two options, one selected, both reachable",
+  );
+}
+
+/*
+  37. Every worked example shows the source it was checked against.
+
+  Three of the six are about refunds while the sample above them is about
+  credits, so against the visible source "Refund requests are reviewed by our
+  support team" read as an unrelated claim passing at 78%.
+*/
+{
+  const text = visibleText(
+    (
+      await get(
+        "/demo?tab=agents&pane=canvas&agent=grounding-checker&depth=details",
+      )
+    ).html,
+  );
+  check(
+    "each example names its own source",
+    (text.match(/checked against:/g) ?? []).length === 6,
+    "6 examples, 6 sources",
+  );
+  check(
+    "the refund examples show the refund article",
+    text.includes(
+      "Refund requests made within 14 days of purchase are reviewed by our support team.",
+    ) && text.includes("a different article from the sample above"),
+    "not the credits article",
+  );
+  check(
+    "the Escalation Router does not reuse the checker's wording",
+    !visibleText(
+      (
+        await get(
+          "/demo?tab=agents&pane=canvas&agent=escalation-router&depth=details",
+        )
+      ).html,
+    ).includes("what the answer was checked against"),
+    "its fixed field is a reason, not a source",
+  );
+  const intake = visibleText(
+    (await get("/demo?tab=agents&pane=canvas&agent=intake&depth=details")).html,
+  );
+  check(
+    "the Intake inspector states the bar it would apply",
+    intake.includes("at least 60% sure") && intake.includes("goes to a person"),
+    "60%, named where it is used",
+  );
+}
+
+/* 38. The theme switch works before hydration, which only a browser can check. */
+{
+  const { html } = await get("/demo");
+  check(
+    "the theme fast path is registered from the document itself",
+    html.includes("data-theme-form") &&
+      html.includes('form[data-theme-form] button[name="theme"]'),
+    "a capture handler, not only the hydrated component",
   );
 }
 

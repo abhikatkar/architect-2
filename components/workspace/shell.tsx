@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LedgerBar } from "./ledger-bar";
+import { VIEW_PATCH } from "@/lib/workspace-url";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LAYERS, LAYER_LABELS, type Layer, type Pane } from "./types";
 import type { DemoProject } from "@/lib/seed/types";
@@ -38,21 +39,7 @@ type ShellProps = {
   before the layer in workspace-canvas, so carrying them would mean clicking
   "Code" and still looking at the run trace or a running build.
 */
-/*
-  Changing tab closes whatever was open and clears what only that tab can show.
-  Without this, clicking Agents with the rollback sheet open left
-  sheet=rollback&rollback=v11 in the address: nothing rendered it, because each
-  sheet lives inside its own layer branch, but the link was shareable and the
-  parameters did nothing. Round 4, finding 5.
-*/
-const TAB_PATCH = {
-  pane: "canvas",
-  why: "",
-  build: "",
-  sheet: "",
-  rollback: "",
-  framework: "",
-} as const;
+
 
 /**
  * The workspace shell: header with layer tabs, conversation column, canvas, and
@@ -111,7 +98,7 @@ export function WorkspaceShell({
               return (
                 <li key={l}>
                   <Link
-                    href={query({ ...TAB_PATCH, tab: l })}
+                    href={query({ ...VIEW_PATCH, tab: l })}
                     aria-current={active ? "page" : undefined}
                     className={`inline-flex min-h-11 items-center rounded-input px-2 text-body sm:px-3 ${
                       active

@@ -3,7 +3,11 @@
 ## Diagrams
 
 Three interactive diagrams, generated from the JSON sources in [architecture/](architecture/) and served
-from `/architecture/` on the running app. Open them locally from `public/architecture/`.
+from `/architecture/` on the running app, each on a page that links back to the demo and to the index.
+
+Opening a generated file directly, from `public/architecture/`, gives the diagram with no way back: its bytes
+are fixed by a delivery receipt (D42), so a link cannot be added inside it without making that receipt false.
+The frame around it carries the links instead, which is why every reference here points at the route.
 
 Start at **[/architecture](../app/architecture/page.tsx)** on the running app, which links to all three and
 back to the demo, and which serves a generated still below 640px rather than sending a phone to a canvas
@@ -11,9 +15,9 @@ built for a desktop.
 
 | Diagram | What it answers | Source |
 |---|---|---|
-| [System architecture](../public/architecture/architecture.html) | What runs, what is staged, and where the trust boundaries are. Every node is marked Real or Simulated, and 22 source links are verified against the commit the diagram was generated from | [architecture.json](architecture/architecture.json) |
-| [Agent workflow](../public/architecture/agent-workflow.html) | The four Northwind agents in order, each labeled with the kind of model it runs on and why | [agent-workflow.json](architecture/agent-workflow.json) |
-| [Jev call sequence](../public/architecture/jev-call-sequence.html) | One "Test this agent" call end to end: the rate limit checked first, the Gateway call, the log write, and the recorded fallback | [jev-call-sequence.json](architecture/jev-call-sequence.json) |
+| [System architecture](../app/architecture/[slug]/page.tsx) at `/architecture/architecture` | What runs, what is staged, and where the trust boundaries are. Every node is marked Real or Simulated, and 22 source links are verified against the commit the diagram was generated from | [architecture.json](architecture/architecture.json) |
+| [Agent workflow](../app/architecture/[slug]/page.tsx) at `/architecture/agent-workflow` | The four Northwind agents in order, each labeled with the kind of model it runs on and why | [agent-workflow.json](architecture/agent-workflow.json) |
+| [Jev call sequence](../app/architecture/[slug]/page.tsx) at `/architecture/jev-call-sequence` | One "Test this agent" call end to end: the rate limit checked first, the Gateway call, the log write, and the recorded fallback | [jev-call-sequence.json](architecture/jev-call-sequence.json) |
 
 The architecture diagram is source backed: it pins a commit and every source link is verified against the
 blob at that commit when the diagram is built, so a link cannot drift to a line that does not exist. See

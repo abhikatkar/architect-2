@@ -7,7 +7,6 @@
  */
 
 export type ConversationStatus = "open" | "resolved" | "escalated";
-export type Environment = "preview" | "production";
 export type StageState = "waiting" | "running" | "done" | "fault";
 export type SupportLevel = "full" | "partial" | "unsupported";
 
@@ -95,13 +94,28 @@ export type RunTrace = {
   reRuns: { total: number; grounded: number; cost: number };
 };
 
+/*
+  A version, and deliberately no field saying where it is now.
+
+  It used to carry `environment: "preview" | "production" | null`, which is a
+  fact about the present stored beside its parts: v1 and v14 both claimed
+  "preview", v14 went on claiming it after v15 existed, and v15 could never
+  claim it at all because it is not in this list until it is applied. Where a
+  version is now is derived from what is live and what is in preview. See D58.
+
+  What is stored is history, which cannot be derived: `live` for the version in
+  production now, and `wasLive` for one that was in production before it. That
+  is the difference between a rollback and a promotion.
+*/
 export type Version = {
   id: string;
   label: string;
   change: string;
   cost: number;
-  environment: Environment | null;
+  /** In production now. Exactly one version has this. */
   live?: boolean;
+  /** Was in production before the one that is live. Not derivable. */
+  wasLive?: boolean;
   estimate?: { low: number; high: number };
 };
 
@@ -113,6 +127,8 @@ export type ImportExample = {
   detected: string;
   support: SupportLevel;
   note?: string;
+  /** Per repository, because a partial import is not the same job as a full one. */
+  estimate?: { low: number; high: number; minutesLow: number; minutesHigh: number };
 };
 
 export type BuildStage = {
@@ -149,6 +165,8 @@ export type Plan = {
 };
 
 export type ChatTurn = {
+  /** Set on the turn the reliability fix corrected, so it can say so. */
+  groundedAfterFix?: boolean;
   from: "customer" | "agent";
   text: string;
   escalated?: boolean;
