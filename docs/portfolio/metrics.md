@@ -8,14 +8,15 @@ that cannot be sourced belongs in [Pending](#pending) until it can be.
 
 _As of 2026-09-27._
 
-Counts are read after the commit that last touched this file. A row must never name the commit that
-carries it, because amending or rebasing changes that hash and silently makes the row a lie.
+Counts are read immediately before the commit that carries them, so the Commits row is one short of what
+the repository holds at that commit. A row must never name the commit that carries it, because amending or
+rebasing changes that hash and silently makes the row a lie.
 
 ## Process
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 59 | `git rev-list --count HEAD`, read before the commit that carries this row |
+| Commits | 59 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
 | Latest commit | 2026-09-27 11:42 | `git log -1` |
 | Wall clock, first to last commit of each day | 11 h 33 min on the 24th, 19 h 40 min on the 25th, 21 h 11 min on the 26th, 11 h 21 min so far on the 27th | `git log --format='%ad'` grouped by day, first to last. Wall clock, not effort |
