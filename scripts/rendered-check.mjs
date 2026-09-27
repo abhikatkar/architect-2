@@ -26,6 +26,7 @@
 import { DEMO_PROJECT as project } from "../lib/seed/northwind.ts";
 import { changeRequests, FIX_CHANGE_ID } from "../lib/seed/code.ts";
 import { appliedState } from "../lib/seed/totals.ts";
+import { DEVICES, DEVICE_ARIA, deviceNote, frameBox } from "../lib/devices.ts";
 
 const base = process.argv[2] ?? "http://127.0.0.1:3131";
 const results = [];
@@ -1351,6 +1352,120 @@ async function raw(path) {
   );
 }
 
+
+/*
+  44. Every device option draws its frame in the HTML the server sent.
+
+  The frames are CSS, and what CSS does with them is measured by
+  scripts/device-check.mjs in a browser. This is the half that script cannot
+  prove: that the whole thing is there before a line of JavaScript runs, which
+  is the rule the rest of this workspace is built on (D19). So the geometry is
+  read out of lib/devices.ts and looked for in the served markup, rather than
+  typed in here where it could drift away from what ships.
+*/
+{
+  for (const device of DEVICES) {
+    const path = `/demo?tab=app&pane=canvas${device === "auto" ? "" : `&device=${device}`}`;
+    const { html } = await get(path);
+    const text = visibleText(html);
+    const flat = html.replace(/\s+/g, " ");
+
+    check(
+      `${device}: it is the option marked current`,
+      new RegExp(
+        `aria-current="page"[^>]*>\\s*${device[0].toUpperCase()}${device.slice(1)}\\s*<`,
+      ).test(flat),
+      `${device} carries aria-current`,
+    );
+    check(
+      `${device}: the switcher says what it does`,
+      DEVICES.every((d) => html.includes(`aria-label="${DEVICE_ARIA[d]}"`)),
+      "all four aria labels present",
+    );
+    check(
+      `${device}: the line under the switcher names the width`,
+      text.includes(deviceNote(device)),
+      deviceNote(device),
+    );
+    check(
+      `${device}: the trace is reachable from inside the frame`,
+      text.includes("Why did it do that?"),
+      "the escalated answer keeps its entry point",
+    );
+
+    if (device === "auto") {
+      check(
+        "auto: no device frame, as before",
+        !html.includes("device-slot") && html.includes("device-stage"),
+        "the stage without a device in it",
+      );
+      continue;
+    }
+
+    const box = frameBox(device);
+    check(
+      `${device}: the frame is in the HTML, before any script runs`,
+      html.includes("device-slot") && html.includes("device-body"),
+      "slot and body",
+    );
+    check(
+      `${device}: it carries its own ${box.width} by ${box.height} geometry`,
+      html.includes(`--frame-w:${box.width}px`) &&
+        html.includes(`--frame-h:${box.height}px`),
+      `--frame-w:${box.width}px and --frame-h:${box.height}px`,
+    );
+    check(
+      `${device}: the app inside is a container, not a media query`,
+      html.includes("app-screen") && html.includes("app-grid"),
+      "the screen and the grid the container query addresses",
+    );
+  }
+
+  // The phone's own furniture, and the desktop's.
+  const phone = await get("/demo?tab=app&pane=canvas&device=phone");
+  check(
+    "the phone frame has a status strip, hidden from screen readers",
+    /aria-hidden="true"[^>]*class="[^"]*justify-between/.test(
+      phone.html.replace(/\s+/g, " "),
+    ) && phone.html.includes("9:30"),
+    "time, signal and battery, announced to nobody",
+  );
+
+  const desktop = await get("/demo?tab=app&pane=canvas&device=desktop");
+  // Counted per window rather than per document: the response carries the
+  // markup and the flight payload, so every class string appears twice.
+  const windows = (desktop.html.match(/device-body/g) ?? []).length;
+  const dots = (desktop.html.match(/size-2\.5 rounded-pill bg-rule-strong/g) ?? [])
+    .length;
+  check(
+    "the desktop window has three neutral dots and the address bar",
+    windows > 0 &&
+      dots === 3 * windows &&
+      desktop.html.includes("northwind-helpline.architect.app"),
+    `${dots} dots over ${windows} windows, none of them cost, live or fault`,
+  );
+
+  // The device is URL state (D25), so a typed value is dropped, not rendered.
+  const junk = await get("/demo?tab=app&pane=canvas&device=watch");
+  check(
+    "a device nobody built falls back to Auto rather than breaking",
+    !junk.html.includes("device-slot") &&
+      visibleText(junk.html).includes(deviceNote("auto")),
+    "device=watch renders Auto",
+  );
+
+  // And the frame survives the parameters it shares the address with.
+  const withFix = await get(
+    "/demo?tab=app&pane=canvas&device=phone&fix=applied",
+  );
+  check(
+    "the frame and the applied fix hold the same address together",
+    withFix.html.includes(`--frame-w:${frameBox("phone").width}px`) &&
+      visibleText(withFix.html).includes("grounded, answered after the fix") &&
+      visibleText(withFix.html).includes("v15"),
+    "phone frame, v15, the corrected answer inside it",
+  );
+}
 
 const failed = results.filter((r) => !r.ok).length;
 for (const r of results) {

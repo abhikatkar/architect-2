@@ -66,6 +66,12 @@ const PAGES = [
   ["terms", "/terms", "marketing"],
   ["the diagrams index", "/architecture", "marketing"],
   ["the demo, App", "/demo?tab=app&pane=canvas", "workspace"],
+  // Two of the three device frames (D65), because both put text on a surface
+  // the other pages do not have: the phone's status strip inside the glass, and
+  // the desktop's address field on a tinted browser chrome bar. The tablet adds
+  // no text of its own, so it would only re-measure pairs already covered here.
+  ["the demo, App in a phone frame", "/demo?tab=app&pane=canvas&device=phone", "workspace"],
+  ["the demo, App in a desktop frame", "/demo?tab=app&pane=canvas&device=desktop", "workspace"],
   ["the demo, Agents", "/demo?tab=agents&pane=canvas", "workspace"],
   ["the demo, why did it do that", "/demo?tab=agents&pane=canvas&why=r-104", "workspace"],
   ["the demo, Code", "/demo?tab=code&pane=canvas", "workspace"],

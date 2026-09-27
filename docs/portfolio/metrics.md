@@ -6,37 +6,38 @@ came from, so any of them can be re-derived.
 **Rule for this file:** measured facts only. No estimates, no projections, no rounded guesses. A number
 that cannot be sourced belongs in [Pending](#pending) until it can be.
 
-_As of 2026-09-25._
+_As of 2026-09-27._
 
-Counts are read after the commit that last touched this file. A row must never name the commit that
-carries it, because amending or rebasing changes that hash and silently makes the row a lie.
+Counts are read immediately before the commit that carries them, so the Commits row is one short of what
+the repository holds at that commit. A row must never name the commit that carries it, because amending or
+rebasing changes that hash and silently makes the row a lie.
 
 ## Process
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 30 | `git rev-list --count HEAD` |
+| Commits | 59 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-26 16:05 | `git log -1` |
-| Wall clock, first to last commit | 7 h 22 min on day 1, plus 6 h 18 min on day 2 | Difference of the two rows above. Wall clock, not effort |
-| Calendar days elapsed | 2 | Same |
-| Decision log entries | 38 | `grep -c '^### D' docs/07-decision-log.md` |
-| Tracked files | 81 | `git ls-files \| wc -l` |
-| Tracked files under docs/ | 49 | `git ls-files 'docs/*' \| wc -l` |
-| Docs still stubs | 1 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
+| Latest commit | 2026-09-27 11:42 | `git log -1` |
+| Wall clock, first to last commit of each day | 11 h 33 min on the 24th, 19 h 40 min on the 25th, 21 h 11 min on the 26th, 11 h 21 min so far on the 27th | `git log --format='%ad'` grouped by day, first to last. Wall clock, not effort |
+| Calendar days elapsed | 4 | Same |
+| Decision log entries | 65 | `grep -c '^### D' docs/07-decision-log.md` |
+| Tracked files | 226 | `git ls-files \| wc -l` |
+| Tracked files under docs/ | 95 | `git ls-files 'docs/*' \| wc -l` |
+| Docs still stubs | 0 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
 
 ## Product
 
 | Metric | Value | Source |
 |---|---|---|
-| Pages built | 8 | `/`, `/login`, `/app`, `/app/p/[id]`, `/demo`, `/dev/tokens`. `git ls-files 'app/*' \| grep page.tsx` |
-| Route handlers built | 6 | Auth x3, plus `/app/projects`, `/app/p/[id]/build`, `/app/p/[id]/built` |
-| Production dependencies | 5 | `package.json`. next, react, react-dom, @supabase/ssr, @supabase/supabase-js |
+| Pages built | 15 | `git ls-files 'app/*' \| grep -c page.tsx` |
+| Route handlers built | 9 | `git ls-files 'app/*' \| grep -c route.ts`. Auth x3, `/app/projects`, `/app/p/[id]/build`, `/app/p/[id]/built`, `/onboarding/save`, `/theme`, `/jev/run` |
+| Production dependencies | 7 | `package.json`. next, react, react-dom, @supabase/ssr, @supabase/supabase-js, ai, server-only |
 | Next.js version | 16.3.6 | `package.json` |
 | Build status | Passing | `npm run build`, plus `tsc --noEmit` and ESLint clean |
-| Design tokens | 8 colours, 7 type sizes, 3 radii | [design/design-system.md](../design/design-system.md), implemented in `app/globals.css` |
+| Design tokens | 9 colours, 10 type sizes, 5 radii | [design/design-system.md](../design/design-system.md), implemented in `app/globals.css`. Counted in the `@theme` block |
 | Flows specified | 11 | [06-user-flows.md](../06-user-flows.md). F1 to F11 |
-| P0 screens built | 11 of 15 | Screens 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 and 22. Remaining: 12 code, 14 GitHub consent, 15 import, 16 deploy. Screen 23 error pages is built but is P1, so it does not count here |
+| P0 screens built | 15 of 15 | [design/screen-inventory.md](../design/screen-inventory.md). Screen 11 is also built and is P1, so it does not count here. This row said 11 of 15 until 2026-09-27, contradicting the Screens built row below it in this same file |
 | Screens specified | 23 | [design/screen-inventory.md](../design/screen-inventory.md). 15 at P0, 5 at P1, 3 at P2 |
 | Auth | Functional | Google sign-in verified end to end on production. See [D18](../07-decision-log.md) |
 | Database | Functional | projects and profiles, both with RLS, proven with two real users. See [D26](../07-decision-log.md) and [D35](../07-decision-log.md) |
@@ -75,13 +76,14 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
 | Consistency invariants | **91** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **156** | `scripts/rendered-check.mjs` |
+| Rendered-page assertions | **186** | `scripts/rendered-check.mjs` |
 | Interactive elements checked for the right cursor | **140**, over 7 pages, 0 wrong | `scripts/cursor-check.mjs` |
 | Surfaces required to agree on one page | **17 to 18 readings** per URL state, over 5 states and 3 tabs, plus the version rows added up from the HTML | `scripts/rendered-check.mjs`, section 28 |
 | Theme switch, earliest possible click | **10 ms** on production and 16 ms locally, 5 of 5 each, against **1470 to 1522 ms** for the same click before this fix | `scripts/theme-check.mjs`, throttled to 400 ms latency |
 | Sheet focus and keyboard checks | **8 of 8**, four sheets at 1280px and 390px, measured in a browser | `scripts/focus-check.mjs` |
-| Links checked in docs and README | **235**, all resolving, anchors included | `scripts/link-check.mjs` |
-| Colour pairs measured for WCAG AA | **2272**, over 16 surfaces in both themes, 0 below their threshold. Tightest **3.27:1** against a 3:1 control boundary requirement | `scripts/contrast-check.mjs` |
+| App preview device frame checks | **76 of 76**, four options at 375, 768, 1280 and 1920px in both themes. **0 horizontal overflow in all 32** width and theme combinations, and the app lays out at 390, 820 or 1280px inside its frame whatever the window is | `scripts/device-check.mjs` |
+| Links checked in docs and README | **249**, all resolving, anchors included | `scripts/link-check.mjs` |
+| Colour pairs measured for WCAG AA | **2660**, over 18 surfaces in both themes, 0 below their threshold. Tightest **3.27:1** against a 3:1 control boundary requirement | `scripts/contrast-check.mjs` |
 | Screens built | **15 of 15 P0, plus 1 P1** (screen 11, the framework picker) | [screen-inventory.md](../design/screen-inventory.md) |
 | Unused copy strings | **0.** Five were removed as duplicates and an invariant now fails the build if a key is unread | `scripts/consistency-check.mjs` |
 | Files browsable in the Code tab | **42**, the same number the GitHub consent line counts | `lib/seed/code.ts`, asserted equal |
