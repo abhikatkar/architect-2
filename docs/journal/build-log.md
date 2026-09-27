@@ -101,3 +101,11 @@ Backfilled from `git log` and [07-decision-log.md](../07-decision-log.md) at the
 **Ended the day blocked on:** competitive teardown notes for [01](../01-competitive-teardown.md), GroundTruth
 first-hand notes for [03](../03-architect-today.md), and Supabase credentials to verify a real sign-in.
 Personas and strategy deliberately not started, because they depend on the teardown.
+
+## 2026-09-27
+
+| Time | Work done | Elapsed | Tools | Outcome |
+|---|---|---|---|---|
+| 10:16 | Made the tool count consistent in the two places that still implied seven tools were tested | 10 min | Claude Code | The fixture comment said the brief "asked seven tools to build" and the landing page said five "got far enough to judge", which is vague about why: two were blocked at signup, which is a different and more useful fact than failing the brief. Both now read as the teardown does. The teardown's own method section and the decision and build log history keep saying 7, because that is what was planned and what happened |
+
+**Day total so far:** 10 min across 1 commit.

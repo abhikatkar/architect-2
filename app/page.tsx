@@ -169,9 +169,9 @@ export default async function LandingPage() {
             Four promises, and the finding behind each one
           </h2>
           <p className="mt-3 max-w-[64ch] text-lead text-graphite">
-            Seven tools were given the same brief and five got far enough to
-            judge. Every figure below is something that actually went wrong,
-            written up with the screenshots in the repo.
+            Five tools were tested hands-on with one identical brief, and two
+            more were blocked at signup. Every figure below is something that
+            actually went wrong, written up with the screenshots in the repo.
           </p>
 
           <ul className="mt-8 grid gap-4 md:grid-cols-2">

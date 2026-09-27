@@ -3,8 +3,11 @@ import type { DemoProject } from "./types";
 /**
  * Northwind Helpline, the one demo story every simulated screen reads from.
  *
- * Deliberately the same app the teardown prompt asked seven tools to build, so
- * the before and after comparison is like for like. Every name is fictional.
+ * Deliberately the same app the teardown brief asked for, so the before and
+ * after comparison is like for like. The brief went to 7 tools: 5 were tested
+ * end to end and 2, Bolt and Rocket, were blocked at signup, so "5 tested, 2
+ * blocked at signup" is the count everywhere outside the teardown's own method
+ * section. Every name is fictional.
  * Source of truth: docs/design/content-and-seed-data.md.
  */
 export const DEMO_PROJECT: DemoProject = {
