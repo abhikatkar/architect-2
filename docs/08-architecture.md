@@ -1,20 +1,27 @@
 # 08. Architecture
 
+**This document is what this demo actually is.** The architecture being proposed for the product is a
+separate document, [ARCHITECTURE.md](ARCHITECTURE.md): sandboxing, the agent harness, the proxy, model
+agnosticism, GitHub, deploy and scaling, with the decision, the tech and the evidence behind each one. It
+carries its own diagram, and a table saying which of its seven parts this demo implements.
+
 ## Diagrams
 
-Three interactive diagrams, generated from the JSON sources in [architecture/](architecture/) and served
+Four interactive diagrams, generated from the JSON sources in [architecture/](architecture/) and served
 from `/architecture/` on the running app, each on a page that links back to the demo and to the index.
+Three of them describe this demo. The first describes the proposal, and says so on its face.
 
 Opening a generated file directly, from `public/architecture/`, gives the diagram with no way back: its bytes
 are fixed by a delivery receipt (D42), so a link cannot be added inside it without making that receipt false.
 The frame around it carries the links instead, which is why every reference here points at the route.
 
-Start at **[/architecture](../app/architecture/page.tsx)** on the running app, which links to all three and
+Start at **[/architecture](../app/architecture/page.tsx)** on the running app, which links to all four and
 back to the demo, and which serves a generated still below 640px rather than sending a phone to a canvas
 built for a desktop.
 
 | Diagram | What it answers | Source |
 |---|---|---|
+| [Proposed production architecture](../app/architecture/[slug]/page.tsx) at `/architecture/proposed-architecture` | How the product would run in production: the seven parts of [ARCHITECTURE.md](ARCHITECTURE.md) and the trust boundaries between them. The only diagram here describing something that is not built. Exported for the submission form as a [PNG](architecture/exports/proposed-architecture.png) and a [PDF](architecture/exports/proposed-architecture.pdf) | [proposed-architecture.json](architecture/proposed-architecture.json) |
 | [System architecture](../app/architecture/[slug]/page.tsx) at `/architecture/architecture` | What runs, what is staged, and where the trust boundaries are. Every node is marked Real or Simulated, and 22 source links are verified against the commit the diagram was generated from | [architecture.json](architecture/architecture.json) |
 | [Agent workflow](../app/architecture/[slug]/page.tsx) at `/architecture/agent-workflow` | The four Northwind agents in order, each labeled with the kind of model it runs on and why | [agent-workflow.json](architecture/agent-workflow.json) |
 | [Jev call sequence](../app/architecture/[slug]/page.tsx) at `/architecture/jev-call-sequence` | One "Test this agent" call end to end: the rate limit checked first, the Gateway call, the log write, and the recorded fallback | [jev-call-sequence.json](architecture/jev-call-sequence.json) |
@@ -83,8 +90,10 @@ returns `307` with `location: /login?next=%2Fapp`, and nested paths behave the s
 Not yet verified: a real Google sign-in, which needs a live Supabase project with the Google provider
 configured. Until that runs, [README.md](../README.md) reports auth as planned, not functional.
 
-## Pending: mapping to Lyzr's agent backend
+## Mapping to Lyzr's agent backend
 
-How each screen would run against Lyzr's real agent infrastructure. This depends on the architecture
-research in [research/architect-today-research.md](research/architect-today-research.md) and on the
-product surface, which does not exist yet.
+Answered in [ARCHITECTURE.md](ARCHITECTURE.md) rather than here, because the answer turned out to be an
+architecture rather than a mapping table: the harness and the agent services are Python, the agent runtime
+is Lyzr's own, and MongoDB keeps the agents, runs and project documents while a metering store holds what
+the cost estimates are computed from. See "Fits Lyzr's current stack" in that document, and
+[D1](07-decision-log.md) for why this demo does not run on that stack.

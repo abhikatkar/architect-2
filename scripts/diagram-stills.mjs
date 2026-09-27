@@ -19,7 +19,12 @@ import { writeFileSync, mkdirSync } from "node:fs";
 
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = 9300 + Math.floor(Math.random() * 600);
-const DIAGRAMS = ["architecture", "agent-workflow", "jev-call-sequence"];
+const DIAGRAMS = [
+  "architecture",
+  "agent-workflow",
+  "jev-call-sequence",
+  "proposed-architecture",
+];
 const OUT = "public/architecture/still";
 const ROOT = process.cwd();
 

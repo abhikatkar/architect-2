@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Architect 2.0: proposed production architecture",
+    "visual_preset": "blueprint",
+    "quality_profile": "showcase",
+    "output": "public/architecture/proposed-architecture.html",
+    "viewBox": [
+      1330,
+      540
+    ],
+    "views": [
+      {
+        "id": "build-path",
+        "label": "One build, end to end",
+        "focus": [
+          "client",
+          "api",
+          "queue",
+          "harness",
+          "sandbox"
+        ],
+        "note": "A prompt becomes one durable job, one worker, and one isolated sandbox that dies with the build."
+      },
+      {
+        "id": "model-path",
+        "label": "Every model call",
+        "focus": [
+          "harness",
+          "gateway",
+          "models",
+          "rtproxy",
+          "runtime"
+        ],
+        "note": "Two proxies: one for building, one for deployed apps. Nothing calls a provider directly, which is what makes metering possible."
+      },
+      {
+        "id": "own-it",
+        "label": "Your code and your data",
+        "focus": [
+          "api",
+          "github",
+          "data",
+          "objects",
+          "runtime"
+        ],
+        "note": "Commits reach your repo through a per-repo App after consent, and every step leaves a snapshot and a trace."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "github",
+      "type": "external",
+      "label": "GitHub App",
+      "sublabel": "fine grained, per repo",
+      "pos": [
+        310,
+        72
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "sandbox",
+      "type": "cloud",
+      "label": "Sandbox pool",
+      "sublabel": "one microVM per build",
+      "pos": [
+        576,
+        72
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "vault",
+      "type": "security",
+      "label": "Secrets vault",
+      "sublabel": "never in model context",
+      "pos": [
+        842,
+        72
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "security",
+      "label": "AI gateway",
+      "sublabel": "routing, BYOK, metering",
+      "pos": [
+        1108,
+        72
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "client",
+      "type": "frontend",
+      "label": "Builder workspace",
+      "sublabel": "chat, plan, agents, code",
+      "pos": [
+        44,
+        244
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "API tier",
+      "sublabel": "stateless, autoscaled",
+      "pos": [
+        310,
+        244
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "queue",
+      "type": "messagebus",
+      "label": "Build job queue",
+      "sublabel": "durable, resumable",
+      "pos": [
+        576,
+        244
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "harness",
+      "type": "backend",
+      "label": "Agent harness",
+      "sublabel": "plan, then edit, run, test",
+      "pos": [
+        842,
+        244
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "models",
+      "type": "external",
+      "label": "Model providers",
+      "sublabel": "Jev, language, code",
+      "pos": [
+        1108,
+        244
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "data",
+      "type": "database",
+      "label": "Postgres",
+      "sublabel": "projects, versions, meters",
+      "brand": "postgresql",
+      "pos": [
+        310,
+        416
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "objects",
+      "type": "database",
+      "label": "Object store",
+      "sublabel": "snapshots, logs, traces",
+      "pos": [
+        576,
+        416
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "runtime",
+      "type": "cloud",
+      "label": "Preview and production",
+      "sublabel": "a preview per version",
+      "pos": [
+        842,
+        416
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "rtproxy",
+      "type": "security",
+      "label": "Runtime AI proxy",
+      "sublabel": "for deployed apps",
+      "pos": [
+        1108,
+        416
+      ],
+      "size": [
+        160,
+        72
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Client, untrusted",
+      "wraps": [
+        "client"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Platform control plane, stateless and autoscaled",
+      "wraps": [
+        "api",
+        "queue",
+        "harness"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Build plane: one sandbox per build, egress allowlisted",
+      "wraps": [
+        "sandbox",
+        "vault"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Egress control for builds",
+      "wraps": [
+        "gateway"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Tenant data",
+      "wraps": [
+        "data",
+        "objects"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Run plane: deployed apps and agents, its own proxy",
+      "wraps": [
+        "runtime",
+        "rtproxy"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-api",
+      "from": "client",
+      "to": "api",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-github",
+      "from": "api",
+      "to": "github",
+      "label": "after consent",
+      "variant": "security",
+      "labelDx": -36,
+      "labelDy": -40
+    },
+    {
+      "id": "github-api",
+      "from": "github",
+      "to": "api",
+      "label": "webhooks",
+      "variant": "dashed",
+      "labelDx": 50,
+      "labelDy": 40
+    },
+    {
+      "id": "api-data",
+      "from": "api",
+      "to": "data",
+      "label": "tenant scoped",
+      "labelDy": 58
+    },
+    {
+      "id": "api-queue",
+      "from": "api",
+      "to": "queue",
+      "label": "one durable job",
+      "variant": "emphasis"
+    },
+    {
+      "id": "queue-harness",
+      "from": "queue",
+      "to": "harness",
+      "label": "one worker",
+      "variant": "emphasis"
+    },
+    {
+      "id": "harness-sandbox",
+      "from": "harness",
+      "to": "sandbox",
+      "label": "typed tools",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "vault-sandbox",
+      "from": "vault",
+      "to": "sandbox",
+      "label": "at run time",
+      "variant": "security"
+    },
+    {
+      "id": "harness-gateway",
+      "from": "harness",
+      "to": "gateway",
+      "label": "every step",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gateway-models",
+      "from": "gateway",
+      "to": "models",
+      "label": "by task type",
+      "variant": "emphasis",
+      "labelDy": 70
+    },
+    {
+      "id": "harness-objects",
+      "from": "harness",
+      "to": "objects",
+      "label": "snapshot per step"
+    },
+    {
+      "id": "harness-runtime",
+      "from": "harness",
+      "to": "runtime",
+      "label": "promote on health",
+      "variant": "emphasis",
+      "labelDx": 20,
+      "labelDy": 70
+    },
+    {
+      "id": "runtime-rtproxy",
+      "from": "runtime",
+      "to": "rtproxy",
+      "label": "agent calls",
+      "variant": "emphasis"
+    },
+    {
+      "id": "rtproxy-models",
+      "from": "rtproxy",
+      "to": "models",
+      "label": "no provider key",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "What the shape buys a builder",
+      "items": [
+        "Per stage meters at the gateway are where a cost estimate comes from, before the build rather than after it",
+        "A trace per step is what answers \"Why did it do that?\" without reading a log",
+        "A checkpoint commit per step, so a bad step is one revert rather than a rebuild"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Boundaries that do real work",
+      "items": [
+        "Secrets reach the sandbox at run time and never enter model context",
+        "One sandbox per build with an egress allowlist, so a generated command cannot reach the platform",
+        "Deployed apps hold no provider keys: they call agents through the runtime proxy"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Proposed, not built",
+      "items": [
+        "This is the target architecture, written up in docs/ARCHITECTURE.md",
+        "The demo implements sign in, per user Postgres rows and live decision model calls",
+        "What runs today is the separate system architecture diagram"
+      ]
+    }
+  ]
+}

@@ -16,14 +16,15 @@ rebasing changes that hash and silently makes the row a lie.
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 62 | `git rev-list --count HEAD` |
+| Commits | 63 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-27 12:31 | `git log -1` |
-| Wall clock, first to last commit of each day | 11 h 33 min on the 24th, 19 h 40 min on the 25th, 21 h 11 min on the 26th, 12 h 10 min so far on the 27th | `git log --format='%ad'` grouped by day, first to last. Wall clock, not effort |
+| Latest commit | 2026-09-27 13:00 | `git log -1` |
+| Wall clock, first to last commit of each day | 11 h 33 min on the 24th, 19 h 40 min on the 25th, 21 h 11 min on the 26th, 12 h 39 min so far on the 27th | `git log --format='%ad'` grouped by day, first to last. Wall clock, not effort |
 | Calendar days elapsed | 4 | Same |
-| Decision log entries | 66 | `grep -c '^### D' docs/07-decision-log.md` |
-| Tracked files | 236 | `git ls-files \| wc -l` |
-| Tracked files under docs/ | 105 | `git ls-files 'docs/*' \| wc -l` |
+| Decision log entries | 67 | `grep -c '^### D' docs/07-decision-log.md` |
+| Tracked files | 243 | `git ls-files \| wc -l` |
+| Tracked files under docs/ | 109 | `git ls-files 'docs/*' \| wc -l` |
+| Walkthrough length | **4 min 16 s**, 256.171 s | `"duration": "PT256.171S"` in the [Loom](https://www.loom.com/share/8858e15ed60049929eb7888ae634f3ea) share page's own metadata, fetched with no session on 2026-09-27 |
 | Docs still stubs | 0 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
 
 ## Product
@@ -71,18 +72,20 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 
 | Metric | Value | Source |
 |---|---|---|
-| Generated diagrams | 3, from JSON committed in [docs/architecture/](../architecture/) | `archify deliver` |
+| Generated diagrams | 4, from JSON committed in [docs/architecture/](../architecture/) | `archify deliver` |
 | Source links verified against the pinned commit | **22**, all in the architecture diagram, re-derived at the final commit | the delivery receipt, `evidence.references` |
-| Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
+| Smallest node text at a 1440px desktop | **7.84px** proposed architecture, 7.43px architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
+| Proposed architecture diagram, checked | **9 of 9** artifact checks, composition showcase **0 errors and 0 warnings**, contained at 1440x900, 1600x1000, 1920x1080 and 2048x1320 | `archify deliver` and `archify visual-check`, sha256 `9091cb75a7f8` |
+| Submission exports of that diagram | PNG **3840x2272**, PDF **2 pages** at 20 x 11.25 in, both captured from the delivered HTML rather than drawn | [scripts/diagram-exports.mjs](../../scripts/diagram-exports.mjs) |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
 | Consistency invariants | **91** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **188** | `scripts/rendered-check.mjs` |
-| Interactive elements checked for the right cursor | **141**, over 7 pages, 0 wrong | `scripts/cursor-check.mjs` |
+| Rendered-page assertions | **189** | `scripts/rendered-check.mjs` |
+| Interactive elements checked for the right cursor | **148**, over 8 pages, 0 wrong | `scripts/cursor-check.mjs` |
 | Surfaces required to agree on one page | **17 to 18 readings** per URL state, over 5 states and 3 tabs, plus the version rows added up from the HTML | `scripts/rendered-check.mjs`, section 28 |
 | Theme switch, earliest possible click | **10 ms** on production and 16 ms locally, 5 of 5 each, against **1470 to 1522 ms** for the same click before this fix | `scripts/theme-check.mjs`, throttled to 400 ms latency |
 | Sheet focus and keyboard checks | **8 of 8**, four sheets at 1280px and 390px, measured in a browser | `scripts/focus-check.mjs` |
 | App preview device frame checks | **76 of 76**, four options at 375, 768, 1280 and 1920px in both themes. **0 horizontal overflow in all 32** width and theme combinations, and the app lays out at 390, 820 or 1280px inside its frame whatever the window is | `scripts/device-check.mjs` |
-| Links checked in docs and README | **263**, all resolving, anchors included, 1 of them an external URL fetched for a 200 | `scripts/link-check.mjs` |
+| Links checked in docs and README | **315**, all resolving, anchors included, 2 of them external URLs fetched for a 200 | `scripts/link-check.mjs` |
 | Colour pairs measured for WCAG AA | **2662**, over 18 surfaces in both themes, 0 below their threshold. Tightest **3.27:1** against a 3:1 control boundary requirement | `scripts/contrast-check.mjs` |
 | Screens built | **15 of 15 P0, plus 1 P1** (screen 11, the framework picker) | [screen-inventory.md](../design/screen-inventory.md) |
 | Unused copy strings | **0.** Five were removed as duplicates and an invariant now fails the build if a key is unread | `scripts/consistency-check.mjs` |
@@ -419,5 +422,3 @@ guessed.
 | Architect: whether a second run reproduces 42 min | A repeat run. The teardown is a single session |
 | Screens in the finished product | Design phase, [design/screen-inventory.md](../design/screen-inventory.md) |
 | Days to ship | Not shipped yet. First deploy sets this |
-| Real Google sign-in verified | A live Supabase project with the Google provider configured |
-| Walkthrough length | Loom not recorded. See [assets/README.md](assets/README.md) |

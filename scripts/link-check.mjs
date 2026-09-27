@@ -73,6 +73,11 @@ const EXTERNAL = [
     what: "the GroundTruth case study",
     mentions: "GroundTruth",
   },
+  {
+    url: "https://www.loom.com/share/8858e15ed60049929eb7888ae634f3ea",
+    what: "the Loom walkthrough",
+    mentions: "Loom",
+  },
 ];
 
 const headings = new Map(files.map((f) => [f, headingsOf(f)]));

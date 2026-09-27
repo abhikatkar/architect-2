@@ -270,7 +270,12 @@ async function raw(path) {
 
 // 12. Diagram pages link back, and the sequence title matches the button.
 {
-  for (const slug of ["architecture", "agent-workflow", "jev-call-sequence"]) {
+  for (const slug of [
+    "architecture",
+    "agent-workflow",
+    "jev-call-sequence",
+    "proposed-architecture",
+  ]) {
     const { html, status } = await get(`/architecture/${slug}`);
     check(
       `the ${slug} page links back to the demo`,

@@ -1172,3 +1172,41 @@ Format: date, decision, evidence, alternatives rejected.
   mention in the inspector or the run trace so that a screen would have a link, which is product copy added
   to justify a check rather than to tell a builder anything. The run trace's provenance stays where it was,
   in the component's docblock, now with the URL in it.
+
+### D67. 2026-09-27: The proposed production architecture is its own document, not a section of the one that describes the demo
+- **Decision:** the submission needs an architecture document and an architecture diagram, and both describe
+  a system that does not exist. They ship as [ARCHITECTURE.md](ARCHITECTURE.md) and
+  [architecture/proposed-architecture.json](architecture/proposed-architecture.json), separate from
+  [08-architecture.md](08-architecture.md), which stays an inventory of what this demo actually is. Seven
+  parts, each with the decision, the tech, why, and which principle and which teardown finding it answers:
+  sandboxing, the agent harness, the proxy, model agnosticism, GitHub, deploy and scaling. Three choices
+  inside it are worth recording on their own. **Two proxies, not one:** a build-time gateway for the harness
+  and a separate runtime proxy for deployed apps, because a build's budget and a published app's quota are
+  different policies and one shared credential would put a provider key inside an app a non-technical user
+  just published. **The GitHub App's installation token lives in the API tier,** so neither the harness nor
+  the sandbox ever holds a GitHub credential, which makes the consent step the only way a write happens.
+  **Isolation is per build, not per tenant,** because the boundary has to hold when one project's transitive
+  dependency is hostile to the same user's other project.
+- **Evidence:** every part cites something measured rather than something believed. The per-build cost limit
+  answers a build that took $3.33 of a $7.33 balance with a Low Credits modal as the first warning, and an
+  auto-fix that charged $0.43 to diagnose a stale compile ([01](01-competitive-teardown.md)). The gates
+  before "Built" answer a build declared complete and verified while the preview read "App restarting". The
+  per-repo App answers Replit's `repo` scope, declined during the teardown, and the repository today's
+  Architect created and set to auto-sync without Push ever being clicked ([03](03-architect-today.md)).
+  Routing by task type is the one part with our own numbers behind it rather than a vendor's: 453 ms median
+  over 27 live calls and about $0.0000179 a call, so roughly 56,000 calls per dollar
+  ([metrics](portfolio/metrics.md)). The diagram validates at archify's showcase profile with 0 errors and
+  0 warnings, and its smallest node text projects at **7.84px** on a 1440px desktop, which is larger than
+  all three existing diagrams (7.43, 7.25 and 7.03).
+- **Rejected:** folding the proposal into [08-architecture.md](08-architecture.md). That document exists to
+  say what is real, the README's status table exists for the same reason, and a design written in the same
+  file would have been read as an inventory by exactly the reviewer those two surfaces were built for.
+  Also rejected: marking the proposed diagram's nodes Real or Simulated the way the as-built one does. Every
+  node would have read Simulated, which tells a reader nothing, so the honesty lives in a card titled
+  "Proposed, not built" and in the page and index copy instead. Also rejected: archify's
+  `deployment-ownership` profile, which wants regions, clusters and owning teams. Those are facts about a
+  real deployment, and inventing a team name to satisfy a profile is the opposite of what this repo does.
+  Also rejected: shrinking the exported PDF until it fitted one page. The viewer sizes its canvas against
+  the page rather than against its content, so the cards land below it at any scale, proven by scaling down
+  to 0.57 and still getting two pages. The PDF stays at scale 1, vector and exact, and the PNG is the
+  single-file version.

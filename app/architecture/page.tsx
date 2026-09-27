@@ -5,15 +5,22 @@ import { MarketingHeader } from "@/components/ui/marketing-header";
 export const metadata: Metadata = {
   title: "Architecture diagrams",
   description:
-    "Three generated diagrams: the system and its trust boundaries, the agent workflow, and one Jev call end to end.",
+    "Four generated diagrams: the proposed production architecture, the system as built and its trust boundaries, the agent workflow, and one Jev call end to end.",
 };
 
 const DIAGRAMS = [
   {
-    slug: "architecture",
-    title: "System architecture",
+    slug: "proposed-architecture",
+    title: "Proposed production architecture",
     blurb:
-      "What runs and what is staged, with the trust boundaries drawn. Every node says Real or Simulated, and 22 of them link to the exact file and lines at the commit the diagram was built from.",
+      "The target architecture for Architect 2.0, and the only diagram here that describes something not built: sandboxing, the agent harness, the two proxies, model routing, GitHub, deploy and scaling, with the trust boundaries drawn. The decisions behind it are in docs/ARCHITECTURE.md.",
+    source: "docs/architecture/proposed-architecture.json",
+  },
+  {
+    slug: "architecture",
+    title: "System architecture, as built",
+    blurb:
+      "What runs and what is staged in this demo, with the trust boundaries drawn. Every node says Real or Simulated, and 22 of them link to the exact file and lines at the commit the diagram was built from.",
     source: "docs/architecture/architecture.json",
   },
   {
@@ -55,8 +62,9 @@ export default function ArchitectureIndex() {
         <h1 className="text-display font-bold">Architecture diagrams</h1>
         <p className="max-w-[72ch] text-lead text-graphite">
           Generated from JSON committed in the repo, not drawn by hand, and
-          rebuilt before submission. A node is never marked Real unless it
-          actually runs.
+          rebuilt before submission. The first one is the architecture being
+          proposed. The other three describe this demo as it actually is, and a
+          node in them is never marked Real unless it really runs.
         </p>
         <p className="flex flex-wrap items-center gap-x-5 gap-y-1 text-note">
           <Link href="/demo" className="text-blueprint underline">

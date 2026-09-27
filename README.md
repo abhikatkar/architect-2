@@ -7,6 +7,8 @@ Built as a submission for the Technical Product Manager role at Lyzr AI (Archite
 | | |
 |---|---|
 | Live demo, no account needed | [architect-2-zeta.vercel.app/demo](https://architect-2-zeta.vercel.app/demo) |
+| Walkthrough, 4 min 16 s | [Loom](https://www.loom.com/share/8858e15ed60049929eb7888ae634f3ea) |
+| Proposed architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and the [diagram](https://architect-2-zeta.vercel.app/architecture/proposed-architecture) ([PNG](docs/architecture/exports/proposed-architecture.png), [PDF](docs/architecture/exports/proposed-architecture.pdf)) |
 | Diagrams | [/architecture](https://architect-2-zeta.vercel.app/architecture) |
 | Start reading | [docs/00-assignment-brief.md](docs/00-assignment-brief.md) |
 
@@ -44,7 +46,7 @@ because brand verification is optional for a concept like this one and was not r
 nothing beyond the default name, email and picture, and [what it stores is listed in full](app/privacy/page.tsx)
 at [/privacy](https://architect-2-zeta.vercel.app/privacy).
 
-**How honest it is, mechanically:** 91 invariants over the fixtures and 188 assertions against served HTML
+**How honest it is, mechanically:** 91 invariants over the fixtures and 189 assertions against served HTML
 gate every commit. They exist because four review rounds caught contradictions that reading the code had
 missed. One of them reads every number on a page and fails unless all of its surfaces agree with each
 other, which is the check that was missing when the fourth round found a screen contradicting its own
@@ -63,12 +65,19 @@ This repo documents the full zero-to-one process, not just the code.
 6. **[Product strategy](docs/05-product-strategy.md):** thesis, positioning, and what I cut
 7. **[User flows](docs/06-user-flows.md)**
 8. **[Decision log](docs/07-decision-log.md):** every major decision, dated, with the evidence behind it
-9. **[Architecture](docs/08-architecture.md):** my stack, how it maps to Lyzr's backend, and three interactive diagrams, each on a page that links back to the demo: [system architecture](https://architect-2-zeta.vercel.app/architecture/architecture) with every node marked Real or Simulated and linked to its source, the [agent workflow](https://architect-2-zeta.vercel.app/architecture/agent-workflow), and the [Jev call sequence](https://architect-2-zeta.vercel.app/architecture/jev-call-sequence). The generated files themselves are in [public/architecture/](public/architecture/)
-10. **[Design](docs/design/):** the [design system](docs/design/design-system.md), the [screen inventory](docs/design/screen-inventory.md), and the [seed content](docs/design/content-and-seed-data.md) behind the build
-11. **[Build log](docs/journal/build-log.md):** what was done each day, and how long it took
-12. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md):** the north star metric, one input metric per principle, and what comes next
-13. **[Measured numbers](docs/portfolio/metrics.md):** every hard number, each with the command that produced it
-14. **[Early adoption write-up](docs/portfolio/early-adoption-jev.md):** the decision model, what it cost, and the bar that was wrong
+9. **[Proposed architecture](docs/ARCHITECTURE.md):** the production design for Architect 2.0, seven parts
+   deep: sandboxing, the agent harness, the proxy, model agnosticism, GitHub, deploy and scaling. Each one
+   gives the decision, the tech, why, and which principle and which teardown finding it answers. Proposed,
+   not built, and the table at the end of it says exactly which parts the demo implements
+10. **[Architecture as built](docs/08-architecture.md):** my stack, how it maps to Lyzr's backend, and four
+   interactive diagrams, each on a page that links back to the demo: the
+   [proposed production architecture](https://architect-2-zeta.vercel.app/architecture/proposed-architecture),
+   [system architecture](https://architect-2-zeta.vercel.app/architecture/architecture) with every node marked Real or Simulated and linked to its source, the [agent workflow](https://architect-2-zeta.vercel.app/architecture/agent-workflow), and the [Jev call sequence](https://architect-2-zeta.vercel.app/architecture/jev-call-sequence). The generated files themselves are in [public/architecture/](public/architecture/)
+11. **[Design](docs/design/):** the [design system](docs/design/design-system.md), the [screen inventory](docs/design/screen-inventory.md), and the [seed content](docs/design/content-and-seed-data.md) behind the build
+12. **[Build log](docs/journal/build-log.md):** what was done each day, and how long it took
+13. **[Roadmap and metrics](docs/09-roadmap-and-metrics.md):** the north star metric, one input metric per principle, and what comes next
+14. **[Measured numbers](docs/portfolio/metrics.md):** every hard number, each with the command that produced it
+15. **[Early adoption write-up](docs/portfolio/early-adoption-jev.md):** the decision model, what it cost, and the bar that was wrong
 
 ## What is functional vs simulated
 

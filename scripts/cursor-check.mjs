@@ -50,6 +50,7 @@ const PAGES = [
   ["the demo, a sheet open", "/demo?tab=deploy&pane=canvas&sheet=github", 10],
   ["the demo, Code", "/demo?tab=code&pane=canvas", 20],
   ["the signed in workspace", "/app", 6],
+  ["the diagrams index", "/architecture", 6],
 ];
 
 const chrome = spawn(CHROME, [

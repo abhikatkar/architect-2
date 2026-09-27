@@ -3,8 +3,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 const DIAGRAMS: Record<string, { title: string; blurb: string }> = {
+  "proposed-architecture": {
+    title: "Proposed production architecture",
+    blurb: "The target architecture. Proposed, not built: see docs/ARCHITECTURE.md.",
+  },
   architecture: {
-    title: "System architecture",
+    title: "System architecture, as built",
     blurb: "What runs, what is staged, and where the trust boundaries are.",
   },
   "agent-workflow": {
