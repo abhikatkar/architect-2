@@ -16,7 +16,7 @@ Format: date, decision, evidence, alternatives rejected.
 
 ### D3. 2026-09-24: Research before design, split across three parallel streams
 - **Evidence:** "Think from first principles" is stated twice in the brief. First principles requires knowing what users actually struggle with.
-- **Streams:** hands-on teardown, planned for 7 tools and completed for 5 (Claude Cowork), voice of customer (Perplexity), Architect architecture and docs (Claude). The cut to 5 is [D11](#d11-2026-09-24-stop-the-teardown-at-5-tools-skip-bolt-and-rocket).
+- **Streams:** hands-on teardown, planned for 7 tools and completed for 5 (Claude), voice of customer (Perplexity), Architect architecture and docs (Claude). The cut to 5 is [D11](#d11-2026-09-24-stop-the-teardown-at-5-tools-skip-bolt-and-rocket).
 
 ### D4. 2026-09-24: Design artifacts live in docs/design/, not in renumbered top-level docs
 - **Evidence:** Design, UI/UX and flows is the top judging criterion, yet no doc owned the visual language,
@@ -1088,3 +1088,60 @@ Format: date, decision, evidence, alternatives rejected.
 - **Rejected:** copying a specific site's fonts or palette, which is both a licensing problem and a
   positioning problem for a product whose argument is that what you build is yours. Also rejected:
   raising `rule` itself to 3:1, which would have put a mid-grey line around every panel in the workspace.
+
+### D65. 2026-09-27: Device frames that the app actually reflows inside
+- **Decision:** Phone, Tablet and Desktop draw a generic CSS device around the App preview and the app
+  inside lays out at that device's width rather than at the viewer's. Auto is unchanged: no frame, phone
+  width below 640px, the panel above it. The geometry lives in
+  [lib/devices.ts](../lib/devices.ts) and nowhere else, all of it is server rendered, and none of it uses
+  JavaScript.
+- **Container queries, not media queries, and that is the whole point.** A device preview has to be able
+  to disagree with the screen it is being looked at on. A media query only knows about the window, so a
+  390px phone frame opened on a 1920px monitor would have laid the chat and the inbox out side by side
+  inside a phone. The app screen is a container instead, and the chat and the inbox ask it how wide it is.
+  Measured rather than claimed: with the container query swapped for the media query it replaced, a phone
+  frame on a 1280px monitor lays out in two 195px columns, and
+  [scripts/device-check.mjs](../scripts/device-check.mjs) fails 6 of its 76 assertions. That run was made
+  on purpose before the green one was trusted.
+- **`transform`, not `zoom`.** A 1282px desktop frame does not fit the 888px canvas of a 1280px laptop, so
+  the device scales down. `zoom` moves layout, which would have fed the scaled width back into the
+  container query and quietly reflowed the desktop frame to a phone on any laptop. `transform` does not
+  touch layout, so the screen stays 1280px wide to the query above it while painting at 0.711. Text stays
+  sharp because a transform rasterises at device resolution rather than scaling a bitmap.
+- **One division CSS has no operator for.** The scale factor is
+  `min(1, tan(atan2(100cqw, var(--frame-w))))`. Dividing a length by a length is not allowed inside
+  `calc()`, and `tan(atan2(a, b))` returns `a / b` as a plain number, which is how the frame gets from
+  "the panel is 888px and I am 1282" to 0.692 with nothing measured and nothing scripted. `--fit` is
+  declared as `1` first, so an engine without CSS trigonometry crops the device inside a clipped slot
+  rather than pushing the page sideways.
+- **A frame needs a fixed screen, so the tablet is a 4:3 slate the wide way round.** The slot's height has
+  to be the frame's height times the scale, which means the frame needs a height, which is correct anyway:
+  a device has a screen of a fixed size and an app taller than it scrolls inside rather than stretching
+  the phone. The phone is 2:1 and the desktop screen is 16:9. A 3:4 tablet at 820px wide would have been
+  1093px of screen holding about 450px of app, photographed and rejected: a preview that is two thirds
+  empty is a worse answer than a frame in proportions the panel can hold.
+- **Nothing here is a copy of a product.** No notch, no island, no camera dot, no home button, no rounded
+  corner lifted from a photograph. The three window dots are neutral rather than red, amber and green,
+  because `fault`, `cost` and `live` mean errors, money and production in this product and nothing else
+  ([D64](#d64-2026-09-27-a-visual-refresh-that-borrows-principles-from-large-marketing-sites-and-no-identity)),
+  and because traffic lights are one operating system's furniture rather than a generic browser's. The
+  device body is `rule-strong`, which is the one token already proven to hold 3:1 against the canvas, so
+  the chassis is visible in both themes without a second palette.
+- **The corner radius is geometry, not hierarchy.** The radius scale runs 8, 12, 16 and pill, and none of
+  them reads as a phone. So the frames carry their own radii, and the glass radius is the body radius
+  minus the bezel, which is how a bezel actually curves. The exception is named in the design system
+  rather than left for someone to find: a device corner is a physical measurement, not an interface level.
+- **Measured, because a stylesheet cannot be read for any of this.**
+  [scripts/device-check.mjs](../scripts/device-check.mjs) drives a browser over CDP and asserts, for four
+  options at four widths in both themes, the painted box, the layout box, the column shape, the centring
+  and the page overflow. **76 of 76**, with **0 horizontal overflow in all 32 width and theme
+  combinations.** Section 44 of [rendered-check](../scripts/rendered-check.mjs) covers the half a browser
+  cannot: that the frame and its geometry are in the HTML the server sent, before a line of JavaScript
+  runs. One assertion written there could not fail, because it compared the copy and the geometry when
+  both are derived from the same table, and it was deleted rather than counted.
+- **Rejected:** `zoom`, for the reason above. An `iframe`, which would have made the preview a second
+  document with its own stylesheet and its own fonts, for a preview whose content is a fixture.
+  JavaScript measurement of the canvas, which is what every tool in the teardown does and what
+  [D19](#d19-2026-09-25-auth-controls-must-work-before-hydration) exists to avoid. Keeping the
+  address bar on the phone and tablet frames, which would have been a browser inside a device rather than
+  a device: the desktop option is the one that is a browser.

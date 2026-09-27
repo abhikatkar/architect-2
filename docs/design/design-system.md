@@ -84,7 +84,7 @@ Screen-specific rules:
 - **Home and landing:** single column on phone, prompt box first, recent projects become a vertical list.
 - **Modals** (GitHub consent, deploy, framework picker) become full-height bottom sheets on phone, with the confirm action pinned at the bottom.
 - **Agents canvas:** the network is drawn as a blueprint, hand-rendered rather than in a graph library, so there is no pan and no pinch to zoom. Tapping an agent opens its inspector, as a bottom sheet on phone. Under 640 px the canvas is **replaced** by a list of agents, not shrunk, because a graph that size is unusable. See [D31](../07-decision-log.md).
-- **App preview:** a device toggle (phone, tablet, desktop) on laptop and up. On phone, the preview simply fills the screen.
+- **App preview:** a device toggle at every width. Auto is the default and has no frame: phone width below 640 px, the width of the panel above it. Phone, Tablet and Desktop draw a frame and the app inside reflows to that device rather than to the window, so a phone preview stacks on a 1920 px monitor. See [Device frames](#device-frames) below and [D65](../07-decision-log.md#d65-2026-09-27-device-frames-that-the-app-actually-reflows-inside).
 - **Code tab:** diff and terminal on tablet and up. On phone it is deliberately read-only: browse files, read diffs, accept or revert changes. Editing code on a phone is a poor experience, so we do not pretend otherwise. Logged as a decision. **Corrected 2026-09-26:** this said "full editor" on tablet and up. The submission's Code tab is read-only at every width and says so where the Edit control sits, because the generated code is simulated and an editor would be a client component the architecture does not have. See D48.
 - **Tables** (data, usage, versions) scroll horizontally inside their own container on small screens; the page itself never scrolls sideways.
 
@@ -94,6 +94,25 @@ Touch and input:
 - Keyboard shortcuts are an addition for laptop and desktop, never the only path.
 
 Verification: each P0 screen is checked at 375, 768, 1280, and 1920 px wide before it counts as done, in both themes.
+
+## Device frames
+
+The App preview is the one surface that has to lay out at a width other than the one it is being looked at. Its three framed options are generic devices, drawn from six numbers each in [lib/devices.ts](../../lib/devices.ts) and nothing else. No notch, no island, no camera dot, no home button, and no traffic-light window dots: `fault`, `cost` and `live` mean errors, money and production, so window furniture gets `rule-strong` like the rest of the chassis.
+
+| Option | Screen | Bezel | Radius | Chrome | Outer box |
+|---|---|---|---|---|---|
+| Auto | the panel, capped at 390 px below 640 px | none | `panel` 12 | the existing address bar | the panel |
+| Phone | 390 x 780, 2:1 | 12 | 44 | a status strip: time, signal, battery | 414 x 804 |
+| Tablet | 820 x 616, 4:3 the wide way round | 24 | 40 | none | 868 x 664 |
+| Desktop | 1280 x 720, 16:9 | 1 hairline | `panel` 12 | three neutral dots and the address bar | 1282 x 762 |
+
+Three rules hold this together, and all three are measured by [scripts/device-check.mjs](../../scripts/device-check.mjs) in a browser rather than asserted here:
+
+1. **The app asks the frame, not the window.** The app screen is a container query container, so its layout is a question about the device. Thresholds sit in the gaps between the device widths, never near them: one column below 700, a 3 to 2 split from 700, two equal columns from 1100. 390 is below the first, 820 between, 1280 above the second, so no frame can land on a boundary and Auto moves through all three as the panel resizes.
+2. **A frame wider than the panel scales, it does not crop or overflow.** One `transform`, never `zoom`, because `zoom` moves layout and the container query would then see the scaled width. The scale factor is `min(1, tan(atan2(100cqw, var(--frame-w))))`, since dividing a length by a length is the one arithmetic `calc()` does not have.
+3. **A device screen is a fixed size.** An app taller than the screen scrolls inside the device rather than stretching it, which is why each frame carries a height as well as a width.
+
+Radius is the one place the frames leave the radius scale. A device corner is a physical measurement rather than an interface level, so the outer radius comes from the table above and the glass radius is the outer radius minus the bezel, which is how a bezel curves on the inside. Everything else, colour included, is a token.
 
 ## Depth on demand (implements the dual-mode rule)
 - Every guided element has one consistent **Details** control. It reveals the layer underneath in place, never in a new tab.
