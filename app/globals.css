@@ -205,6 +205,102 @@ h6,
   display: block;
 }
 
+/*
+  Device frames in the App preview, and the app reflowing inside them.
+
+  Three things have to be true at once and none of them may use JavaScript,
+  because the preview works before hydration like every other view here (D19).
+
+    1. The app inside the frame lays out at the device's width, not the
+       viewer's. That is what the container on .app-screen buys: the chat and
+       the inbox ask the screen how wide it is, and the screen is 390, 820 or
+       1280px whatever monitor it is being looked at on. A media query cannot
+       answer this question, because a media query only knows about the window.
+    2. A 1282px desktop frame does not fit the 888px canvas of a 1280px laptop,
+       so the whole device scales down proportionally. `transform` is the right
+       tool and `zoom` is the wrong one: transform does not touch layout, so the
+       screen stays 1280px wide to the container query above it while painting
+       at 0.69. With `zoom` the container query would see the scaled width and
+       the desktop frame on a laptop would quietly reflow to a phone.
+    3. The page never scrolls sideways. The slot is at most as wide as the
+       stage, the painted device is exactly the slot, and the unscaled 1282px
+       box is clipped rather than left to contribute scrollable overflow.
+
+  The scale factor needs the one piece of arithmetic CSS has no operator for:
+  dividing a length by a length. `tan(atan2(a, b))` returns a / b as a plain
+  number, which is how --fit gets from "the stage is 888px and the frame is
+  1282" to 0.692 with nothing measured and nothing scripted. The literal 1
+  before it is the fallback for an engine without CSS trigonometry: --fit stays
+  1, the slot stays inside the panel, and the device is cropped rather than
+  pushing the page sideways.
+
+  None of this can be read out of a stylesheet, so scripts/device-check.mjs
+  measures the painted box, the layout width and the column count in a browser.
+*/
+.device-stage {
+  container: preview-stage / inline-size;
+}
+
+.device-slot {
+  --fit: 1;
+  --fit: min(1, tan(atan2(100cqw, var(--frame-w))));
+  width: min(100%, calc(var(--frame-w) * var(--fit)));
+  height: calc(var(--frame-h) * var(--fit));
+  margin-inline: auto;
+  overflow: clip;
+}
+
+.device-body {
+  display: flex;
+  flex-direction: column;
+  width: var(--frame-w);
+  height: var(--frame-h);
+  transform: scale(var(--fit));
+  transform-origin: top left;
+}
+
+/*
+  The app's own layout, asked of the frame rather than of the window.
+
+  Three tiers, and the two thresholds sit in the gaps between the device widths
+  rather than near them: 390 is below 700, 820 is between, 1280 is above 1100.
+  A frame therefore cannot land on a boundary, and Auto moves through all three
+  as the panel resizes. The 640px viewport breakpoint this replaced was the
+  wrong question: at a 900px window the canvas is about 500px wide and the two
+  panes went side by side anyway, because `md:` was asking about the monitor.
+*/
+.app-screen {
+  container: app-screen / inline-size;
+}
+
+.app-grid {
+  display: grid;
+  min-height: 100%;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Stacked: the divider between the two panes runs across instead of down. */
+.app-pane-chat {
+  border-bottom-width: 1px;
+}
+
+@container app-screen (min-width: 700px) {
+  .app-grid {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+
+  .app-pane-chat {
+    border-bottom-width: 0;
+    border-right-width: 1px;
+  }
+}
+
+@container app-screen (min-width: 1100px) {
+  .app-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
 /* Focus is always visible, and always in blueprint. */
 :focus-visible {
   outline: 2px solid var(--blueprint);

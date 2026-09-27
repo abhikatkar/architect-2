@@ -4,7 +4,7 @@ import {
   type Layer,
   type Pane,
 } from "@/components/workspace/types";
-import { parseDevice } from "@/components/build/app-preview";
+import { parseDevice } from "@/lib/devices";
 import { parseBuild } from "@/lib/build-state";
 
 /** Parameters the workspace carries in the URL, so every view is linkable. */
