@@ -10,7 +10,7 @@ Short form: **See it. Steer it. Own it. Ship it safely.**
 | Principle | Promise | Evidence it is needed | What it looks like |
 |---|---|---|---|
 | **See it** | You always know what is happening and what it costs | 42 min vs "4 to 6 min" label; $3.33 build with no estimate ([01](01-competitive-teardown.md)) | Cost estimate before every build, live stage checklist with ETA, no charge for platform false alarms |
-| **Steer it** | You can open and control any layer, at your depth | GroundTruth diagnosis took about 8 technical steps; agent editing lives in a separate product ([03](03-architect-today.md)) | Agent workbench in place, "Why did it do that?" guided fix for misbehaving agents, code, diff, logs, terminal for developers |
+| **Steer it** | You can open and control any layer, at your depth | [GroundTruth (case study)](https://www.abhishekkatkar.com/work/groundtruth/) diagnosis took about 8 technical steps; agent editing lives in a separate product ([03](03-architect-today.md)) | Agent workbench in place, "Why did it do that?" guided fix for misbehaving agents, code, diff, logs, terminal for developers |
 | **Own it** | Your code and agents are yours | GitHub is one-way; import is Next.js only; agents tied to Lyzr ([03](03-architect-today.md)) | Two-way GitHub sync with explicit consent, import any repo with a compatibility check, choice of agent framework |
 | **Ship it safely** | Going live never surprises you | Marketplace on by default; admin via env var ([01](01-competitive-teardown.md)) | Safe defaults, roles UI, preview health check before "complete", preview and production environments with rollback |
 

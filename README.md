@@ -31,6 +31,10 @@ If you only have a few minutes, these five in order:
    If you read one document, read [D46](docs/07-decision-log.md): a bar I derived from a tidy argument was
    wrong, and six real calls proved it.
 
+**Background:** I built [GroundTruth](https://www.abhishekkatkar.com/work/groundtruth/), a 6-agent support app,
+on Architect in August 2026. The friction in that build is where the "Steer it" principle and the screen in
+step 2 come from, written up in [docs/03-architect-today.md](docs/03-architect-today.md).
+
 **What is real:** Google sign-in, per-user projects in Postgres with row level security, and three agents
 making live calls to a decision model. Everything else is simulated and labeled, screen by screen, in the
 table below.
@@ -40,11 +44,12 @@ because brand verification is optional for a concept like this one and was not r
 nothing beyond the default name, email and picture, and [what it stores is listed in full](app/privacy/page.tsx)
 at [/privacy](https://architect-2-zeta.vercel.app/privacy).
 
-**How honest it is, mechanically:** 58 invariants over the fixtures and 97 assertions against served HTML
+**How honest it is, mechanically:** 91 invariants over the fixtures and 188 assertions against served HTML
 gate every commit. They exist because four review rounds caught contradictions that reading the code had
-missed. The newest of them reads every number on a page and fails unless all of its surfaces agree with each
-other, which is the one check that was missing when the fourth round found a screen contradicting its own
-footer.
+missed. One of them reads every number on a page and fails unless all of its surfaces agree with each
+other, which is the check that was missing when the fourth round found a screen contradicting its own
+footer. These two counts had been left at 58 and 97 since the round 4 pass, which is the same kind of drift
+they exist to catch.
 
 ## How to read this repo
 

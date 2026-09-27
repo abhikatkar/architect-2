@@ -1,6 +1,6 @@
 # Research: first-hand friction from building GroundTruth on Architect
 
-Source: my own GroundTruth build (August 2026), documented in a 5-part teardown (Build and Findings, Analysis and Recommendations, Business Case, Test It Yourself, PRD). GroundTruth is a 6-agent support-resolution app built entirely in Architect and Lyzr Studio. Case study: abhishekkatkar.com/work/groundtruth. Summarized here in my own words for docs/03.
+Source: my own [GroundTruth (case study)](https://www.abhishekkatkar.com/work/groundtruth/) build (August 2026), documented in a 5-part teardown (Build and Findings, Analysis and Recommendations, Business Case, Test It Yourself, PRD). GroundTruth is a 6-agent support-resolution app built entirely in Architect and Lyzr Studio. Summarized here in my own words for docs/03.
 
 ## What worked
 - Guided (Plan) mode decomposed the problem well. Architect proposed a hybrid pattern on its own: a Manager with sub-agents for resolution, plus an Independent agent for finalization after human approval.

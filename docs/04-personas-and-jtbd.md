@@ -1,6 +1,6 @@
 # 04. Personas and jobs to be done
 
-These are evidence-built archetypes, not interviewed users. Every trait below traces to one of: the hands-on teardown ([01](01-competitive-teardown.md)), the voice-of-customer synthesis ([02](02-voice-of-customer.md)), the Architect docs study ([03](03-architect-today.md)), or my own GroundTruth build on Architect (a 6-agent support app, documented in a 5-part teardown).
+These are evidence-built archetypes, not interviewed users. Every trait below traces to one of: the hands-on teardown ([01](01-competitive-teardown.md)), the voice-of-customer synthesis ([02](02-voice-of-customer.md)), the Architect docs study ([03](03-architect-today.md)), or my own [GroundTruth (case study)](https://www.abhishekkatkar.com/work/groundtruth/) build on Architect (a 6-agent support app, documented in a 5-part teardown).
 
 ## Persona A: the business builder (today's Architect user)
 

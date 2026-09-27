@@ -16,14 +16,14 @@ rebasing changes that hash and silently makes the row a lie.
 
 | Metric | Value | Source |
 |---|---|---|
-| Commits | 59 | `git rev-list --count HEAD` |
+| Commits | 62 | `git rev-list --count HEAD` |
 | First commit | 2026-09-24 12:19:20 | `git log --reverse` |
-| Latest commit | 2026-09-27 11:42 | `git log -1` |
-| Wall clock, first to last commit of each day | 11 h 33 min on the 24th, 19 h 40 min on the 25th, 21 h 11 min on the 26th, 11 h 21 min so far on the 27th | `git log --format='%ad'` grouped by day, first to last. Wall clock, not effort |
+| Latest commit | 2026-09-27 12:31 | `git log -1` |
+| Wall clock, first to last commit of each day | 11 h 33 min on the 24th, 19 h 40 min on the 25th, 21 h 11 min on the 26th, 12 h 10 min so far on the 27th | `git log --format='%ad'` grouped by day, first to last. Wall clock, not effort |
 | Calendar days elapsed | 4 | Same |
-| Decision log entries | 65 | `grep -c '^### D' docs/07-decision-log.md` |
-| Tracked files | 226 | `git ls-files \| wc -l` |
-| Tracked files under docs/ | 95 | `git ls-files 'docs/*' \| wc -l` |
+| Decision log entries | 66 | `grep -c '^### D' docs/07-decision-log.md` |
+| Tracked files | 236 | `git ls-files \| wc -l` |
+| Tracked files under docs/ | 105 | `git ls-files 'docs/*' \| wc -l` |
 | Docs still stubs | 0 | `git ls-files 'docs/*.md' 'docs/*/*.md' \| xargs grep -l '^_Pending'` |
 
 ## Product
@@ -76,14 +76,14 @@ Measured in one session on 2026-09-24, free tiers, one identical prompt. Source 
 | Smallest node text at a 1440px desktop | **7.43px** architecture, 7.25px workflow, 7.03px sequence | `archify visual-check`, `minimumProjectedNodeTextPx` |
 | Theme switch | **12 ms** to flip, no navigation, cookie written in the background | Chrome over CDP, measured on the rendered page |
 | Consistency invariants | **91** | `scripts/consistency-check.mjs` |
-| Rendered-page assertions | **186** | `scripts/rendered-check.mjs` |
-| Interactive elements checked for the right cursor | **140**, over 7 pages, 0 wrong | `scripts/cursor-check.mjs` |
+| Rendered-page assertions | **188** | `scripts/rendered-check.mjs` |
+| Interactive elements checked for the right cursor | **141**, over 7 pages, 0 wrong | `scripts/cursor-check.mjs` |
 | Surfaces required to agree on one page | **17 to 18 readings** per URL state, over 5 states and 3 tabs, plus the version rows added up from the HTML | `scripts/rendered-check.mjs`, section 28 |
 | Theme switch, earliest possible click | **10 ms** on production and 16 ms locally, 5 of 5 each, against **1470 to 1522 ms** for the same click before this fix | `scripts/theme-check.mjs`, throttled to 400 ms latency |
 | Sheet focus and keyboard checks | **8 of 8**, four sheets at 1280px and 390px, measured in a browser | `scripts/focus-check.mjs` |
 | App preview device frame checks | **76 of 76**, four options at 375, 768, 1280 and 1920px in both themes. **0 horizontal overflow in all 32** width and theme combinations, and the app lays out at 390, 820 or 1280px inside its frame whatever the window is | `scripts/device-check.mjs` |
-| Links checked in docs and README | **249**, all resolving, anchors included | `scripts/link-check.mjs` |
-| Colour pairs measured for WCAG AA | **2660**, over 18 surfaces in both themes, 0 below their threshold. Tightest **3.27:1** against a 3:1 control boundary requirement | `scripts/contrast-check.mjs` |
+| Links checked in docs and README | **263**, all resolving, anchors included, 1 of them an external URL fetched for a 200 | `scripts/link-check.mjs` |
+| Colour pairs measured for WCAG AA | **2662**, over 18 surfaces in both themes, 0 below their threshold. Tightest **3.27:1** against a 3:1 control boundary requirement | `scripts/contrast-check.mjs` |
 | Screens built | **15 of 15 P0, plus 1 P1** (screen 11, the framework picker) | [screen-inventory.md](../design/screen-inventory.md) |
 | Unused copy strings | **0.** Five were removed as duplicates and an invariant now fails the build if a key is unread | `scripts/consistency-check.mjs` |
 | Files browsable in the Code tab | **42**, the same number the GitHub consent line counts | `lib/seed/code.ts`, asserted equal |

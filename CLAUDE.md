@@ -33,7 +33,9 @@ Dummy flows are acceptable for everything else, but they must look and feel real
   The rendered check exists because two review rounds reported the same bug as "still broken" after it was
   marked fixed: reading the source passed, the served page did not. Assert against the page, not the code.
   Run scripts/link-check.mjs too whenever a heading or a link changes: it validates every relative path and
-  every anchor in docs/ and the README against the headings that actually exist.
+  every anchor in docs/ and the README against the headings that actually exist. It also fetches a small
+  allowlist of external URLs for a 200 and fails any file that names the evidence one of them points at
+  without linking it, so it needs the network and a new entry goes in EXTERNAL rather than in prose.
   Run scripts/focus-check.mjs whenever a sheet or its trigger changes: focus and key handling are not in the
   HTML, so only a browser can answer where focus went, and a decision log entry claimed the wrong answer for
   a full slice.

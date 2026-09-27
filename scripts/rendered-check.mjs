@@ -1467,6 +1467,78 @@ async function raw(path) {
   );
 }
 
+/*
+  45. Every mention of GroundTruth in the product is a way to see it.
+
+  The first-hand build the "Steer it" principle rests on is a page on somebody
+  else's site, so a reviewer who only ever opens this product has no way to
+  check that it happened. The rule is not "there is a link somewhere on the
+  landing page", because the next screen to name it would have been the one
+  that did not: anchors are lifted out of the HTML and the name must not
+  survive in what is left.
+
+  The attributes are asserted too, since a new tab and a visible focus ring are
+  the difference between a citation and losing somebody's place in the demo.
+*/
+{
+  const CASE_STUDY = "https://www.abhishekkatkar.com/work/groundtruth/";
+  const ANCHOR = /<a\b[^>]*>[\s\S]*?<\/a>/g;
+  // Every surface that carries prose, not only the one known to name it.
+  const PAGES = [
+    "/",
+    "/login",
+    "/privacy",
+    "/terms",
+    "/architecture",
+    "/architecture/architecture",
+    "/demo",
+    "/demo/plan",
+    "/demo/import",
+    "/demo?tab=plan&pane=canvas",
+    "/demo?tab=agents&pane=canvas",
+    "/demo?tab=agents&pane=canvas&why=r-104",
+    "/demo?tab=app&pane=canvas",
+    "/demo?tab=code&pane=canvas",
+    "/demo?tab=deploy&pane=canvas",
+    "/demo?tab=deploy&pane=canvas&sheet=github",
+  ];
+
+  const wrong = [];
+  let linked = 0;
+  for (const path of PAGES) {
+    const { html } = await get(path);
+
+    for (const a of html.match(ANCHOR) ?? []) {
+      if (!/GroundTruth/.test(a)) continue;
+      const flat = a.replace(/\s+/g, " ");
+      const ok =
+        flat.includes(`href="${CASE_STUDY}"`) &&
+        flat.includes('target="_blank"') &&
+        flat.includes('rel="noopener noreferrer"') &&
+        /aria-label="GroundTruth case study \(opens in a new tab\)"/.test(flat);
+      if (ok) linked++;
+      else wrong.push(`${path}: an anchor names it without being that link`);
+    }
+
+    // The flight payload and the inline scripts are stripped by visibleText, so
+    // what is measured here is what a reader sees.
+    if (visibleText(html.replace(ANCHOR, " ")).includes("GroundTruth")) {
+      wrong.push(`${path}: names it outside any link`);
+    }
+  }
+
+  check(
+    "no page names GroundTruth without linking the case study",
+    wrong.length === 0,
+    wrong.length ? wrong.join("; ") : `${PAGES.length} pages read`,
+  );
+  check(
+    "and the link is actually there, with a new tab and a label",
+    linked > 0,
+    `${linked} linked mention${linked === 1 ? "" : "s"}, rel and aria-label asserted`,
+  );
+}
+
 const failed = results.filter((r) => !r.ok).length;
 for (const r of results) {
   console.log(`  ${r.ok ? "ok  " : "FAIL"} ${r.name.padEnd(52)} ${r.detail}`);

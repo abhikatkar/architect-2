@@ -44,7 +44,8 @@ type Props = {
  * Screen 10. The guided reliability loop.
  *
  * This productizes the eight technical inferences it took to diagnose one
- * over-escalating agent by hand while building GroundTruth. Nothing here names
+ * over-escalating agent by hand while building GroundTruth, the case study for
+ * which is https://www.abhishekkatkar.com/work/groundtruth/. Nothing here names
  * a parameter until Details is opened, and nothing is ever applied silently
  * (D33).
  */

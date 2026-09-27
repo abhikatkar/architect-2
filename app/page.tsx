@@ -14,6 +14,14 @@ export const metadata: Metadata = {
 
 const REPO = "https://github.com/abhikatkar/architect-2";
 
+/*
+  The first-hand build this whole thesis rests on is somebody else's page, so
+  naming it here without linking it would leave a reviewer no way to check it
+  happened. Section 45 of scripts/rendered-check.mjs fails the build if the
+  name ever appears on a page as plain text.
+*/
+const CASE_STUDY = "https://www.abhishekkatkar.com/work/groundtruth/";
+
 /**
  * Each principle carries one measured finding rather than an adjective. Every
  * figure here is traceable to docs/01-competitive-teardown.md, which is what
@@ -206,8 +214,18 @@ export default async function LandingPage() {
           <p className="mt-3 max-w-[64ch] text-lead text-graphite">
             Five tools tested hands-on and two blocked at signup, a first-hand
             build on today&rsquo;s Architect, and every decision written down with
-            the evidence behind it. The research and the decision log are in the
-            repo.
+            the evidence behind it. That first-hand build was{" "}
+            <a
+              href={CASE_STUDY}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GroundTruth case study (opens in a new tab)"
+              className="text-blueprint underline"
+            >
+              GroundTruth
+            </a>
+            , a 6-agent support app shipped on Architect in August 2026. The
+            research and the decision log are in the repo.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a

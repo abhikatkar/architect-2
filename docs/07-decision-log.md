@@ -136,7 +136,8 @@ Format: date, decision, evidence, alternatives rejected.
 - **Decision:** When an agent answers badly, the builder clicks "Why did it do that?" and gets the run trace in
   plain language (retrieved sources, each agent's step, where confidence dropped) plus a suggested fix they can
   preview before applying. Developers see the same trace with raw parameters and diffs.
-- **Evidence:** GroundTruth Part 5. Diagnosing one misbehaving agent took about 8 technical steps: reading the
+- **Evidence:** [GroundTruth (case study)](https://www.abhishekkatkar.com/work/groundtruth/) Part 5.
+  Diagnosing one misbehaving agent took about 8 technical steps: reading the
   verification reasoning, isolating retrieval, finding the model parameter panel, and lowering temperature from
   0.4 to 0.2. A non-technical builder cannot do any of that, and it is the exact moment Persona A abandons the
   product ([04](04-personas-and-jtbd.md)). It also matches Lyzr's own stated direction toward an agent workbench
@@ -1145,3 +1146,29 @@ Format: date, decision, evidence, alternatives rejected.
   [D19](#d19-2026-09-25-auth-controls-must-work-before-hydration) exists to avoid. Keeping the
   address bar on the phone and tablet frames, which would have been a browser inside a device rather than
   a device: the desktop option is the one that is a browser.
+
+### D66. 2026-09-27: Every mention of GroundTruth links its case study, and two checks keep it that way
+- **Decision:** the first mention of GroundTruth in each markdown file links to
+  `https://www.abhishekkatkar.com/work/groundtruth/`, and later mentions in the same file do not. The landing
+  page names that build in "How this was built" and links it in a new tab, with
+  `rel="noopener noreferrer"` and the label "GroundTruth case study (opens in a new tab)". Two scripts hold
+  the rule rather than a habit: [link-check](../scripts/link-check.mjs) fetches the URL for a 200 and fails
+  any file in docs or the README that names GroundTruth without carrying the link, and section 45 of
+  [rendered-check](../scripts/rendered-check.mjs) lifts every anchor out of 16 served pages and fails if the
+  name survives in the text that is left.
+- **Evidence:** the name was in 6 documents and in no page copy at all, and the URL existed once, as plain
+  unlinked text in [research/groundtruth-friction.md](research/groundtruth-friction.md). The "Steer it"
+  principle, the landing page's 8 steps figure and
+  [D15](#d15-2026-09-25-the-signature-feature-is-the-why-did-it-do-that-guided-reliability-loop) all rest on
+  that build, so a reviewer had four claims about it and nowhere to check any of them. Both checks were run
+  against a deliberately broken build before either was trusted: one anchor with `target` removed plus a
+  second mention in plain text failed 2 of 188 rendered assertions, and one document with its link taken out
+  failed the link check, 6 of 7 files.
+- **Rejected:** linking every mention, which reads as an advert rather than a citation, and which the
+  per-file rule replaces. Also rejected: linking the name inside a heading, because this log's anchors are
+  heading slugs and the slug function strips brackets while keeping the URL's words, so
+  "## First-hand friction: building GroundTruth" would have turned into an anchor nothing could point at,
+  which is the same failure the date correction caused on 13 entries. Also rejected: inventing a GroundTruth
+  mention in the inspector or the run trace so that a screen would have a link, which is product copy added
+  to justify a check rather than to tell a builder anything. The run trace's provenance stays where it was,
+  in the component's docblock, now with the URL in it.

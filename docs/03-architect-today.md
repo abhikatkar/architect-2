@@ -89,9 +89,9 @@ product and without making the non-technical user look at any of it.
 
 ## First-hand friction: building GroundTruth
 
-GroundTruth is a 6-agent support-resolution app I built entirely in Architect and Lyzr Studio in August 2026,
-documented in a 5-part teardown. Full notes in
-[research/groundtruth-friction.md](research/groundtruth-friction.md).
+[GroundTruth (case study)](https://www.abhishekkatkar.com/work/groundtruth/) is a 6-agent support-resolution
+app I built entirely in Architect and Lyzr Studio in August 2026, documented in a 5-part teardown. Full notes
+in [research/groundtruth-friction.md](research/groundtruth-friction.md).
 
 **What held up.** Guided Plan mode decomposed the problem well and proposed a hybrid pattern on its own: a
 Manager with sub-agents for resolution, plus an Independent agent for finalization after human approval.
